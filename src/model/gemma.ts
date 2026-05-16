@@ -14,15 +14,28 @@ export type LoadOptions = {
 
 export const DEFAULT_MODEL_ID = 'onnx-community/gemma-4-E2B-it-ONNX';
 
-// The transformers.js pipeline return type is a huge union TS can't represent —
-// keep it loose internally and expose a tightly-typed `generate()` wrapper.
-type Generator = (
-  messages: unknown,
-  opts?: Record<string, unknown>,
-) => Promise<unknown>;
+// Loose internal types — transformers.js public types are accurate but verbose,
+// and the model.generate / processor signatures are stable across v3→v4.
+type Model = {
+  generate: (args: Record<string, unknown>) => Promise<{
+    slice: (...args: unknown[]) => unknown;
+  }>;
+};
+type Processor = {
+  apply_chat_template: (
+    messages: unknown,
+    opts?: Record<string, unknown>,
+  ) => string;
+  batch_decode: (tokens: unknown, opts?: Record<string, unknown>) => string[];
+  tokenizer?: unknown;
+  (text: string, image?: unknown, audio?: unknown, opts?: Record<string, unknown>):
+    | Promise<{ input_ids: { dims: number[] } } & Record<string, unknown>>
+    | { input_ids: { dims: number[] } } & Record<string, unknown>;
+};
 
-let generator: Generator | null = null;
-let loadPromise: Promise<Generator> | null = null;
+let model: Model | null = null;
+let processor: Processor | null = null;
+let loadPromise: Promise<void> | null = null;
 let loadedModelId: string | null = null;
 let detectedDevice: 'webgpu' | 'wasm' | null = null;
 
@@ -41,29 +54,31 @@ export function getDetectedDevice(): 'webgpu' | 'wasm' | null {
   return detectedDevice;
 }
 
-export async function loadModel(options: LoadOptions = {}): Promise<Generator> {
+export async function loadModel(options: LoadOptions = {}): Promise<void> {
   const modelId = options.modelId ?? DEFAULT_MODEL_ID;
-  if (generator && loadedModelId === modelId) return generator;
+  if (model && processor && loadedModelId === modelId) return;
   if (loadPromise) return loadPromise;
 
   loadPromise = (async () => {
-    const tfs = (await import('@huggingface/transformers')) as {
-      pipeline: (task: string, model: string, opts: Record<string, unknown>) => Promise<unknown>;
+    const tfs = (await import('@huggingface/transformers')) as unknown as {
+      AutoProcessor: { from_pretrained: (id: string) => Promise<Processor> };
+      Gemma4ForConditionalGeneration: {
+        from_pretrained: (id: string, opts: Record<string, unknown>) => Promise<Model>;
+      };
     };
     const device: 'webgpu' | 'wasm' = (await hasWebGPU()) ? 'webgpu' : 'wasm';
     detectedDevice = device;
     options.onProgress?.({ status: 'device-selected', name: device });
     const t0 = performance.now();
-    const gen = (await tfs.pipeline('text-generation', modelId, {
-      dtype: 'q4',
+    processor = await tfs.AutoProcessor.from_pretrained(modelId);
+    model = await tfs.Gemma4ForConditionalGeneration.from_pretrained(modelId, {
+      dtype: 'q4f16',
       device,
       progress_callback: (p: LoadProgress) => options.onProgress?.(p),
-    })) as Generator;
+    });
     const ms = Math.round(performance.now() - t0);
     options.onProgress?.({ status: 'ready', name: `cold-load ${ms}ms` });
-    generator = gen;
     loadedModelId = modelId;
-    return gen;
   })();
 
   return loadPromise;
@@ -75,25 +90,44 @@ export type GenerateOptions = {
   maxNewTokens?: number;
   temperature?: number;
   topP?: number;
+  topK?: number;
 };
 
 export async function generate(
   messages: GenerateMessage[],
   options: GenerateOptions = {},
 ): Promise<string> {
-  if (!generator) throw new Error('Model not loaded. Call loadModel() first.');
-  const out = await generator(messages, {
+  if (!model || !processor) throw new Error('Model not loaded. Call loadModel() first.');
+
+  // Gemma 4's chat template wants per-turn content as an array of typed parts.
+  const wrapped = messages.map((m) => ({
+    role: m.role,
+    content: [{ type: 'text', text: m.content }],
+  }));
+
+  const prompt = processor.apply_chat_template(wrapped, {
+    add_generation_prompt: true,
+    enable_thinking: false,
+  });
+
+  const inputs = (await processor(prompt, undefined, undefined, {
+    add_special_tokens: false,
+  })) as { input_ids: { dims: number[] } } & Record<string, unknown>;
+
+  const outputs = await model.generate({
+    ...(inputs as unknown as Record<string, unknown>),
     max_new_tokens: options.maxNewTokens ?? 256,
-    temperature: options.temperature ?? 0.8,
-    top_p: options.topP ?? 0.95,
     do_sample: true,
-  } as unknown as Record<string, unknown>);
-  const arr = out as Array<{ generated_text: unknown }>;
-  const last = arr[0]?.generated_text;
-  if (Array.isArray(last)) {
-    const finalTurn = last.at(-1) as { content?: string } | undefined;
-    return finalTurn?.content ?? '';
-  }
-  if (typeof last === 'string') return last;
-  return '';
+    temperature: options.temperature ?? 1.0,
+    top_p: options.topP ?? 0.95,
+    top_k: options.topK ?? 64,
+  });
+
+  // Slice off the prompt tokens, decode only what was generated.
+  const promptLen = inputs.input_ids.dims.at(-1) ?? 0;
+  const trimmed = (outputs as unknown as {
+    slice: (a: unknown, b: unknown) => unknown;
+  }).slice(null, [promptLen, null]);
+  const decoded = processor.batch_decode(trimmed, { skip_special_tokens: true });
+  return decoded[0] ?? '';
 }

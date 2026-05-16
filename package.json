@@ -10,7 +10,7 @@
     "typecheck": "tsc -b --noEmit"
   },
   "dependencies": {
-    "@huggingface/transformers": "^3.7.6",
+    "@huggingface/transformers": "^4.2.0",
     "@strudel/core": "^1.2.6",
     "@strudel/transpiler": "^1.2.6",
     "@strudel/web": "^1.2.6",
