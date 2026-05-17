@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { play, stop, clearLastError } from '../strudel/engine';
 import { remixSeed } from '../remix/orchestrate';
 import { addTournamentWin } from '../memory/taste';
@@ -17,15 +17,13 @@ import { Confetti } from './Confetti';
 
 type Phase = 'setup' | 'casting' | 'showing' | 'champion';
 
-export function TalentShow({
-  modelReady,
-  seedCode,
-  onChampionSaved,
-}: {
+type TalentShowProps = {
   modelReady: boolean;
   seedCode: string;
   onChampionSaved?: () => void;
-}) {
+};
+
+function TalentShowInner({ modelReady, seedCode, onChampionSaved }: TalentShowProps) {
   const [bracketSize, setBracketSize] = useState<4 | 8>(4);
   const [phase, setPhase] = useState<Phase>('setup');
   const [contestants, setContestants] = useState<Contestant[]>([]);
@@ -322,3 +320,9 @@ export function TalentShow({
     </>
   );
 }
+
+// Memoised so the rapid `setProgressPct` / `setProgressMsg` updates during
+// model download don't re-render the whole talent-show tree — the component
+// only depends on `modelReady` (one transition) and `seedCode` (rare while
+// downloading). Without this the main thread saturates on big downloads.
+export const TalentShow = memo(TalentShowInner);

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { memo, useCallback, useEffect, useState } from 'react';
 import { getAllLikes, clearLikes, type Like } from '../memory/taste';
 import { renderAvatar } from '../talent/avatar';
 
@@ -7,7 +7,11 @@ type Props = {
   onCleared?: () => void;
 };
 
-export function TasteSidebar({ version, onCleared }: Props) {
+// Memoised: TasteSidebar only depends on `version` (bumped on like/clear/
+// champion-saved) and `onCleared` (stable identity in App). The frequent
+// model-download progress updates in the parent shouldn't trigger a
+// `getAllLikes()` round-trip here.
+function TasteSidebarInner({ version, onCleared }: Props) {
   const [likes, setLikes] = useState<Like[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -92,3 +96,5 @@ export function TasteSidebar({ version, onCleared }: Props) {
     </div>
   );
 }
+
+export const TasteSidebar = memo(TasteSidebarInner);

@@ -40,8 +40,18 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
     window.history.replaceState({}, '', url.toString());
   }, [mode]);
 
+  // transformers.js fires `progress_callback` once per streamed chunk — for a
+  // 1.5 GB download that's hundreds of calls per second, each of which would
+  // setState → re-render the entire app and saturate the main thread (the
+  // page would freeze mid-download). Throttle 'progress' events to ~10/sec;
+  // status transitions like 'ready' / 'done' always pass through.
+  const lastProgressTs = useRef(0);
   const onLoadProgress = useCallback((p: LoadProgress) => {
     if (p.status === 'progress' && typeof p.progress === 'number') {
+      const now = performance.now();
+      // Always show the final 100% tick, otherwise throttle.
+      if (p.progress < 99 && now - lastProgressTs.current < 100) return;
+      lastProgressTs.current = now;
       setProgressPct(p.progress);
       setProgressMsg(`${p.status} ${p.file ?? ''} ${p.progress.toFixed(1)}%`);
     } else {
