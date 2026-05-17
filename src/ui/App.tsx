@@ -1,5 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { loadModel, getDetectedDevice, type LoadProgress } from '../model/gemma';
+import {
+  loadModel,
+  getDetectedDevice,
+  DEFAULT_MODEL_ID,
+  type LoadProgress,
+} from '../model/gemma';
+import {
+  loadSavedProgress,
+  saveProgress,
+  clearSavedProgress,
+  type SavedProgress,
+} from '../model/progress-storage';
 import { play, stop, getLastError, clearLastError } from '../strudel/engine';
 import { remixSeed } from '../remix/orchestrate';
 import type { GenerationResult } from '../remix/generate';
@@ -19,6 +30,13 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
   const [progressMsg, setProgressMsg] = useState('');
   const [progressPct, setProgressPct] = useState(0);
   const [modelError, setModelError] = useState<string | null>(null);
+  // Persisted hint of how far the last load attempt got — used to surface
+  // "Resume — last reached N%" on the Load button. The actual model shards
+  // are cached per-file by transformers.js (Cache Storage API), so resuming
+  // skips every completed shard automatically.
+  const [savedProgress, setSavedProgress] = useState<SavedProgress | null>(
+    () => loadSavedProgress(),
+  );
 
   const [seedCode, setSeedCode] = useState(SEED_GALLERY[0].code);
   const [activeSeedId, setActiveSeedId] = useState<string>(SEED_GALLERY[0].id);
@@ -46,6 +64,7 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
   // page would freeze mid-download). Throttle 'progress' events to ~10/sec;
   // status transitions like 'ready' / 'done' always pass through.
   const lastProgressTs = useRef(0);
+  const savedAtPct = useRef(0);
   const onLoadProgress = useCallback((p: LoadProgress) => {
     if (p.status === 'progress' && typeof p.progress === 'number') {
       const now = performance.now();
@@ -54,6 +73,12 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
       lastProgressTs.current = now;
       setProgressPct(p.progress);
       setProgressMsg(`${p.status} ${p.file ?? ''} ${p.progress.toFixed(1)}%`);
+      // Persist the high-water mark every 5% so a mid-download refresh
+      // restores the "last reached" hint. Skip the noisy per-tick writes.
+      if (p.progress - savedAtPct.current >= 5 && p.progress < 99) {
+        savedAtPct.current = p.progress;
+        saveProgress(p.progress, DEFAULT_MODEL_ID);
+      }
     } else {
       setProgressMsg(`${p.status} ${p.name ?? p.file ?? ''}`.trim());
     }
@@ -67,6 +92,10 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
       await loadModel({ onProgress: onLoadProgress });
       setProgressPct(100);
       setModelState('ready');
+      // Full success → drop the resume hint and reset the high-water mark.
+      clearSavedProgress();
+      setSavedProgress(null);
+      savedAtPct.current = 0;
     } catch (err) {
       setModelError(err instanceof Error ? err.message : String(err));
       setModelState('error');
@@ -296,13 +325,20 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
               ? `Loaded (${device ?? 'cpu'})`
               : modelState === 'loading'
                 ? 'Loading…'
-                : 'Load Gemma 4 E2B'}
+                : savedProgress
+                  ? `▶ Resume Gemma 4 E2B (${savedProgress.pct.toFixed(0)}%)`
+                  : 'Load Gemma 4 E2B'}
           </button>
           <div className="progressbar">
             <div style={{ width: `${progressPct}%` }} />
           </div>
           <span style={{ fontSize: '0.85rem', color: '#9aa0a8' }}>
-            {progressMsg || (modelState === 'idle' ? 'click to download (~1.5 GB, cached after)' : '')}
+            {progressMsg ||
+              (modelState === 'idle'
+                ? savedProgress
+                  ? `previous attempt reached ${savedProgress.pct.toFixed(0)}% — completed shards are cached, resume skips them`
+                  : 'click to download (~1.5 GB, cached after)'
+                : '')}
           </span>
         </div>
         {modelError && <div className="errors">load error: {modelError}</div>}
