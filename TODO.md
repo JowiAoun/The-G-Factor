@@ -250,6 +250,51 @@
 
 ---
 
+## Phase 6 — Talent Show (X Factor)
+
+> Added after Phases 1-3 shipped. Pairwise A/B bracket lets the user crown a
+> champion among Gemma-generated variations, raising the taste signal from
+> passive likes to head-to-head-verified preferences. Plan file at
+> `~/.claude/plans/work-on-the-next-noble-grove.md`.
+
+### Bracket + avatar (pure logic)
+- [x] `src/talent/bracket.ts` — single-elimination state machine, DNF auto-byes
+- [x] `src/talent/avatar.ts` — FNV-1a `hashSeed`, `renderAvatar(seed, mouth)` memoised
+- [x] Unit tests: 10 bracket cases + 8 avatar cases
+
+### Storage
+- [x] `Like` schema extended with optional `avatar_seed` + `tournament` fields
+- [x] DB version bump 1 → 2 with no-op `onupgradeneeded`
+- [x] `addTournamentWin` helper
+
+### UI
+- [x] `src/ui/Contestant.tsx` — card with idle/playing/winner/loser/champion view states
+- [x] `src/ui/Match.tsx` — pair of contestants with VS flash
+- [x] `src/ui/BracketView.tsx` — slim progress strip
+- [x] `src/ui/Confetti.tsx` — DOM-CSS confetti for champion
+- [x] `src/ui/TalentShow.tsx` — top-level orchestrator (setup → casting → showing → champion)
+- [x] `src/ui/App.tsx` — tab row in header; `?talentshow` URL sync
+- [x] `src/ui/TasteSidebar.tsx` — avatar thumb + `🏆 ×N` badge for tournament likes
+
+### Animation catalog
+- [x] Bob, jump, fade-loss, sparkle, slide-in (left/right/up), VS flash, crown-bounce, champion-sway, spotlight-pulse, confetti-fall
+
+### Verification (user)
+- [ ] Load `/?talentshow`, pick a seed, hold a 4-contestant show, listen + choose
+- [ ] Confirm winner ends up in TasteSidebar with avatar thumbnail and 🏆 badge
+- [ ] Confirm avatar faces are stable across reload (same seed → same face)
+- [ ] DevTools → Application → IndexedDB → strudel-tutor (version 2)
+- [ ] Existing pre-tournament likes still readable
+- [ ] No-jank animations on a mid-range laptop
+
+### Deferred to follow-up
+- [-] Audio-reactive mouth via AnalyserNode (currently time-based cycle)
+- [-] 16-contestant brackets / Swiss / round-robin
+- [-] Cross-tournament leaderboard
+- [-] Avatar customisation UI
+
+---
+
 ## Pivot Trigger (Phase 0 → Sigil)
 
 If Phase 0's hard gate fails (≤5/15 interesting on both 2B and 4B):

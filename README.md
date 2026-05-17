@@ -19,8 +19,21 @@ pnpm dev
 Open `http://localhost:5173` in a Chromium-based browser with WebGPU enabled.
 First load downloads ~1.5 GB of Gemma 4 E2B (q4 ONNX); cached after.
 
-- Main app: `http://localhost:5173/`
+- Remix Studio (default): `http://localhost:5173/`
+- 🎪 Talent Show: `http://localhost:5173/?talentshow` (or the tab in the header)
 - Day-1 feasibility spike harness: `http://localhost:5173/?spike`
+
+## 🎪 Talent Show — pairwise taste capture
+
+Generate 4 (or 8) Strudel variations of the current seed, give each one a
+cartoon `toon-head` avatar with a hash-derived face, then run them through a
+single-elimination bracket where you pick the winner of every match. The
+champion is auto-saved to taste memory with `avatar_seed` + `tournament`
+metadata, so the sidebar grows little portraits of the variations you've
+crowned and the few-shot retrieval gets head-to-head-verified preferences,
+not just passive likes. Mouth, eyes, and pose all come from DiceBear; the
+talking mouth swaps between `smile` and `agape` on a 150 ms cycle, winners
+laugh and jump with sparkles, losers fade with a sad mouth.
 
 ## Keyboard
 
@@ -38,12 +51,14 @@ First load downloads ~1.5 GB of Gemma 4 E2B (q4 ONNX); cached after.
 1. **Static priors** (`src/model/prompts.ts`) — a ~600-token system prompt
    teaching Gemma the 13 Strudel mini-notation operators, 12 chain methods, and
    8 canonical idioms.
-2. **Taste memory** (`src/memory/taste.ts`) — every ❤ goes into IndexedDB;
-   future remixes inject the top-3 most-similar liked variations as few-shot
-   exemplars (character-bigram Jaccard similarity).
+2. **Taste memory** (`src/memory/taste.ts`) — every ❤ and every 🏆 champion
+   goes into IndexedDB; future remixes inject the top-3 most-similar liked
+   variations as few-shot exemplars (character-bigram Jaccard similarity). The
+   talent-show champions carry `avatar_seed` + `tournament` metadata so the
+   sidebar can render their face.
 3. **Parser firewall** (`src/strudel/parse.ts`) — every JSON output is parsed
-   by `@strudel/transpiler` before display; invalid code triggers up to three
-   retries with a hint, then drops the slot.
+   by `acorn` before display; invalid code triggers up to three retries with a
+   hint, then drops the slot.
 
 ## Tech
 

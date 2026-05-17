@@ -33,6 +33,15 @@ Jaccard similarity, and the top-3 are injected into the prompt as a labelled
 *"this user has previously liked"* block. Warm state shines; cold-start still
 works on priors alone.
 
+**The Talent Show is the taste-memory write surface.** Pick a seed, hold a
+single-elimination tournament between 4 (or 8) Gemma-generated variations,
+listen to two at a time, choose your winner of every match. Each contestant
+gets a hash-derived `toon-head` face — talking mouth on play, laugh + jump +
+sparkles on win, sad + fade on loss. The champion auto-saves to taste memory
+with `avatar_seed` + `tournament` metadata, so every saved preference is
+head-to-head verified, not a passive scroll-by like. Layer 2 gets richer fuel
+and the sidebar grows a row of trophy faces.
+
 **Layer 3 — Parser firewall.** Every generated JSON gets parsed by Strudel's
 own `@strudel/transpiler`. Invalid code is silently retried up to three times
 with a *"previous attempt was invalid because: …"* hint. Hallucinations of
