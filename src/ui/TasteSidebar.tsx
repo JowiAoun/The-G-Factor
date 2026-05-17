@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { getAllLikes, clearLikes, type Like } from '../memory/taste';
+import { renderAvatar } from '../talent/avatar';
 
 type Props = {
   version: number;
@@ -56,9 +57,31 @@ export function TasteSidebar({ version, onCleared }: Props) {
         <ul className="taste-list">
           {likes.slice(0, 6).map((l) => (
             <li key={l.id}>
-              <div className="taste-label">{l.transformation_label}</div>
-              <div className="taste-code">{l.variation_code}</div>
-              <div className="taste-seed">from {l.seed_code}</div>
+              {l.avatar_seed ? (
+                <div
+                  className="taste-avatar"
+                  dangerouslySetInnerHTML={{
+                    __html: renderAvatar(l.avatar_seed, 'smile'),
+                  }}
+                />
+              ) : null}
+              <div className="taste-body">
+                <div className="taste-label">
+                  {l.transformation_label}
+                  {l.tournament ? (
+                    <span
+                      className="taste-trophy"
+                      title={`Beat ${l.tournament.rounds_beaten} contestant${
+                        l.tournament.rounds_beaten === 1 ? '' : 's'
+                      }: ${l.tournament.defeated_labels.join(', ')}`}
+                    >
+                      🏆 ×{l.tournament.rounds_beaten}
+                    </span>
+                  ) : null}
+                </div>
+                <div className="taste-code">{l.variation_code}</div>
+                <div className="taste-seed">from {l.seed_code}</div>
+              </div>
             </li>
           ))}
           {likes.length > 6 && (

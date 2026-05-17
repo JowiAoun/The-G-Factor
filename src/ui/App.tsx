@@ -7,10 +7,14 @@ import { addLike, deleteLike } from '../memory/taste';
 import { SEED_GALLERY, type GallerySeed } from '../seeds/gallery';
 import { VariationCard } from './VariationCard';
 import { TasteSidebar } from './TasteSidebar';
+import { TalentShow } from './TalentShow';
 
 type ModelState = 'idle' | 'loading' | 'ready' | 'error';
+export type AppMode = 'remix' | 'talentshow';
 
-export function App() {
+export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
+  const [mode, setMode] = useState<AppMode>(initialMode);
+
   const [modelState, setModelState] = useState<ModelState>('idle');
   const [progressMsg, setProgressMsg] = useState('');
   const [progressPct, setProgressPct] = useState(0);
@@ -27,6 +31,14 @@ export function App() {
   const [usedExemplars, setUsedExemplars] = useState(0);
   const [focusedIdx, setFocusedIdx] = useState(0);
   const playLock = useRef(false);
+
+  // Mirror mode to URL so the tab survives reload + deep-link.
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    if (mode === 'talentshow') url.searchParams.set('talentshow', '1');
+    else url.searchParams.delete('talentshow');
+    window.history.replaceState({}, '', url.toString());
+  }, [mode]);
 
   const onLoadProgress = useCallback((p: LoadProgress) => {
     if (p.status === 'progress' && typeof p.progress === 'number') {
@@ -155,9 +167,13 @@ export function App() {
     setLikedIds({});
   }, []);
 
-  // Keyboard shortcuts: 1/2/3 play, L like focused, R re-remix, S stop, P play seed.
-  // Ignore when focus is in a text input/textarea so typing seeds isn't hijacked.
+  const bumpTaste = useCallback(() => {
+    setTasteVersion((v) => v + 1);
+  }, []);
+
+  // Keyboard shortcuts — only active in Remix Studio. Talent Show is mouse-driven.
   useEffect(() => {
+    if (mode !== 'remix') return;
     function isTypingTarget(t: EventTarget | null): boolean {
       if (!(t instanceof HTMLElement)) return false;
       const tag = t.tagName.toLowerCase();
@@ -203,6 +219,7 @@ export function App() {
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, [
+    mode,
     results,
     focusedIdx,
     playingIdx,
@@ -226,6 +243,34 @@ export function App() {
         <h1>Strudel Tutor</h1>
         <div className="sub">
           AI that learns your taste while you live-code. Gemma 4 E2B, in-browser.
+        </div>
+        <div className="mode-tabs" role="tablist">
+          <button
+            className={`mode-tab${mode === 'remix' ? ' active' : ''}`}
+            role="tab"
+            aria-selected={mode === 'remix'}
+            onClick={() => {
+              if (mode === 'remix') return;
+              stop();
+              setPlayingIdx(null);
+              setMode('remix');
+            }}
+          >
+            🎛 Remix Studio
+          </button>
+          <button
+            className={`mode-tab${mode === 'talentshow' ? ' active' : ''}`}
+            role="tab"
+            aria-selected={mode === 'talentshow'}
+            onClick={() => {
+              if (mode === 'talentshow') return;
+              stop();
+              setPlayingIdx(null);
+              setMode('talentshow');
+            }}
+          >
+            🎪 Talent Show
+          </button>
         </div>
       </header>
 
@@ -283,77 +328,95 @@ export function App() {
           spellCheck={false}
           placeholder='e.g. s("bd hh sd hh")'
         />
-        <div className="row" style={{ marginTop: 10 }}>
-          <button
-            className="primary"
-            onClick={handleRemix}
-            disabled={modelState !== 'ready' || remixing || !seedCode.trim()}
-          >
-            {remixing ? `Remixing ${results.length}/3…` : '✨ Remix'}
-          </button>
-          <button onClick={handlePlaySeed} disabled={!seedCode.trim()}>
-            ▶ Play seed
-          </button>
-          <button onClick={handleStop} disabled={playingIdx === null}>
-            ⏹ Stop
-          </button>
-        </div>
-        {engineError && <div className="errors" style={{ marginTop: 10 }}>engine error: {engineError}</div>}
-      </div>
-
-      <div className="panel">
-        <div className="taste-head" style={{ marginBottom: 10 }}>
-          <h2 style={{ margin: 0 }}>Variations</h2>
-          {usedExemplars > 0 && (
-            <span className="exemplar-pill" title="Top-K liked variations injected into the prompt">
-              ♥ {usedExemplars} taste exemplar{usedExemplars === 1 ? '' : 's'} used
-            </span>
-          )}
-        </div>
-        {results.length === 0 && !remixing ? (
-          <div style={{ color: '#9aa0a8' }}>
-            {modelState === 'ready'
-              ? 'Pick a seed, click Remix, listen to 3 variations.'
-              : 'Load the model to start.'}
+        {mode === 'remix' && (
+          <div className="row" style={{ marginTop: 10 }}>
+            <button
+              className="primary"
+              onClick={handleRemix}
+              disabled={modelState !== 'ready' || remixing || !seedCode.trim()}
+            >
+              {remixing ? `Remixing ${results.length}/3…` : '✨ Remix'}
+            </button>
+            <button onClick={handlePlaySeed} disabled={!seedCode.trim()}>
+              ▶ Play seed
+            </button>
+            <button onClick={handleStop} disabled={playingIdx === null}>
+              ⏹ Stop
+            </button>
           </div>
-        ) : (
-          <div className="cards">
-            {results.map((r, i) => (
-              <VariationCard
-                key={i}
-                result={r}
-                index={i}
-                playing={playingIdx === i}
-                liked={!!likedIds[i]}
-                focused={focusedIdx === i && results.length > 0}
-                onPlay={() => {
-                  setFocusedIdx(i);
-                  handlePlay(i, r.variation?.variation_code ?? '');
-                }}
-                onStop={handleStop}
-                onLike={() => handleLike(i)}
-              />
-            ))}
-            {remixing &&
-              Array.from({ length: 3 - results.length }).map((_, i) => (
-                <div key={`pending-${i}`} className="card card-pending">
-                  <div className="card-head">
-                    <span className="card-num">{results.length + i + 1}</span>
-                    <span className="card-label">generating…</span>
-                  </div>
-                  <div className="shimmer" />
-                </div>
-              ))}
+        )}
+        {engineError && mode === 'remix' && (
+          <div className="errors" style={{ marginTop: 10 }}>
+            engine error: {engineError}
           </div>
         )}
       </div>
 
+      {mode === 'remix' && (
+        <div className="panel">
+          <div className="taste-head" style={{ marginBottom: 10 }}>
+            <h2 style={{ margin: 0 }}>Variations</h2>
+            {usedExemplars > 0 && (
+              <span className="exemplar-pill" title="Top-K liked variations injected into the prompt">
+                ♥ {usedExemplars} taste exemplar{usedExemplars === 1 ? '' : 's'} used
+              </span>
+            )}
+          </div>
+          {results.length === 0 && !remixing ? (
+            <div style={{ color: '#9aa0a8' }}>
+              {modelState === 'ready'
+                ? 'Pick a seed, click Remix, listen to 3 variations.'
+                : 'Load the model to start.'}
+            </div>
+          ) : (
+            <div className="cards">
+              {results.map((r, i) => (
+                <VariationCard
+                  key={i}
+                  result={r}
+                  index={i}
+                  playing={playingIdx === i}
+                  liked={!!likedIds[i]}
+                  focused={focusedIdx === i && results.length > 0}
+                  onPlay={() => {
+                    setFocusedIdx(i);
+                    handlePlay(i, r.variation?.variation_code ?? '');
+                  }}
+                  onStop={handleStop}
+                  onLike={() => handleLike(i)}
+                />
+              ))}
+              {remixing &&
+                Array.from({ length: 3 - results.length }).map((_, i) => (
+                  <div key={`pending-${i}`} className="card card-pending">
+                    <div className="card-head">
+                      <span className="card-num">{results.length + i + 1}</span>
+                      <span className="card-label">generating…</span>
+                    </div>
+                    <div className="shimmer" />
+                  </div>
+                ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {mode === 'talentshow' && (
+        <TalentShow
+          modelReady={modelState === 'ready'}
+          seedCode={seedCode}
+          onChampionSaved={bumpTaste}
+        />
+      )}
+
       <TasteSidebar version={tasteVersion} onCleared={handleTasteCleared} />
 
-      <div className="shortcut-bar" aria-hidden="true">
-        <kbd>1</kbd>/<kbd>2</kbd>/<kbd>3</kbd> play · <kbd>←</kbd>/<kbd>→</kbd> focus ·{' '}
-        <kbd>L</kbd> like · <kbd>R</kbd> remix · <kbd>P</kbd> seed · <kbd>S</kbd> stop
-      </div>
+      {mode === 'remix' && (
+        <div className="shortcut-bar" aria-hidden="true">
+          <kbd>1</kbd>/<kbd>2</kbd>/<kbd>3</kbd> play · <kbd>←</kbd>/<kbd>→</kbd> focus ·{' '}
+          <kbd>L</kbd> like · <kbd>R</kbd> remix · <kbd>P</kbd> seed · <kbd>S</kbd> stop
+        </div>
+      )}
 
       <footer className="app-foot">
         <a href="?spike">Day-1 spike harness →</a>

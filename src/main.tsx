@@ -1,13 +1,17 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { SpikeApp } from './spike/SpikeApp';
-import { App } from './ui/App';
+import { App, type AppMode } from './ui/App';
 import './styles.css';
 
-const isSpike = new URLSearchParams(window.location.search).has('spike');
+const params = new URLSearchParams(window.location.search);
+const isSpike = params.has('spike');
+const initialMode: AppMode = params.has('talentshow') ? 'talentshow' : 'remix';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>{isSpike ? <SpikeApp /> : <App />}</React.StrictMode>,
+  <React.StrictMode>
+    {isSpike ? <SpikeApp /> : <App initialMode={initialMode} />}
+  </React.StrictMode>,
 );
 
 // Register the cache-first service worker only in production builds — dev
