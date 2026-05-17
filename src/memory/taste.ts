@@ -97,28 +97,14 @@ export async function clearLikes(): Promise<void> {
  * seeds share a lot of structural tokens (`s("..")`, `note("..")`,
  * `(N,M)` euclids, chain methods like `.slow(`).
  */
-function bigrams(s: string): Set<string> {
-  const cleaned = s.toLowerCase().replace(/\s+/g, '');
-  const out = new Set<string>();
-  for (let i = 0; i < cleaned.length - 1; i++) out.add(cleaned.slice(i, i + 2));
-  return out;
-}
-
-function jaccard(a: Set<string>, b: Set<string>): number {
-  if (a.size === 0 && b.size === 0) return 1;
-  let inter = 0;
-  for (const t of a) if (b.has(t)) inter++;
-  const uni = a.size + b.size - inter;
-  return uni === 0 ? 0 : inter / uni;
-}
+import { similarity } from './similarity';
 
 export async function getTopKSimilar(seedCode: string, k = 3): Promise<Exemplar[]> {
   const all = await getAllLikes();
   if (all.length === 0) return [];
-  const target = bigrams(seedCode);
   const scored = all.map((l) => ({
     like: l,
-    score: jaccard(target, bigrams(l.seed_code)),
+    score: similarity(seedCode, l.seed_code),
   }));
   // Tie-break by recency (already sorted in getAllLikes).
   scored.sort((a, b) => b.score - a.score);
