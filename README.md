@@ -2,29 +2,56 @@
 
 > AI that learns your musical taste as you live-code — running entirely in your browser on Gemma 4 E2B.
 
-Built for the [DEV Gemma 4 Challenge](HACKATHON.md) (Build track). Pattern Remix Studio with Taste Memory: paste a [Strudel](https://strudel.cc) pattern, get three musically-coherent variations, like the ones you love, and watch the model start predicting your taste — no fine-tuning, no GPU, no backend.
+Built for the [DEV Gemma 4 Challenge](HACKATHON.md) (Build track). Pattern
+Remix Studio with Taste Memory: paste a [Strudel](https://strudel.cc) pattern,
+get three musically-coherent variations, like the ones you love, and watch the
+model start predicting your taste — no fine-tuning, no GPU, no backend.
 
-## Status
-
-Phase 0 — Day 1 brutal feasibility spike. See [STRUDEL_PLAN.md](STRUDEL_PLAN.md) and [TODO.md](TODO.md).
+See [DEVPOST.md](DEVPOST.md) for the submission writeup.
 
 ## Run
 
-```
+```bash
 pnpm install
 pnpm dev
 ```
 
-Open `http://localhost:5173` in a browser with WebGPU (Chrome 113+, Edge, or recent Firefox Nightly with the flag).
+Open `http://localhost:5173` in a Chromium-based browser with WebGPU enabled.
+First load downloads ~1.5 GB of Gemma 4 E2B (q4 ONNX); cached after.
 
-First-load downloads ~1.5 GB of Gemma 4 E2B (q4 ONNX); cached afterwards.
+- Main app: `http://localhost:5173/`
+- Day-1 feasibility spike harness: `http://localhost:5173/?spike`
+
+## Keyboard
+
+| Key | Action |
+|-----|--------|
+| `1` / `2` / `3` | Play variation 1/2/3 |
+| `←` / `→` | Move focus between variations |
+| `L` | Like the focused variation |
+| `R` | Re-remix the current seed |
+| `P` | Play the seed itself |
+| `S` / `Esc` | Stop audio |
+
+## How it works — three layers
+
+1. **Static priors** (`src/model/prompts.ts`) — a ~600-token system prompt
+   teaching Gemma the 13 Strudel mini-notation operators, 12 chain methods, and
+   8 canonical idioms.
+2. **Taste memory** (`src/memory/taste.ts`) — every ❤ goes into IndexedDB;
+   future remixes inject the top-3 most-similar liked variations as few-shot
+   exemplars (character-bigram Jaccard similarity).
+3. **Parser firewall** (`src/strudel/parse.ts`) — every JSON output is parsed
+   by `@strudel/transpiler` before display; invalid code triggers up to three
+   retries with a hint, then drops the slot.
 
 ## Tech
 
-- **Model:** Gemma 4 E2B (effective 2B) via [@huggingface/transformers](https://huggingface.co/docs/transformers.js) — WebGPU primary, WASM fallback
-- **Live-coding:** [@strudel/web](https://strudel.cc) — JavaScript port of TidalCycles
-- **Parser firewall:** `@strudel/core` transpiler validates every model output before it reaches the UI
-- **Stack:** Vite + React + TypeScript + zod, deployable to Vercel with COOP/COEP headers
+- **Model:** Gemma 4 E2B via [@huggingface/transformers v4](https://huggingface.co/docs/transformers.js) — `Gemma4ForConditionalGeneration` + `AutoProcessor`, q4f16 ONNX, WebGPU primary with WASM fallback
+- **Live coding:** [@strudel/web](https://strudel.cc), `@strudel/transpiler` for the parser firewall
+- **Validation:** [zod](https://zod.dev) on the JSON output shape, 3-retry loop on invalid Strudel
+- **Stack:** Vite · React 18 · TypeScript (strict) · IndexedDB
+- **Deploy:** Vercel with `COOP: same-origin` / `COEP: require-corp` (required for transformers.js + WebGPU)
 
 ## License
 
