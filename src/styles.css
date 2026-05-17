@@ -284,3 +284,23 @@ button.liked { background: #6b2a4a; border-color: #80303f; color: #ffd6e3; }
   font-size: 0.76rem;
   font-weight: 600;
 }
+
+/* ── shortcut bar ─────────────────────────────────────────── */
+.shortcut-bar {
+  margin-top: 8px;
+  text-align: center;
+  font-size: 0.74rem;
+  color: #6c727a;
+}
+.shortcut-bar kbd {
+  display: inline-block;
+  background: #1d1f25;
+  border: 1px solid #2a2d34;
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  padding: 0 6px;
+  font-family: ui-monospace, monospace;
+  font-size: 0.74rem;
+  color: #d6dde6;
+  margin: 0 1px;
+}

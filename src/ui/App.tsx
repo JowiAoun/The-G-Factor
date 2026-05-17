@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { loadModel, getDetectedDevice, type LoadProgress } from '../model/gemma';
 import { play, stop, getLastError, clearLastError } from '../strudel/engine';
 import { remixSeed } from '../remix/orchestrate';
@@ -25,6 +25,7 @@ export function App() {
   const [tasteVersion, setTasteVersion] = useState(0);
   const [engineError, setEngineError] = useState<string | null>(null);
   const [usedExemplars, setUsedExemplars] = useState(0);
+  const [focusedIdx, setFocusedIdx] = useState(0);
   const playLock = useRef(false);
 
   const onLoadProgress = useCallback((p: LoadProgress) => {
@@ -154,6 +155,66 @@ export function App() {
     setLikedIds({});
   }, []);
 
+  // Keyboard shortcuts: 1/2/3 play, L like focused, R re-remix, S stop, P play seed.
+  // Ignore when focus is in a text input/textarea so typing seeds isn't hijacked.
+  useEffect(() => {
+    function isTypingTarget(t: EventTarget | null): boolean {
+      if (!(t instanceof HTMLElement)) return false;
+      const tag = t.tagName.toLowerCase();
+      return tag === 'input' || tag === 'textarea' || t.isContentEditable;
+    }
+    function handler(e: KeyboardEvent) {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (isTypingTarget(e.target)) return;
+      const k = e.key.toLowerCase();
+      if (k === '1' || k === '2' || k === '3') {
+        const idx = Number(k) - 1;
+        const r = results[idx];
+        if (!r?.variation || r.status !== 'valid') return;
+        e.preventDefault();
+        setFocusedIdx(idx);
+        if (playingIdx === idx) handleStop();
+        else void handlePlay(idx, r.variation.variation_code);
+      } else if (k === 'l') {
+        if (results[focusedIdx]?.status === 'valid') {
+          e.preventDefault();
+          void handleLike(focusedIdx);
+        }
+      } else if (k === 'r') {
+        if (modelState === 'ready' && !remixing) {
+          e.preventDefault();
+          void handleRemix();
+        }
+      } else if (k === 's' || k === 'escape') {
+        e.preventDefault();
+        handleStop();
+      } else if (k === 'p') {
+        e.preventDefault();
+        void handlePlaySeed();
+      } else if (k === 'arrowleft' || k === 'arrowright') {
+        if (results.length === 0) return;
+        e.preventDefault();
+        setFocusedIdx((prev) => {
+          const next = k === 'arrowright' ? prev + 1 : prev - 1;
+          return Math.max(0, Math.min(results.length - 1, next));
+        });
+      }
+    }
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [
+    results,
+    focusedIdx,
+    playingIdx,
+    modelState,
+    remixing,
+    handlePlay,
+    handleStop,
+    handleLike,
+    handleRemix,
+    handlePlaySeed,
+  ]);
+
   const device = getDetectedDevice();
   const seedDirty = activeSeedId
     ? seedCode.trim() !== SEED_GALLERY.find((s) => s.id === activeSeedId)?.code
@@ -264,8 +325,11 @@ export function App() {
                 index={i}
                 playing={playingIdx === i}
                 liked={!!likedIds[i]}
-                focused={false}
-                onPlay={() => handlePlay(i, r.variation?.variation_code ?? '')}
+                focused={focusedIdx === i && results.length > 0}
+                onPlay={() => {
+                  setFocusedIdx(i);
+                  handlePlay(i, r.variation?.variation_code ?? '');
+                }}
                 onStop={handleStop}
                 onLike={() => handleLike(i)}
               />
@@ -285,6 +349,11 @@ export function App() {
       </div>
 
       <TasteSidebar version={tasteVersion} onCleared={handleTasteCleared} />
+
+      <div className="shortcut-bar" aria-hidden="true">
+        <kbd>1</kbd>/<kbd>2</kbd>/<kbd>3</kbd> play · <kbd>←</kbd>/<kbd>→</kbd> focus ·{' '}
+        <kbd>L</kbd> like · <kbd>R</kbd> remix · <kbd>P</kbd> seed · <kbd>S</kbd> stop
+      </div>
 
       <footer className="app-foot">
         <a href="?spike">Day-1 spike harness →</a>

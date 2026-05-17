@@ -42,4 +42,18 @@ export const SEED_GALLERY: GallerySeed[] = [
     genre: 'ambient',
     difficulty: 2,
   },
+  {
+    id: 'breakbeat',
+    label: 'Breakbeat',
+    code: 's("bd ~ sd cp, hh*8")',
+    genre: 'breaks',
+    difficulty: 2,
+  },
+  {
+    id: 'stack',
+    label: 'Drum stack',
+    code: 'stack(s("bd*2"), s("~ sd"), s("hh*8"))',
+    genre: 'drum-n-bass',
+    difficulty: 2,
+  },
 ];
