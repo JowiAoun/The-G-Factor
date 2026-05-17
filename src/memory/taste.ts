@@ -1,6 +1,15 @@
 const DB_NAME = 'strudel-tutor';
 const STORE = 'likes';
-const VERSION = 1;
+const VERSION = 2;
+
+export type TournamentMeta = {
+  /** How many contestants entered the show (4 or 8). */
+  size: number;
+  /** How many matches this champion won (e.g. 2 for a 4-contestant winner). */
+  rounds_beaten: number;
+  /** Labels of the variations this champion defeated, in order of defeat. */
+  defeated_labels: string[];
+};
 
 export type Like = {
   id: string;
@@ -9,6 +18,10 @@ export type Like = {
   transformation_label: string;
   explanation_one_line: string;
   liked_at: number;
+  /** DiceBear seed string, set when this like was captured via the talent show. */
+  avatar_seed?: string;
+  /** Present when this like came from a tournament champion. */
+  tournament?: TournamentMeta;
 };
 
 export type Exemplar = {
@@ -29,6 +42,10 @@ function openDb(): Promise<IDBDatabase> {
         const store = db.createObjectStore(STORE, { keyPath: 'id' });
         store.createIndex('liked_at', 'liked_at', { unique: false });
       }
+      // v2: no schema change; new `avatar_seed` and `tournament` fields are
+      // optional, so rows written under v1 stay valid with those fields
+      // simply absent. Future migrations would branch on the old version
+      // via `event.oldVersion` here.
     };
     req.onsuccess = () => resolve(req.result);
     req.onerror = () => reject(req.error);
@@ -59,6 +76,20 @@ export async function addLike(
     req.onerror = () => reject(req.error);
   });
   return like;
+}
+
+/**
+ * Persist a talent-show champion. Same storage as `addLike`, with the
+ * `avatar_seed` and `tournament` metadata filled in so the sidebar can
+ * render the avatar thumbnail and the 🏆 badge.
+ */
+export async function addTournamentWin(
+  payload: Omit<Like, 'id' | 'liked_at'> & {
+    avatar_seed: string;
+    tournament: TournamentMeta;
+  },
+): Promise<Like> {
+  return addLike(payload);
 }
 
 export async function deleteLike(id: string): Promise<void> {
