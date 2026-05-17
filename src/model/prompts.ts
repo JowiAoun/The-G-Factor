@@ -38,16 +38,35 @@ Seed: s("bd hh sd hh")
 Output:
 {"variation_code":"s(\\"bd hh sd hh\\").every(4, x => x.fast(2))","transformation_label":"fast every 4 bars","explanation_one_line":"doubles the speed every 4th cycle for a fill"}`;
 
-export function buildRemixPrompt(seedCode: string, retryHint?: string): {
+import type { Exemplar } from '../memory/taste';
+export type { Exemplar };
+
+function formatExemplars(exemplars: Exemplar[]): string {
+  if (exemplars.length === 0) return '';
+  const lines = exemplars
+    .map(
+      (e, i) =>
+        `${i + 1}) Seed: ${e.seed_code}\n   Variation: ${e.variation_code}\n   Style: ${e.transformation_label}`,
+    )
+    .join('\n');
+  return `\n\nThis user has previously liked these variations for similar seeds — match their style:\n${lines}\n`;
+}
+
+export function buildRemixPrompt(
+  seedCode: string,
+  retryHint?: string,
+  exemplars: Exemplar[] = [],
+): {
   system: string;
   user: string;
 } {
   const hint = retryHint
     ? `\n\nPrevious attempt was invalid because: ${retryHint}. Produce a different, valid variation.`
     : '';
+  const taste = formatExemplars(exemplars);
   return {
     system: SYSTEM_PROMPT,
-    user: `${FEWSHOT_REMIX}
+    user: `${FEWSHOT_REMIX}${taste}
 
 Now remix this seed into ONE musically interesting variation. Keep the same sound family. Output strict JSON with keys: variation_code, transformation_label, explanation_one_line.
 

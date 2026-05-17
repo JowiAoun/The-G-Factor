@@ -1,4 +1,4 @@
-import { buildRemixPrompt } from '../model/prompts';
+import { buildRemixPrompt, type Exemplar } from '../model/prompts';
 import { generate } from '../model/gemma';
 import { safeParseVariation, type Variation } from './schema';
 import { parse as strudelParse } from '../strudel/parse';
@@ -26,13 +26,16 @@ export type GenerationResult = {
 
 const MAX_RETRIES = 3;
 
-export async function generateVariation(seedCode: string): Promise<GenerationResult> {
+export async function generateVariation(
+  seedCode: string,
+  exemplars: Exemplar[] = [],
+): Promise<GenerationResult> {
   const t0 = performance.now();
   const attempts: GenerationAttempt[] = [];
   let lastError: string | undefined;
 
   for (let i = 0; i < MAX_RETRIES; i++) {
-    const { system, user } = buildRemixPrompt(seedCode, lastError);
+    const { system, user } = buildRemixPrompt(seedCode, lastError, exemplars);
     let raw = '';
     try {
       raw = await generate(
