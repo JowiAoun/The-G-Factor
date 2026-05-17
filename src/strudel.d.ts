@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 declare module '@strudel/web' {
   export function initStrudel(options?: {
     prebake?: () => Promise<unknown> | unknown;
