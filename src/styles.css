@@ -224,3 +224,63 @@ button.liked { background: #6b2a4a; border-color: #80303f; color: #ffd6e3; }
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
+
+/* ── taste memory ─────────────────────────────────────────── */
+.taste-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.taste-list {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 8px;
+}
+.taste-list li {
+  background: #1a1c20;
+  border: 1px solid #23262d;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 0.82rem;
+}
+.taste-list .taste-label {
+  font-weight: 600;
+  color: #f0d3e3;
+  margin-bottom: 2px;
+}
+.taste-list .taste-code {
+  font-family: ui-monospace, monospace;
+  font-size: 0.76rem;
+  color: #d6dde6;
+  overflow-wrap: anywhere;
+}
+.taste-list .taste-seed {
+  font-family: ui-monospace, monospace;
+  color: #6c727a;
+  font-size: 0.7rem;
+  margin-top: 4px;
+}
+.taste-list .taste-more {
+  color: #9aa0a8;
+  font-style: italic;
+  text-align: center;
+  background: transparent;
+  border: 1px dashed #2a2d34;
+}
+
+.exemplar-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #2a1a2a;
+  border: 1px solid #6b2a4a;
+  color: #ffd6e3;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 600;
+}

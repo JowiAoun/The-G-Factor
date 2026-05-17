@@ -3,8 +3,10 @@ import { loadModel, getDetectedDevice, type LoadProgress } from '../model/gemma'
 import { play, stop, getLastError, clearLastError } from '../strudel/engine';
 import { remixSeed } from '../remix/orchestrate';
 import type { GenerationResult } from '../remix/generate';
+import { addLike, deleteLike } from '../memory/taste';
 import { SEED_GALLERY, type GallerySeed } from '../seeds/gallery';
 import { VariationCard } from './VariationCard';
+import { TasteSidebar } from './TasteSidebar';
 
 type ModelState = 'idle' | 'loading' | 'ready' | 'error';
 
@@ -19,8 +21,10 @@ export function App() {
   const [remixing, setRemixing] = useState(false);
   const [results, setResults] = useState<GenerationResult[]>([]);
   const [playingIdx, setPlayingIdx] = useState<number | null>(null);
-  const [likedIdx, setLikedIdx] = useState<Set<number>>(new Set());
+  const [likedIds, setLikedIds] = useState<Record<number, string>>({});
+  const [tasteVersion, setTasteVersion] = useState(0);
   const [engineError, setEngineError] = useState<string | null>(null);
+  const [usedExemplars, setUsedExemplars] = useState(0);
   const playLock = useRef(false);
 
   const onLoadProgress = useCallback((p: LoadProgress) => {
@@ -50,8 +54,9 @@ export function App() {
     setActiveSeedId(s.id);
     setSeedCode(s.code);
     setResults([]);
-    setLikedIdx(new Set());
+    setLikedIds({});
     setPlayingIdx(null);
+    setUsedExemplars(0);
     stop();
   }, []);
 
@@ -61,13 +66,15 @@ export function App() {
     if (!trimmed) return;
     setRemixing(true);
     setResults([]);
-    setLikedIdx(new Set());
+    setLikedIds({});
     setPlayingIdx(null);
+    setUsedExemplars(0);
     stop();
     try {
-      await remixSeed(trimmed, 3, (latest) => {
+      const out = await remixSeed(trimmed, 3, (latest) => {
         setResults((prev) => [...prev, latest]);
       });
+      setUsedExemplars(out.context.exemplars.length);
     } finally {
       setRemixing(false);
     }
@@ -112,13 +119,39 @@ export function App() {
     }
   }, [seedCode]);
 
-  const handleLike = useCallback((idx: number) => {
-    setLikedIdx((prev) => {
-      const next = new Set(prev);
-      if (next.has(idx)) next.delete(idx);
-      else next.add(idx);
-      return next;
-    });
+  const handleLike = useCallback(
+    async (idx: number) => {
+      const r = results[idx];
+      if (!r?.variation || r.status !== 'valid') return;
+      const existing = likedIds[idx];
+      try {
+        if (existing) {
+          await deleteLike(existing);
+          setLikedIds((prev) => {
+            const { [idx]: _drop, ...rest } = prev;
+            return rest;
+          });
+        } else {
+          const like = await addLike({
+            seed_code: seedCode.trim(),
+            variation_code: r.variation.variation_code,
+            transformation_label: r.variation.transformation_label,
+            explanation_one_line: r.variation.explanation_one_line,
+          });
+          setLikedIds((prev) => ({ ...prev, [idx]: like.id }));
+        }
+        setTasteVersion((v) => v + 1);
+      } catch (err) {
+        setEngineError(
+          `taste store: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
+    },
+    [results, likedIds, seedCode],
+  );
+
+  const handleTasteCleared = useCallback(() => {
+    setLikedIds({});
   }, []);
 
   const device = getDetectedDevice();
@@ -208,7 +241,14 @@ export function App() {
       </div>
 
       <div className="panel">
-        <h2>Variations</h2>
+        <div className="taste-head" style={{ marginBottom: 10 }}>
+          <h2 style={{ margin: 0 }}>Variations</h2>
+          {usedExemplars > 0 && (
+            <span className="exemplar-pill" title="Top-K liked variations injected into the prompt">
+              ♥ {usedExemplars} taste exemplar{usedExemplars === 1 ? '' : 's'} used
+            </span>
+          )}
+        </div>
         {results.length === 0 && !remixing ? (
           <div style={{ color: '#9aa0a8' }}>
             {modelState === 'ready'
@@ -223,7 +263,7 @@ export function App() {
                 result={r}
                 index={i}
                 playing={playingIdx === i}
-                liked={likedIdx.has(i)}
+                liked={!!likedIds[i]}
                 focused={false}
                 onPlay={() => handlePlay(i, r.variation?.variation_code ?? '')}
                 onStop={handleStop}
@@ -243,6 +283,8 @@ export function App() {
           </div>
         )}
       </div>
+
+      <TasteSidebar version={tasteVersion} onCleared={handleTasteCleared} />
 
       <footer className="app-foot">
         <a href="?spike">Day-1 spike harness →</a>
