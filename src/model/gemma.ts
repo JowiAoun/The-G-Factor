@@ -99,10 +99,15 @@ export async function generate(
 ): Promise<string> {
   if (!model || !processor) throw new Error('Model not loaded. Call loadModel() first.');
 
-  // Gemma 4's chat template wants per-turn content as an array of typed parts.
+  // Gemma 4's chat template applies `| trim` to `messages[i]['content']`
+  // expecting it to be a string. Passing the multimodal `[{type, text}]`
+  // array shape trips the Jinja parser with `Unknown ArrayValue filter:
+  // trim` and every generation fails. For text-only generation (no
+  // images/audio) pass plain strings — the template branches into its
+  // text-only path and the trim filter is happy.
   const wrapped = messages.map((m) => ({
     role: m.role,
-    content: [{ type: 'text', text: m.content }],
+    content: m.content,
   }));
 
   const prompt = processor.apply_chat_template(wrapped, {
