@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { renderAvatar, type MouthState } from '../talent/avatar';
 import type { Contestant } from '../talent/bracket';
+import { useTalkCycle } from './useTalkCycle';
 
 export type ContestantViewState =
   | 'idle'
@@ -15,21 +16,6 @@ function mouthFor(state: ContestantViewState, talkFrame: 0 | 1, dnf: boolean): M
   if (state === 'loser') return 'sad';
   if (state === 'playing') return talkFrame === 0 ? 'smile' : 'agape';
   return 'smile';
-}
-
-function useTalkCycle(active: boolean): 0 | 1 {
-  const [frame, setFrame] = useState<0 | 1>(0);
-  useEffect(() => {
-    if (!active) {
-      setFrame(0);
-      return;
-    }
-    const id = window.setInterval(() => {
-      setFrame((f) => (f === 0 ? 1 : 0));
-    }, 150);
-    return () => window.clearInterval(id);
-  }, [active]);
-  return frame;
 }
 
 export function ContestantCard({
