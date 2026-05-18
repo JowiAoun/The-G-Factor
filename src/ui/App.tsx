@@ -11,6 +11,11 @@ import {
   clearSavedProgress,
   type SavedProgress,
 } from '../model/progress-storage';
+import {
+  getCacheInfo,
+  formatBytes,
+  type CacheInfo,
+} from '../model/cache-info';
 import { play, stop, getLastError, clearLastError } from '../strudel/engine';
 import { remixSeed } from '../remix/orchestrate';
 import type { GenerationResult } from '../remix/generate';
@@ -37,6 +42,22 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
   const [savedProgress, setSavedProgress] = useState<SavedProgress | null>(
     () => loadSavedProgress(),
   );
+  const [cacheInfo, setCacheInfo] = useState<CacheInfo | null>(null);
+
+  // Probe Cache Storage on mount + after every load so the UI tells the
+  // user whether their browser is actually caching the model weights
+  // across sessions.
+  const refreshCacheInfo = useCallback(async () => {
+    try {
+      const info = await getCacheInfo();
+      setCacheInfo(info);
+    } catch {
+      setCacheInfo(null);
+    }
+  }, []);
+  useEffect(() => {
+    void refreshCacheInfo();
+  }, [refreshCacheInfo]);
 
   const [seedCode, setSeedCode] = useState(SEED_GALLERY[0].code);
   const [activeSeedId, setActiveSeedId] = useState<string>(SEED_GALLERY[0].id);
@@ -96,11 +117,13 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
       clearSavedProgress();
       setSavedProgress(null);
       savedAtPct.current = 0;
+      void refreshCacheInfo();
     } catch (err) {
       setModelError(err instanceof Error ? err.message : String(err));
       setModelState('error');
+      void refreshCacheInfo();
     }
-  }, [onLoadProgress]);
+  }, [onLoadProgress, refreshCacheInfo]);
 
   const handleSelectSeed = useCallback((s: GallerySeed) => {
     setActiveSeedId(s.id);
@@ -342,6 +365,42 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
           </span>
         </div>
         {modelError && <div className="errors">load error: {modelError}</div>}
+        {cacheInfo && (
+          <div className="cache-info" title={cacheInfo.cacheNames.join(', ') || 'no transformers cache buckets found'}>
+            {cacheInfo.modelEntryCount > 0 ? (
+              <>
+                🧊 <b>{formatBytes(cacheInfo.modelBytes)}</b> cached locally
+                {' · '}
+                {cacheInfo.modelEntryCount} file
+                {cacheInfo.modelEntryCount === 1 ? '' : 's'}
+                {cacheInfo.totalOriginBytes != null && (
+                  <>
+                    {' · '}origin uses {formatBytes(cacheInfo.totalOriginBytes)}
+                    {cacheInfo.quotaBytes
+                      ? ` of ${formatBytes(cacheInfo.quotaBytes)} quota`
+                      : ''}
+                  </>
+                )}
+              </>
+            ) : (
+              <>
+                🆕 no cached weights yet — first load downloads ~1.5 GB
+                {cacheInfo.totalOriginBytes != null &&
+                  cacheInfo.totalOriginBytes > 1024 * 1024 && (
+                    <> · origin already holds {formatBytes(cacheInfo.totalOriginBytes)} (other caches)</>
+                  )}
+              </>
+            )}
+            <button
+              className="muted"
+              style={{ marginLeft: 8, fontSize: '0.78rem', padding: '2px 8px' }}
+              onClick={() => void refreshCacheInfo()}
+              title="Re-query Cache Storage"
+            >
+              ↻
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="panel">

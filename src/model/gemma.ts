@@ -14,6 +14,36 @@ export type LoadOptions = {
 
 export const DEFAULT_MODEL_ID = 'onnx-community/gemma-4-E2B-it-ONNX';
 
+/**
+ * Make caching behaviour explicit. transformers.js uses these defaults
+ * already in browser contexts, but pinning them protects against a future
+ * dependency upgrade flipping them and silently re-downloading 1.5 GB.
+ */
+async function ensureCacheEnv(): Promise<void> {
+  try {
+    const mod = (await import('@huggingface/transformers')) as unknown as {
+      env?: {
+        useBrowserCache?: boolean;
+        useFSCache?: boolean;
+        useCustomCache?: boolean;
+        allowRemoteModels?: boolean;
+        allowLocalModels?: boolean;
+      };
+    };
+    if (mod.env) {
+      mod.env.useBrowserCache = true;
+      mod.env.useFSCache = false;
+      mod.env.allowRemoteModels = true;
+      // We intentionally hit the HF hub for model weights, never the local
+      // filesystem — disabling this avoids a wasted probe and a 404 in the
+      // network tab on every load.
+      mod.env.allowLocalModels = false;
+    }
+  } catch {
+    // best-effort — if the env shape changes, the defaults still cover us
+  }
+}
+
 // Loose internal types — transformers.js public types are accurate but verbose,
 // and the model.generate / processor signatures are stable across v3→v4.
 type Model = {
@@ -60,6 +90,7 @@ export async function loadModel(options: LoadOptions = {}): Promise<void> {
   if (loadPromise) return loadPromise;
 
   loadPromise = (async () => {
+    await ensureCacheEnv();
     const tfs = (await import('@huggingface/transformers')) as unknown as {
       AutoProcessor: { from_pretrained: (id: string) => Promise<Processor> };
       Gemma4ForConditionalGeneration: {
