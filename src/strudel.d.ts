@@ -4,6 +4,7 @@ declare module '@strudel/web' {
   export function initStrudel(options?: {
     prebake?: () => Promise<unknown> | unknown;
   }): Promise<unknown> | unknown;
+  export function getAudioContext(): AudioContext;
   const _default: unknown;
   export default _default;
 }
