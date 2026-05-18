@@ -8,14 +8,17 @@ it — not by retraining, not by hitting an API, but by *watching what you love*
 and feeding it back into a 2-billion-parameter model that runs entirely on your
 machine.
 
-It's called **Strudel Tutor**. You paste or pick a starter pattern in
-[Strudel](https://strudel.cc) — the JavaScript port of TidalCycles — and Gemma 4
-E2B proposes three musically-coherent variations, each with a one-line
-explanation and a play button. When you ❤ one, it goes into a per-browser
-**taste library** stored in IndexedDB. On the next remix, your most-similar
-likes get injected into the prompt as few-shot exemplars. The model effectively
-**learns your style** within the session — no fine-tuning, no GPU time, no
-weights changing.
+It's called **Strudel Tutor**. Two surfaces sit alongside each other. In the
+**Remix Studio** you chat with **Bleep** — a cartoon producer toon — and Bleep
+types updated [Strudel](https://strudel.cc) code back at you each turn ("add a
+four-on-the-floor kick", "make the hats busier", "give it a bit of reverb").
+Mixes auto-save to the browser, and a "Save as…" button stashes named entries
+into a sidebar library. The **Talent Show** runs a single-elimination bracket
+between four (or eight) Gemma-generated variations of a seed, each personified
+by another toon-head; you listen to two at a time and crown your champion. Both
+write surfaces feed the same per-browser **taste library** stored in IndexedDB,
+so the model effectively **learns your style** within the session — no
+fine-tuning, no GPU time, no weights changing.
 
 ## The three layers that teach the model
 
@@ -33,20 +36,24 @@ Jaccard similarity, and the top-3 are injected into the prompt as a labelled
 *"this user has previously liked"* block. Warm state shines; cold-start still
 works on priors alone.
 
-**The Talent Show is the taste-memory write surface.** Pick a seed, hold a
-single-elimination tournament between 4 (or 8) Gemma-generated variations,
-listen to two at a time, choose your winner of every match. Each contestant
-gets a hash-derived `toon-head` face — talking mouth on play, laugh + jump +
-sparkles on win, sad + fade on loss. The champion auto-saves to taste memory
-with `avatar_seed` + `tournament` metadata, so every saved preference is
-head-to-head verified, not a passive scroll-by like. Layer 2 gets richer fuel
-and the sidebar grows a row of trophy faces.
+**Two write surfaces feed Layer 2.** The **Remix Studio** is conversational:
+Bleep watches your last six chat turns, looks at the current mix, and returns
+the *full* new Strudel code as a JSON turn (`new_mix_code`, `assistant_message`,
+`action_label`) — each round-trip gives you a snapshot you can play, undo, or
+❤. The **Talent Show** is competitive: four (or eight) Gemma takes go into a
+bracket; you pick the winner of each match; the champion auto-saves with
+`avatar_seed` + `tournament` metadata so every preference is *head-to-head
+verified*. Studio is "I want this specific change"; Talent Show is "surprise me,
+I'll pick"; both populate the same taste store the next prompt reads from.
 
-**Layer 3 — Parser firewall.** Every generated JSON gets parsed by Strudel's
-own `@strudel/transpiler`. Invalid code is silently retried up to three times
-with a *"previous attempt was invalid because: …"* hint. Hallucinations of
-nonexistent operators **never reach the UI**. Strudel's parser is the ground
-truth that makes a 2B model viable for a DSL the base model has barely seen.
+**Layer 3 — Parser firewall.** Every generated JSON gets parsed by `acorn`
+before display — exactly the syntactic check Strudel's transpiler does as its
+first step. Invalid code is silently retried up to three times with a
+*"previous attempt was invalid because: …"* hint. Hallucinations of broken
+syntax **never reach the UI**, and mini-notation runtime errors get caught by
+the engine's try/catch around `evaluate()` so they surface as visible errors
+instead of silent failures. The two-layer ground truth is what makes a 2B
+model viable for a DSL the base model has barely seen.
 
 ## Why Gemma 4 E2B and not something bigger
 
@@ -65,13 +72,14 @@ let the runtime carry the structure.**
 
 <DEMO_VIDEO_EMBED>
 
-The 80-second demo: cold load → pick a seed → remix → like a few variations
-sharing a transformation → next remix surfaces that transformation, audibly.
+The 80-second demo: cold load → chat with Bleep to build a mix turn by turn
+→ Save as → switch to the Talent Show → run a bracket → champion lands in the
+taste sidebar with its toon-head portrait next to a 🏆.
 
 ![Cold load](<SCREENSHOT_LOAD>)
-![Three variation cards](<SCREENSHOT_VARIATIONS>)
-![Taste sidebar populated](<SCREENSHOT_TASTE>)
-![Learned variation card](<SCREENSHOT_LEARNED>)
+![Bleep mid-conversation](<SCREENSHOT_STUDIO>)
+![Talent Show bracket in progress](<SCREENSHOT_BRACKET>)
+![Taste sidebar with avatar portraits](<SCREENSHOT_TASTE>)
 
 ## Try it
 
@@ -93,4 +101,5 @@ Gemma your taste.
 **Tags:** #gemma4 #buildwithgemma4 #ai #webgpu
 
 **Built with:** Gemma 4 E2B · `@huggingface/transformers` v4 · `@strudel/web` ·
-React 18 · Vite · TypeScript · zod · IndexedDB
+DiceBear `toon-head` · React 18 · Vite · TypeScript · zod · IndexedDB ·
+localStorage · acorn

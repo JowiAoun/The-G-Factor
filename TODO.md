@@ -295,6 +295,59 @@
 
 ---
 
+## Phase 7 — Conversational Studio
+
+> Replaces the one-shot 3-variations Remix tab with a chat-driven studio: the
+> user talks to a cartoon producer toon (Bleep) that edits the working Strudel
+> mix turn by turn, and mixes save to localStorage. Plan at
+> `~/.claude/plans/work-on-the-next-noble-grove.md`.
+
+### Pure logic
+- [x] `src/studio/persona.ts` — Bleep singleton + system-prompt fragment + canned strings
+- [x] `src/studio/schema.ts` — zod TurnSchema (new_mix_code, assistant_message, action_label) + safeParseTurn
+- [x] `src/studio/prompts.ts` — buildTurnPrompt with last-6-turns trimming + Strudel cheat sheet + JSON rule
+- [x] `src/studio/chat.ts` — composeTurn wraps generate() with 3-retry on bad JSON or invalid Strudel
+- [x] `src/studio/storage.ts` — draft + named-library localStorage with 30-entry cap and corruption tolerance
+- [x] Unit tests: 7 schema cases + 15 storage cases
+
+### UI
+- [x] `src/ui/useTalkCycle.ts` extracted from Contestant.tsx (shared mouth-swap hook)
+- [x] `src/ui/Persona.tsx` — Bleep avatar with idle/thinking/saved/apology moods
+- [x] `src/ui/ChatBubble.tsx` — role-styled bubble with mini avatar + action-label chip
+- [x] `src/ui/ChatInput.tsx` — monospace single-line input, blinking caret, Enter submits
+- [x] `src/ui/MixCanvas.tsx` — Strudel code preview + ▶/⏹/↶/↷/💾/🗑 controls
+- [x] `src/ui/SavedMixes.tsx` — sidebar list with click-to-load and confirm-delete
+- [x] `src/ui/Studio.tsx` — orchestrator: composeTurn glue, auto-save on every turn, undo/redo stacks
+
+### App rewire
+- [x] App.tsx body in remix mode swapped to `<Studio />`
+- [x] Keyboard-shortcut effect + shortcut bar deleted
+- [x] Seed gallery panel only renders in talent-show mode
+- [x] VariationCard.tsx deleted (no remaining caller)
+
+### Animations
+- [x] Persona bob + apologise-shake + jump-on-save
+- [x] Chat bubble-in fade-up
+- [x] Mix canvas mix-slide on update
+- [x] Chat input caret-blink
+
+### Verification (user)
+- [ ] Load `/`, see Bleep + greeting bubble; mix canvas empty
+- [ ] Ask Bleep for a four-on-the-floor kick → mix updates, ▶ Play works
+- [ ] Iterate a few turns; undo/redo navigates snapshots
+- [ ] Save as "Toon Funk" → sidebar adds entry → refresh page → draft resumes AND saved entry still there
+- [ ] Click saved entry → mix + history restore; chat scrolls
+- [ ] 🗑 New mix → confirms → empties; sidebar entries kept
+
+### Deferred to follow-up
+- [-] Audio-reactive mouth via AnalyserNode (currently time-based cycle)
+- [-] Layer-2 taste-exemplar injection in chat prompts (Talent Show still feeds it)
+- [-] Multi-track stack management (mix stays a single string)
+- [-] Persona roster / picker (Bleep is solo for v1)
+- [-] Sharing a mix by URL / export
+
+---
+
 ## Pivot Trigger (Phase 0 → Sigil)
 
 If Phase 0's hard gate fails (≤5/15 interesting on both 2B and 4B):
