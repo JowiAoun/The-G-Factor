@@ -241,7 +241,11 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
       )}
 
       {mode === 'remix' && (
-        <Studio modelReady={modelState === 'ready'} onSavedChange={bumpTaste} />
+        <Studio
+          modelReady={modelState === 'ready'}
+          onSavedChange={bumpTaste}
+          tasteVersion={tasteVersion}
+        />
       )}
 
       {mode === 'talentshow' && (

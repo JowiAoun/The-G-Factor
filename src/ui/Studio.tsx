@@ -18,6 +18,7 @@ import {
   type ChatTurnRecord,
   type SavedMix,
 } from '../studio/storage';
+import { addLike, deleteLike, getAllLikes } from '../memory/taste';
 import { play, stop, clearLastError } from '../strudel/engine';
 import { Persona, type PersonaMood } from './Persona';
 import { MixCanvas } from './MixCanvas';
@@ -29,6 +30,8 @@ import { SavedMixes } from './SavedMixes';
 type StudioProps = {
   modelReady: boolean;
   onSavedChange?: () => void;
+  /** Bumped by the parent when the taste store changes (e.g. sidebar cleared). */
+  tasteVersion?: number;
 };
 
 const MOOD_HOLD_MS = 1600;
@@ -37,7 +40,7 @@ function freshGreetingHistory(): ChatTurnRecord[] {
   return [{ role: 'assistant', content: PERSONA_GREETING, ts: Date.now() }];
 }
 
-function StudioInner({ modelReady, onSavedChange }: StudioProps) {
+function StudioInner({ modelReady, onSavedChange, tasteVersion = 0 }: StudioProps) {
   // Boot from a persisted draft when present; otherwise start fresh with
   // Bleep's greeting. We read once on first render via useMemo so React
   // StrictMode's double-effect doesn't double-write the draft.
@@ -55,6 +58,7 @@ function StudioInner({ modelReady, onSavedChange }: StudioProps) {
   const [engineError, setEngineError] = useState<string | null>(null);
   const [diagnostic, setDiagnostic] = useState<string | null>(null);
   const [usedExemplars, setUsedExemplars] = useState(0);
+  const [likedMixCodes, setLikedMixCodes] = useState<Set<string>>(new Set());
 
   const playLock = useRef(false);
   const moodTimer = useRef<number | null>(null);
@@ -83,6 +87,24 @@ function StudioInner({ modelReady, onSavedChange }: StudioProps) {
 
   // Stop audio when this surface unmounts (user switches tab).
   useEffect(() => () => stop(), []);
+
+  // Keep the heart-button state in sync with the taste store: refresh on
+  // mount AND whenever the parent bumps tasteVersion (sidebar clear, new
+  // tournament champion saved, etc.).
+  useEffect(() => {
+    let cancelled = false;
+    getAllLikes()
+      .then((likes) => {
+        if (cancelled) return;
+        setLikedMixCodes(new Set(likes.map((l) => l.variation_code)));
+      })
+      .catch(() => {
+        if (!cancelled) setLikedMixCodes(new Set());
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [tasteVersion]);
 
   const flashMood = useCallback((next: PersonaMood, holdMs = MOOD_HOLD_MS) => {
     setMood(next);
@@ -236,6 +258,47 @@ function StudioInner({ modelReady, onSavedChange }: StudioProps) {
     onSavedChange?.();
   }, [mixCode, history, flashMood, onSavedChange]);
 
+  /**
+   * Toggle a like for the *current* mix snapshot. Writes to the same
+   * IndexedDB taste store that the Talent Show champions feed, so future
+   * chat turns + future bracket runs both retrieve studio likes as
+   * exemplars via the bigram similarity.
+   */
+  const handleToggleLike = useCallback(async () => {
+    if (!mixCode.trim()) return;
+    try {
+      if (likedMixCodes.has(mixCode)) {
+        const likes = await getAllLikes();
+        const target = likes.find((l) => l.variation_code === mixCode);
+        if (target) await deleteLike(target.id);
+      } else {
+        // Pick the most recent meaningful action_label for the
+        // transformation tag; fall back to a generic 'studio mix'.
+        const recent = [...history]
+          .reverse()
+          .find(
+            (t) =>
+              t.role === 'assistant' &&
+              t.action_label &&
+              t.action_label !== 'no-op' &&
+              t.action_label !== 'cancelled',
+          );
+        await addLike({
+          seed_code: mixCode,
+          variation_code: mixCode,
+          transformation_label: recent?.action_label ?? 'studio mix',
+          explanation_one_line:
+            recent?.content?.slice(0, 200) ?? 'liked from the chat studio',
+        });
+      }
+      onSavedChange?.();
+    } catch (err) {
+      setEngineError(
+        `taste store: ${err instanceof Error ? err.message : String(err)}`,
+      );
+    }
+  }, [mixCode, likedMixCodes, history, onSavedChange]);
+
   const handleLoadSaved = useCallback(
     (saved: SavedMix) => {
       stop();
@@ -282,6 +345,8 @@ function StudioInner({ modelReady, onSavedChange }: StudioProps) {
           onRedo={handleRedo}
           onSaveAs={handleSaveAs}
           onNewMix={handleNewMix}
+          onLike={handleToggleLike}
+          liked={likedMixCodes.has(mixCode)}
         />
 
         <MixInspector mixCode={mixCode} />
