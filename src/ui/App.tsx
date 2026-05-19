@@ -17,6 +17,7 @@ import {
   type CacheInfo,
 } from '../model/cache-info';
 import { SEED_GALLERY, type GallerySeed } from '../seeds/gallery';
+import { loadDraft, seedStudioDraft } from '../studio/storage';
 import { TasteSidebar } from './TasteSidebar';
 import { TalentShow } from './TalentShow';
 import { Studio } from './Studio';
@@ -105,8 +106,38 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
 
   const bumpTaste = useCallback(() => setTasteVersion((v) => v + 1), []);
   const handleTasteCleared = useCallback(() => {
-    /* sidebar will re-fetch; no app-level state to clear */
+    // Bump so Studio's `likedMixCodes` set (a sibling to the sidebar)
+    // also refreshes from an empty store.
+    setTasteVersion((v) => v + 1);
   }, []);
+
+  /** Studio → Talent Show bridge: switch tabs with the current mix as the seed. */
+  const handleBracketFromStudio = useCallback((mixCode: string) => {
+    setSeedCode(mixCode);
+    // Sentinel id so no gallery card highlights as "active" — the active
+    // seed is now whatever the studio handed over.
+    setActiveSeedId('__from-studio__');
+    setMode('talentshow');
+  }, []);
+
+  /** Talent Show → Studio bridge: seed the studio draft with the champion. */
+  const handleContinueInStudio = useCallback(
+    (champMixCode: string, champLabel: string) => {
+      const existing = loadDraft();
+      const hasContent =
+        !!existing &&
+        (existing.mix_code.trim().length > 0 || existing.history.length > 1);
+      if (hasContent) {
+        const ok = window.confirm(
+          'Continue this champion in the Studio? Your current draft will be replaced. Saved entries in your library are kept.',
+        );
+        if (!ok) return;
+      }
+      seedStudioDraft(champMixCode, champLabel);
+      setMode('remix');
+    },
+    [],
+  );
 
   const device = getDetectedDevice();
   const seedDirty = activeSeedId
@@ -245,6 +276,7 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
           modelReady={modelState === 'ready'}
           onSavedChange={bumpTaste}
           tasteVersion={tasteVersion}
+          onBracketCurrent={handleBracketFromStudio}
         />
       )}
 
@@ -253,6 +285,7 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
           modelReady={modelState === 'ready'}
           seedCode={seedCode}
           onChampionSaved={bumpTaste}
+          onContinueInStudio={handleContinueInStudio}
         />
       )}
 

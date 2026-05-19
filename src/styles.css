@@ -845,6 +845,30 @@ button.liked { background: #6b2a4a; border-color: #80303f; color: #ffd6e3; }
   align-items: center;
 }
 
+/* talent-show setup seed line */
+.setup-seed-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0;
+  font-size: 0.86rem;
+}
+.setup-seed-label {
+  color: #9aa0a8;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.72rem;
+}
+.setup-seed-code {
+  font-family: ui-monospace, monospace;
+  background: #0e1014;
+  border: 1px solid #23262d;
+  padding: 4px 10px;
+  border-radius: 6px;
+  color: #d6dde6;
+  overflow-wrap: anywhere;
+}
+
 /* exemplar pill row (taste retrieval indicator) */
 .exemplar-pill-row {
   display: flex;

@@ -12,6 +12,8 @@ export type MixCanvasProps = {
   onNewMix: () => void;
   onLike?: () => void;
   liked?: boolean;
+  /** When provided, renders a "🎪 Bracket" button that hands the mix to the Talent Show. */
+  onBracket?: () => void;
 };
 
 export function MixCanvas({
@@ -28,6 +30,7 @@ export function MixCanvas({
   onNewMix,
   onLike,
   liked,
+  onBracket,
 }: MixCanvasProps) {
   const isEmpty = mixCode.trim().length === 0;
   return (
@@ -88,6 +91,16 @@ export function MixCanvas({
             aria-pressed={liked}
           >
             {liked ? '♥' : '♡'}
+          </button>
+        )}
+        {onBracket && (
+          <button
+            onClick={onBracket}
+            disabled={isEmpty}
+            title="Run this mix through a Talent Show bracket"
+            aria-label="Send this mix to the Talent Show bracket"
+          >
+            🎪 Bracket
           </button>
         )}
         <div style={{ flex: 1 }} />

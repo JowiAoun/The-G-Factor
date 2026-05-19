@@ -171,3 +171,34 @@ export function clearAllSavedMixes(): void {
     // ignore
   }
 }
+
+/**
+ * Pre-write the studio draft so the next Studio mount picks it up. Used
+ * by the "Continue in Studio" bridge from the Talent Show champion screen:
+ * App writes the champion's code into the draft slot, then switches
+ * `mode` to remix; Studio unmounts/remounts and reads the freshly-written
+ * draft via its `loadDraft` on first render.
+ */
+export function seedStudioDraft(
+  mixCode: string,
+  attributionLabel?: string,
+): void {
+  const greeting = attributionLabel
+    ? `Loaded "${attributionLabel}" onto the deck — what should we add or change?`
+    : `Loaded a fresh mix onto the deck. What should we add or change?`;
+  const draft: StudioDraft = {
+    mix_code: mixCode,
+    history: [
+      {
+        role: 'assistant',
+        content: greeting,
+        action_label: 'imported',
+        ts: Date.now(),
+      },
+    ],
+    undo_stack: [],
+    redo_stack: [],
+    updated_at: Date.now(),
+  };
+  writeKey(DRAFT_KEY, draft);
+}

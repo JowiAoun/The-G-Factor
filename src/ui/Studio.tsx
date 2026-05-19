@@ -32,6 +32,8 @@ type StudioProps = {
   onSavedChange?: () => void;
   /** Bumped by the parent when the taste store changes (e.g. sidebar cleared). */
   tasteVersion?: number;
+  /** Hand the current mix off to the Talent Show as a bracket seed. */
+  onBracketCurrent?: (mixCode: string) => void;
 };
 
 const MOOD_HOLD_MS = 1600;
@@ -40,7 +42,12 @@ function freshGreetingHistory(): ChatTurnRecord[] {
   return [{ role: 'assistant', content: PERSONA_GREETING, ts: Date.now() }];
 }
 
-function StudioInner({ modelReady, onSavedChange, tasteVersion = 0 }: StudioProps) {
+function StudioInner({
+  modelReady,
+  onSavedChange,
+  tasteVersion = 0,
+  onBracketCurrent,
+}: StudioProps) {
   // Boot from a persisted draft when present; otherwise start fresh with
   // Bleep's greeting. We read once on first render via useMemo so React
   // StrictMode's double-effect doesn't double-write the draft.
@@ -312,6 +319,13 @@ function StudioInner({ modelReady, onSavedChange, tasteVersion = 0 }: StudioProp
     [mixCode],
   );
 
+  const handleBracket = useCallback(() => {
+    if (!mixCode.trim()) return;
+    stop();
+    setPlaying(false);
+    onBracketCurrent?.(mixCode);
+  }, [mixCode, onBracketCurrent]);
+
   const handleNewMix = useCallback(() => {
     if (
       !window.confirm(
@@ -347,6 +361,7 @@ function StudioInner({ modelReady, onSavedChange, tasteVersion = 0 }: StudioProp
           onNewMix={handleNewMix}
           onLike={handleToggleLike}
           liked={likedMixCodes.has(mixCode)}
+          onBracket={onBracketCurrent ? handleBracket : undefined}
         />
 
         <MixInspector mixCode={mixCode} />

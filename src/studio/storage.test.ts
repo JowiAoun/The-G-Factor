@@ -9,6 +9,7 @@ import {
   loadSavedMix,
   saveDraft,
   saveMixAs,
+  seedStudioDraft,
   type StudioDraft,
 } from './storage';
 
@@ -154,6 +155,40 @@ describe('saved-mix library', () => {
   it('treats corrupted library JSON as empty', () => {
     localStorage.setItem('strudel-tutor.studio.saved', '{not an array}');
     expect(listSavedMixes()).toEqual([]);
+  });
+
+  it('seedStudioDraft writes a draft + greeting that loadDraft can read back', () => {
+    seedStudioDraft('s("bd*4")', 'Champion Mix');
+    const draft = loadDraft();
+    expect(draft).not.toBeNull();
+    expect(draft?.mix_code).toBe('s("bd*4")');
+    expect(draft?.history).toHaveLength(1);
+    expect(draft?.history[0].role).toBe('assistant');
+    expect(draft?.history[0].content).toContain('Champion Mix');
+    expect(draft?.undo_stack).toEqual([]);
+    expect(draft?.redo_stack).toEqual([]);
+  });
+
+  it('seedStudioDraft works with no attribution label', () => {
+    seedStudioDraft('s("hh*8")');
+    const draft = loadDraft();
+    expect(draft?.mix_code).toBe('s("hh*8")');
+    expect(draft?.history[0].content).toMatch(/Loaded a fresh mix/);
+  });
+
+  it('seedStudioDraft replaces any pre-existing draft', () => {
+    saveDraft({
+      mix_code: 's("old")',
+      history: [{ role: 'user', content: 'old turn', ts: 1 }],
+      undo_stack: ['prev'],
+      redo_stack: [],
+      updated_at: 1,
+    });
+    seedStudioDraft('s("new")', 'New mix');
+    const draft = loadDraft();
+    expect(draft?.mix_code).toBe('s("new")');
+    expect(draft?.history).toHaveLength(1);
+    expect(draft?.undo_stack).toEqual([]);
   });
 
   it('filters out individually-corrupted entries instead of failing', () => {

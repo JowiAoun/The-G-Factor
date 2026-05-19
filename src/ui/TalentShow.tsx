@@ -21,9 +21,16 @@ type TalentShowProps = {
   modelReady: boolean;
   seedCode: string;
   onChampionSaved?: () => void;
+  /** Hand the bracket champion off to the Studio for further chat editing. */
+  onContinueInStudio?: (mixCode: string, label: string) => void;
 };
 
-function TalentShowInner({ modelReady, seedCode, onChampionSaved }: TalentShowProps) {
+function TalentShowInner({
+  modelReady,
+  seedCode,
+  onChampionSaved,
+  onContinueInStudio,
+}: TalentShowProps) {
   const [bracketSize, setBracketSize] = useState<4 | 8>(4);
   const [phase, setPhase] = useState<Phase>('setup');
   const [contestants, setContestants] = useState<Contestant[]>([]);
@@ -207,6 +214,12 @@ function TalentShowInner({ modelReady, seedCode, onChampionSaved }: TalentShowPr
             Gemma generates {bracketSize} variations of the current seed; each gets a face. Pick one from
             every pair until a champion is crowned — and the champion gets a 🏆 entry in your taste memory.
           </p>
+          <div className="setup-seed-row">
+            <span className="setup-seed-label">Starting from</span>
+            <code className="setup-seed-code">
+              {seedCode.trim() || '<no seed yet — pick one from the gallery>'}
+            </code>
+          </div>
           <button
             className="primary"
             onClick={handleHoldShow}
@@ -306,6 +319,19 @@ function TalentShowInner({ modelReady, seedCode, onChampionSaved }: TalentShowPr
             <button onClick={handleStop} disabled={playingId === null}>
               ⏹ Stop
             </button>
+            {onContinueInStudio && (
+              <button
+                onClick={() =>
+                  onContinueInStudio(
+                    bracket.champion!.code,
+                    bracket.champion!.label,
+                  )
+                }
+                title="Send the champion to the Studio for chat editing"
+              >
+                🎛 Continue in Studio
+              </button>
+            )}
             <button onClick={handleReset} className="muted">
               🔁 Hold another show
             </button>
