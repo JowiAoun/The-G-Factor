@@ -21,6 +21,7 @@ import {
 import { play, stop, clearLastError } from '../strudel/engine';
 import { Persona, type PersonaMood } from './Persona';
 import { MixCanvas } from './MixCanvas';
+import { MixInspector } from './MixInspector';
 import { ChatBubble } from './ChatBubble';
 import { ChatInput } from './ChatInput';
 import { SavedMixes } from './SavedMixes';
@@ -280,6 +281,8 @@ function StudioInner({ modelReady, onSavedChange }: StudioProps) {
           onSaveAs={handleSaveAs}
           onNewMix={handleNewMix}
         />
+
+        <MixInspector mixCode={mixCode} />
 
         {engineError && (
           <div className="errors">engine error: {engineError}</div>
