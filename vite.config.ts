@@ -20,9 +20,15 @@ export default defineConfig({
     chunkSizeWarningLimit: 1200,
     rollupOptions: {
       output: {
+        // Only split the *eager* vendor deps. `@strudel/*` is imported
+        // dynamically from `src/strudel/engine.ts` so Vite auto-creates a
+        // separate chunk for it AND — crucially — does not generate a
+        // `<link rel="modulepreload">` for that chunk in index.html. Listing
+        // it under manualChunks would force-preload it on initial page
+        // load (the chunk is ~770 kB / ~250 kB gzip; the user only pays
+        // that cost when they hit Play for the first time).
         manualChunks: {
           react: ['react', 'react-dom'],
-          strudel: ['@strudel/web', '@strudel/core', '@strudel/transpiler'],
           zod: ['zod'],
         },
       },
