@@ -1,5 +1,6 @@
 import { generate } from '../model/gemma';
 import { parse as strudelParse } from '../strudel/parse';
+import { getTopKSimilar } from '../memory/taste';
 import { buildTurnPrompt, type ChatTurn } from './prompts';
 import { safeParseTurn, type ParsedTurn } from './schema';
 
@@ -22,6 +23,8 @@ export type TurnResult = {
   turn?: ParsedTurn;
   attempts: TurnAttempt[];
   durationMs: number;
+  /** Count of taste exemplars injected into the prompt this turn. */
+  exemplarsUsed: number;
 };
 
 const MAX_RETRIES = 3;
@@ -65,6 +68,15 @@ export async function composeTurn(args: {
     if (args.signal?.aborted) throw new TurnCancelledError();
   };
 
+  // Layer-2 retrieval: pull the top-3 most-similar liked mixes from the
+  // taste store and inject them as exemplars in the system prompt. Falls
+  // back to an empty list if IndexedDB is unavailable. Cheap enough to do
+  // before each round-trip; the retrieval itself runs once per turn (not
+  // once per retry) since the user message and current mix are stable
+  // across attempts.
+  const retrievalKey = args.currentMix.trim() || args.userMessage;
+  const exemplars = await getTopKSimilar(retrievalKey, 3).catch(() => []);
+
   for (let i = 0; i < MAX_RETRIES; i++) {
     throwIfCancelled();
     const { messages } = buildTurnPrompt(
@@ -72,6 +84,7 @@ export async function composeTurn(args: {
       args.history,
       args.userMessage,
       lastError,
+      exemplars,
     );
 
     let raw = '';
@@ -117,6 +130,7 @@ export async function composeTurn(args: {
       turn: parsed.value,
       attempts,
       durationMs: Math.round(performance.now() - t0),
+      exemplarsUsed: exemplars.length,
     };
   }
 
@@ -124,5 +138,6 @@ export async function composeTurn(args: {
     status: attempts.at(-1)?.status ?? 'error',
     attempts,
     durationMs: Math.round(performance.now() - t0),
+    exemplarsUsed: exemplars.length,
   };
 }

@@ -1,5 +1,6 @@
 import { SYSTEM_PROMPT } from '../model/prompts';
 import { personaSystemPromptFragment } from './persona';
+import type { Exemplar } from '../memory/taste';
 
 export type ChatTurn = {
   role: 'user' | 'assistant';
@@ -30,7 +31,18 @@ function trimmedHistory(history: ChatTurn[]): ChatTurn[] {
   return history.slice(history.length - HISTORY_DEPTH);
 }
 
-function buildSystem(currentMix: string): string {
+function formatStudioExemplars(exemplars: Exemplar[]): string {
+  if (exemplars.length === 0) return '';
+  const lines = exemplars
+    .map(
+      (e, i) =>
+        `${i + 1}) "${e.transformation_label}" → ${e.variation_code}`,
+    )
+    .join('\n');
+  return `\nThis user has previously liked these mixes — lean toward their style when it fits the request:\n${lines}\n`;
+}
+
+function buildSystem(currentMix: string, exemplars: Exemplar[]): string {
   const mixBlock = currentMix.trim()
     ? `CURRENT MIX (always preserve unless the user asks to change it):\n${currentMix.trim()}`
     : 'CURRENT MIX: <empty — there is no pattern yet>';
@@ -40,9 +52,11 @@ function buildSystem(currentMix: string): string {
     personaSystemPromptFragment,
     '',
     TURN_SCHEMA_RULE,
-    '',
+    formatStudioExemplars(exemplars),
     mixBlock,
-  ].join('\n');
+  ]
+    .filter((block) => block !== '')
+    .join('\n');
 }
 
 /**
@@ -58,13 +72,14 @@ export function buildTurnPrompt(
   history: ChatTurn[],
   userMessage: string,
   retryHint?: string,
+  exemplars: Exemplar[] = [],
 ): { messages: { role: 'system' | 'user' | 'assistant'; content: string }[] } {
   const hint = retryHint
     ? `\n\n(Previous attempt was rejected: ${retryHint}. Produce different, syntactically valid Strudel JS.)`
     : '';
   return {
     messages: [
-      { role: 'system', content: buildSystem(currentMix) },
+      { role: 'system', content: buildSystem(currentMix, exemplars) },
       ...trimmedHistory(history).map((t) => ({ role: t.role, content: t.content })),
       { role: 'user', content: `${userMessage}${hint}` },
     ],

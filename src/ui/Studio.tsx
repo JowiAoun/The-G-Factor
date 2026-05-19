@@ -54,6 +54,7 @@ function StudioInner({ modelReady, onSavedChange }: StudioProps) {
   const [playing, setPlaying] = useState(false);
   const [engineError, setEngineError] = useState<string | null>(null);
   const [diagnostic, setDiagnostic] = useState<string | null>(null);
+  const [usedExemplars, setUsedExemplars] = useState(0);
 
   const playLock = useRef(false);
   const moodTimer = useRef<number | null>(null);
@@ -132,6 +133,7 @@ function StudioInner({ modelReady, onSavedChange }: StudioProps) {
               ts: Date.now(),
             },
           ]);
+          setUsedExemplars(result.exemplarsUsed);
           setMood('idle');
         } else {
           // Retries exhausted — keep the existing mix and apologise.
@@ -283,6 +285,17 @@ function StudioInner({ modelReady, onSavedChange }: StudioProps) {
         />
 
         <MixInspector mixCode={mixCode} />
+
+        {usedExemplars > 0 && (
+          <div className="exemplar-pill-row">
+            <span
+              className="exemplar-pill"
+              title="Top-K liked mixes were injected into Bleep's prompt for this turn"
+            >
+              ♥ {usedExemplars} taste exemplar{usedExemplars === 1 ? '' : 's'} used
+            </span>
+          </div>
+        )}
 
         {engineError && (
           <div className="errors">engine error: {engineError}</div>
