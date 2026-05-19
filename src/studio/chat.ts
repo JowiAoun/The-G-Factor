@@ -27,6 +27,13 @@ export type TurnResult = {
 const MAX_RETRIES = 3;
 const MAX_NEW_TOKENS = 320;
 
+export class TurnCancelledError extends Error {
+  constructor() {
+    super('cancelled');
+    this.name = 'TurnCancelledError';
+  }
+}
+
 /**
  * One conversational round-trip with Bleep.
  *
@@ -36,19 +43,30 @@ const MAX_NEW_TOKENS = 320;
  * failure reason back to the model as a hint and bumps temperature a
  * little so we don't keep landing on the same bad output.
  *
- * On final failure the caller keeps the existing mix and surfaces a
- * persona apology — the `attempts` array carries the diagnostic detail.
+ * If `signal` is set and gets aborted, throws `TurnCancelledError` at the
+ * next checkpoint (before each generate, before each validation step, and
+ * between retries). The in-flight `model.generate()` itself can't be
+ * cancelled mid-token on WebGPU — its result is just discarded once it
+ * settles, which keeps the UI responsive while the orphan completes in
+ * the background. On final failure the caller keeps the existing mix and
+ * surfaces a persona apology.
  */
 export async function composeTurn(args: {
   currentMix: string;
   history: ChatTurn[];
   userMessage: string;
+  signal?: AbortSignal;
 }): Promise<TurnResult> {
   const t0 = performance.now();
   const attempts: TurnAttempt[] = [];
   let lastError: string | undefined;
 
+  const throwIfCancelled = () => {
+    if (args.signal?.aborted) throw new TurnCancelledError();
+  };
+
   for (let i = 0; i < MAX_RETRIES; i++) {
+    throwIfCancelled();
     const { messages } = buildTurnPrompt(
       args.currentMix,
       args.history,
@@ -63,12 +81,14 @@ export async function composeTurn(args: {
         temperature: 0.75 + i * 0.1,
       });
     } catch (err) {
+      throwIfCancelled();
       const msg = err instanceof Error ? err.message : String(err);
       attempts.push({ rawOutput: '', status: 'error', error: msg });
       lastError = msg;
       continue;
     }
 
+    throwIfCancelled();
     const parsed = safeParseTurn(raw);
     if (!parsed.ok) {
       const status: TurnStatus =
@@ -79,6 +99,7 @@ export async function composeTurn(args: {
     }
 
     const firewall = await strudelParse(parsed.value.new_mix_code);
+    throwIfCancelled();
     if (!firewall.valid) {
       attempts.push({
         rawOutput: raw,

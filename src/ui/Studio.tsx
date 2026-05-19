@@ -10,7 +10,7 @@ import {
   PERSONA_APOLOGY,
   PERSONA_GREETING,
 } from '../studio/persona';
-import { composeTurn } from '../studio/chat';
+import { composeTurn, TurnCancelledError } from '../studio/chat';
 import {
   loadDraft,
   saveDraft,
@@ -57,6 +57,7 @@ function StudioInner({ modelReady, onSavedChange }: StudioProps) {
   const playLock = useRef(false);
   const moodTimer = useRef<number | null>(null);
   const chatLogRef = useRef<HTMLDivElement | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   // Auto-save on every state change that matters. localStorage writes are
   // synchronous but trivially cheap at this size; the four-dep effect fires
@@ -102,12 +103,19 @@ function StudioInner({ modelReady, onSavedChange }: StudioProps) {
       const nextHistory = [...history, userTurn];
       setHistory(nextHistory);
 
+      // Fresh AbortController per turn so a cancel only kills this round-trip.
+      const controller = new AbortController();
+      abortRef.current = controller;
+
       try {
         const result = await composeTurn({
           currentMix: mixCode,
           history: nextHistory.map(({ role, content }) => ({ role, content })),
           userMessage: text,
+          signal: controller.signal,
         });
+
+        if (controller.signal.aborted) return;
 
         if (result.status === 'valid' && result.turn) {
           // Push the *previous* mix onto undo, clear redo, swap in new mix.
@@ -140,15 +148,34 @@ function StudioInner({ modelReady, onSavedChange }: StudioProps) {
           flashMood('apology');
         }
       } catch (err) {
-        const msg = err instanceof Error ? err.message : String(err);
-        setEngineError(msg);
-        flashMood('apology');
+        if (err instanceof TurnCancelledError) {
+          // Cancelled — append a marker turn so the history is coherent.
+          setHistory([
+            ...nextHistory,
+            {
+              role: 'assistant',
+              content: '(cancelled)',
+              action_label: 'cancelled',
+              ts: Date.now(),
+            },
+          ]);
+          setMood('idle');
+        } else {
+          const msg = err instanceof Error ? err.message : String(err);
+          setEngineError(msg);
+          flashMood('apology');
+        }
       } finally {
         setGenerating(false);
+        abortRef.current = null;
       }
     },
     [modelReady, generating, history, mixCode, flashMood],
   );
+
+  const handleCancel = useCallback(() => {
+    abortRef.current?.abort();
+  }, []);
 
   const handlePlay = useCallback(async () => {
     if (playLock.current || !mixCode.trim()) return;
@@ -289,6 +316,7 @@ function StudioInner({ modelReady, onSavedChange }: StudioProps) {
 
         <ChatInput
           onSubmit={handleSubmit}
+          onCancel={generating ? handleCancel : undefined}
           disabled={!modelReady || generating}
           placeholder={
             !modelReady
