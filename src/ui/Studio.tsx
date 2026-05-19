@@ -266,7 +266,14 @@ function StudioInner({ modelReady, onSavedChange }: StudioProps) {
           </div>
         )}
 
-        <div className="chat-log" ref={chatLogRef}>
+        <div
+          className="chat-log"
+          ref={chatLogRef}
+          role="log"
+          aria-live="polite"
+          aria-relevant="additions"
+          aria-label="Chat with Bleep"
+        >
           {history.map((t, i) => (
             <ChatBubble
               key={i}

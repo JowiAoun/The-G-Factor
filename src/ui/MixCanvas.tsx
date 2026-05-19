@@ -39,26 +39,42 @@ export function MixCanvas({
       <pre className={`mix-canvas-code${isEmpty ? ' empty' : ''}`}>
         {isEmpty ? '// empty — ask Bleep for something to start with' : mixCode}
       </pre>
-      <div className="mix-canvas-controls">
+      <div className="mix-canvas-controls" role="toolbar" aria-label="Mix controls">
         {playing ? (
-          <button className="primary" onClick={onStop}>
+          <button className="primary" onClick={onStop} aria-label="Stop playback">
             ⏹ Stop
           </button>
         ) : (
-          <button className="primary" onClick={onPlay} disabled={isEmpty}>
+          <button
+            className="primary"
+            onClick={onPlay}
+            disabled={isEmpty}
+            aria-label="Play the current mix"
+          >
             ▶ Play
           </button>
         )}
-        <button onClick={onUndo} disabled={!canUndo} title="Undo last change">
+        <button
+          onClick={onUndo}
+          disabled={!canUndo}
+          title="Undo last change"
+          aria-label="Undo last change"
+        >
           ↶ Undo
         </button>
-        <button onClick={onRedo} disabled={!canRedo} title="Redo">
+        <button
+          onClick={onRedo}
+          disabled={!canRedo}
+          title="Redo"
+          aria-label="Redo"
+        >
           ↷ Redo
         </button>
         <button
           onClick={onSaveAs}
           disabled={isEmpty || saving}
           title="Name and save to your library"
+          aria-label="Save current mix to the library"
         >
           💾 Save as…
         </button>
@@ -68,12 +84,19 @@ export function MixCanvas({
             onClick={onLike}
             disabled={isEmpty}
             title="Save snapshot to taste memory"
+            aria-label={liked ? 'Unlike this mix' : 'Like this mix and save to taste memory'}
+            aria-pressed={liked}
           >
             {liked ? '♥' : '♡'}
           </button>
         )}
         <div style={{ flex: 1 }} />
-        <button className="muted" onClick={onNewMix} title="Start a fresh mix">
+        <button
+          className="muted"
+          onClick={onNewMix}
+          title="Start a fresh mix"
+          aria-label="Start a new mix"
+        >
           🗑 New
         </button>
       </div>

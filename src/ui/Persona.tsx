@@ -33,16 +33,30 @@ export function Persona({ mood = 'idle' }: { mood?: PersonaMood }) {
     () => renderAvatar(PERSONA.avatarSeed, mouth),
     [mouth],
   );
+  const moodDescription =
+    mood === 'thinking'
+      ? 'is thinking'
+      : mood === 'saved'
+        ? 'is celebrating a save'
+        : mood === 'apology'
+          ? 'is apologising'
+          : 'is listening';
   return (
-    <div className={`persona-card mood-${mood}`}>
-      <div className="persona-stage">
+    <div
+      className={`persona-card mood-${mood}`}
+      role="img"
+      aria-label={`${PERSONA.name} ${moodDescription}`}
+    >
+      <div className="persona-stage" aria-hidden="true">
         <div
           className="persona-avatar"
           dangerouslySetInnerHTML={{ __html: svg }}
         />
       </div>
-      <div className="persona-name">{PERSONA.name}</div>
-      <div className="persona-blurb">{PERSONA.blurb}</div>
+      <div>
+        <div className="persona-name">{PERSONA.name}</div>
+        <div className="persona-blurb">{PERSONA.blurb}</div>
+      </div>
     </div>
   );
 }
