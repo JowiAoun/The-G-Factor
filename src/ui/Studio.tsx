@@ -397,14 +397,22 @@ function StudioInner({
           aria-relevant="additions"
           aria-label="Chat with Bleep"
         >
-          {history.map((t, i) => (
-            <ChatBubble
-              key={i}
-              role={t.role}
-              content={t.content}
-              actionLabel={t.action_label}
-            />
-          ))}
+          {history.map((t, i) => {
+            // Stream only the newest assistant turn — gives the typewriter
+            // effect on Bleep's freshest reply without re-animating the
+            // whole transcript on every render.
+            const isLatestAssistant =
+              i === history.length - 1 && t.role === 'assistant' && !generating;
+            return (
+              <ChatBubble
+                key={i}
+                role={t.role}
+                content={t.content}
+                actionLabel={t.action_label}
+                stream={isLatestAssistant}
+              />
+            );
+          })}
           {generating && (
             <ChatBubble role="assistant" content="…thinking…" actionLabel="working" />
           )}

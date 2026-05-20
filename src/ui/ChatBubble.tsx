@@ -1,5 +1,6 @@
 import { renderAvatar } from '../talent/avatar';
 import { PERSONA } from '../studio/persona';
+import { useStreamedText } from './useStreamedText';
 
 export type ChatBubbleProps = {
   role: 'user' | 'assistant';
@@ -7,6 +8,8 @@ export type ChatBubbleProps = {
   actionLabel?: string;
   /** When set, render a small "↶ Snapshot" button on assistant turns. */
   onRevert?: () => void;
+  /** When true, reveal content progressively (typewriter effect). */
+  stream?: boolean;
 };
 
 export function ChatBubble({
@@ -14,8 +17,12 @@ export function ChatBubble({
   content,
   actionLabel,
   onRevert,
+  stream,
 }: ChatBubbleProps) {
   const isAssistant = role === 'assistant';
+  // Stream only when explicitly requested (Studio enables it on the newest
+  // assistant turn). The hook returns `content` verbatim when disabled.
+  const { revealed, done } = useStreamedText(content, !!stream);
   // Screen-reader prefix: the role + action-label give context the visual
   // styling carries silently for sighted users.
   const ariaLabel = isAssistant
@@ -36,7 +43,12 @@ export function ChatBubble({
         {actionLabel && (
           <span className="action-chip" aria-hidden="true">▸ {actionLabel}</span>
         )}
-        <div className="chat-bubble-content">{content}</div>
+        <div className="chat-bubble-content">
+          {revealed}
+          {stream && !done && (
+            <span className="stream-caret" aria-hidden="true" />
+          )}
+        </div>
         {onRevert && (
           <button
             className="muted bubble-revert"
