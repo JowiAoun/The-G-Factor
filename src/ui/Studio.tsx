@@ -71,11 +71,16 @@ function StudioInner({
   const moodTimer = useRef<number | null>(null);
   const chatLogRef = useRef<HTMLDivElement | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const replayAbortRef = useRef<AbortController | null>(null);
+  const [replaying, setReplaying] = useState(false);
 
   // Auto-save on every state change that matters. localStorage writes are
   // synchronous but trivially cheap at this size; the four-dep effect fires
-  // once per user action.
+  // once per user action. Skipped during replay so the in-flight cinematic
+  // doesn't clobber the user's actual draft — once replay ends, the
+  // `replaying` flag flips and the effect runs once with the final state.
   useEffect(() => {
+    if (replaying) return;
     saveDraft({
       mix_code: mixCode,
       history,
@@ -83,7 +88,7 @@ function StudioInner({
       redo_stack: redoStack,
       updated_at: Date.now(),
     });
-  }, [mixCode, history, undoStack, redoStack]);
+  }, [mixCode, history, undoStack, redoStack, replaying]);
 
   // Auto-scroll the chat log to the newest message.
   useEffect(() => {
@@ -259,11 +264,20 @@ function StudioInner({
       'Untitled mix';
     const name = window.prompt('Name this mix:', suggested);
     if (name === null) return;
-    saveMixAs(name, { mix_code: mixCode, history });
+    // Capture the linear journey of mix states so the saved entry can be
+    // replayed turn-by-turn later. undoStack holds every pre-update mix;
+    // appending the current code completes the chronology. Consecutive
+    // duplicates are collapsed (cancelled / apology turns don't change
+    // the mix and shouldn't add a "stuck" frame to the replay).
+    const journey: string[] = [];
+    for (const snap of [...undoStack, mixCode]) {
+      if (journey[journey.length - 1] !== snap) journey.push(snap);
+    }
+    saveMixAs(name, { mix_code: mixCode, history, snapshots: journey });
     setLibraryVersion((v) => v + 1);
     flashMood('saved');
     onSavedChange?.();
-  }, [mixCode, history, flashMood, onSavedChange]);
+  }, [mixCode, history, undoStack, flashMood, onSavedChange]);
 
   /**
    * Toggle a like for the *current* mix snapshot. Writes to the same
@@ -318,6 +332,78 @@ function StudioInner({
     },
     [mixCode],
   );
+
+  /**
+   * Walk a saved mix's chat history turn-by-turn, advancing the mix-canvas
+   * snapshot in lockstep on every assistant turn that changed the mix.
+   * Lets the user (or the demo) "replay" a finished session as a
+   * ~1-second-per-turn cinematic. Suppresses auto-save while playing so
+   * the in-flight intermediate states don't clobber the working draft.
+   */
+  const handleReplay = useCallback(
+    async (saved: SavedMix) => {
+      // Cancel any prior replay first.
+      replayAbortRef.current?.abort();
+      const controller = new AbortController();
+      replayAbortRef.current = controller;
+
+      stop();
+      setPlaying(false);
+      setEngineError(null);
+      setDiagnostic(null);
+      setReplaying(true);
+
+      const snapshots = saved.snapshots ?? [];
+      const TURN_MS = 1100;
+      let snapIdx = 0;
+
+      // Start with the initial snapshot (empty mix if we have one).
+      setHistory([]);
+      setMixCode(snapshots[0] ?? '');
+      // Briefly hold the empty/initial state so the first chat bubble
+      // doesn't materialise on top of the mix change.
+      await new Promise<void>((r) => setTimeout(r, 400));
+      if (controller.signal.aborted) {
+        setReplaying(false);
+        return;
+      }
+
+      for (let i = 0; i < saved.history.length; i++) {
+        if (controller.signal.aborted) break;
+        await new Promise<void>((r) => setTimeout(r, TURN_MS));
+        if (controller.signal.aborted) break;
+        const turn = saved.history[i];
+        setHistory((h) => [...h, turn]);
+        const changedMix =
+          turn.role === 'assistant' &&
+          !!turn.action_label &&
+          !['no-op', 'cancelled', 'imported'].includes(turn.action_label);
+        if (changedMix) {
+          snapIdx++;
+          if (snapIdx < snapshots.length) {
+            setMixCode(snapshots[snapIdx]);
+          }
+        }
+      }
+
+      // Final state — guarantees the canvas matches saved.mix_code even
+      // when the snapshot/turn counts disagree (legacy saves, or a bug).
+      if (!controller.signal.aborted) {
+        setMixCode(saved.mix_code);
+        // Populate undo with the full journey so the user can step back
+        // through the replay by hand if they want.
+        setUndoStack(snapshots.length > 1 ? snapshots.slice(0, -1) : []);
+        setRedoStack([]);
+      }
+      setReplaying(false);
+    },
+    [],
+  );
+
+  const handleStopReplay = useCallback(() => {
+    replayAbortRef.current?.abort();
+    setReplaying(false);
+  }, []);
 
   const handleBracket = useCallback(() => {
     if (!mixCode.trim()) return;
@@ -435,8 +521,18 @@ function StudioInner({
       <SavedMixes
         version={libraryVersion}
         onLoad={handleLoadSaved}
+        onReplay={handleReplay}
         onChange={() => setLibraryVersion((v) => v + 1)}
       />
+
+      {replaying && (
+        <div className="replay-banner" role="status">
+          <span>🎬 Replaying saved mix…</span>
+          <button className="muted" onClick={handleStopReplay}>
+            ⏹ Stop replay
+          </button>
+        </div>
+      )}
     </div>
   );
 }

@@ -8,10 +8,12 @@ import {
 export function SavedMixes({
   version,
   onLoad,
+  onReplay,
   onChange,
 }: {
   version: number;
   onLoad: (mix: SavedMix) => void;
+  onReplay?: (mix: SavedMix) => void;
   onChange?: () => void;
 }) {
   const [mixes, setMixes] = useState<SavedMix[]>([]);
@@ -56,6 +58,16 @@ export function SavedMixes({
               <span className="saved-mix-name">♪ {m.name}</span>
               <span className="saved-mix-code">{m.mix_code}</span>
             </button>
+            {onReplay && (
+              <button
+                className="muted saved-mix-replay"
+                onClick={() => onReplay(m)}
+                aria-label={`Replay ${m.name} as a cinematic`}
+                title="Replay this mix turn-by-turn"
+              >
+                ▶
+              </button>
+            )}
             <button
               className="muted saved-mix-delete"
               onClick={() => handleDelete(m.id)}

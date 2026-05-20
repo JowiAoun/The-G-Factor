@@ -157,6 +157,27 @@ describe('saved-mix library', () => {
     expect(listSavedMixes()).toEqual([]);
   });
 
+  it('round-trips snapshots when provided', () => {
+    const m = saveMixAs('With Journey', {
+      mix_code: 's("bd hh sd hh")',
+      history: [],
+      snapshots: ['', 's("bd")', 's("bd hh")', 's("bd hh sd hh")'],
+    });
+    expect(m.snapshots).toEqual(['', 's("bd")', 's("bd hh")', 's("bd hh sd hh")']);
+    const reloaded = loadSavedMix(m.id);
+    expect(reloaded?.snapshots).toEqual(m.snapshots);
+  });
+
+  it('omits the snapshots field when none provided', () => {
+    const m = saveMixAs('No Journey', {
+      mix_code: 's("bd")',
+      history: [],
+    });
+    expect(m.snapshots).toBeUndefined();
+    const reloaded = loadSavedMix(m.id);
+    expect(reloaded?.snapshots).toBeUndefined();
+  });
+
   it('seedStudioDraft writes a draft + greeting that loadDraft can read back', () => {
     seedStudioDraft('s("bd*4")', 'Champion Mix');
     const draft = loadDraft();

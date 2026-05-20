@@ -42,6 +42,14 @@ export type SavedMix = {
   mix_code: string;
   history: ChatTurnRecord[];
   created_at: number;
+  /**
+   * Linear list of mix-code states the user passed through on the way to
+   * the final mix. Optional for backward compatibility — saves written
+   * before this field landed simply replay the chat history without
+   * intermediate mix changes (the canvas jumps to the final code at the
+   * end of the replay).
+   */
+  snapshots?: string[];
 };
 
 function uuid(): string {
@@ -95,13 +103,18 @@ function isValidDraft(v: unknown): v is StudioDraft {
 function isValidSavedMix(v: unknown): v is SavedMix {
   if (typeof v !== 'object' || v === null) return false;
   const m = v as Partial<SavedMix>;
-  return (
-    typeof m.id === 'string' &&
-    typeof m.name === 'string' &&
-    typeof m.mix_code === 'string' &&
-    Array.isArray(m.history) &&
-    typeof m.created_at === 'number'
-  );
+  if (
+    typeof m.id !== 'string' ||
+    typeof m.name !== 'string' ||
+    typeof m.mix_code !== 'string' ||
+    !Array.isArray(m.history) ||
+    typeof m.created_at !== 'number'
+  ) {
+    return false;
+  }
+  // snapshots is optional; if present, must be a string[].
+  if (m.snapshots !== undefined && !Array.isArray(m.snapshots)) return false;
+  return true;
 }
 
 export function loadDraft(): StudioDraft | null {
@@ -137,7 +150,11 @@ export function listSavedMixes(): SavedMix[] {
 
 export function saveMixAs(
   name: string,
-  source: { mix_code: string; history: ChatTurnRecord[] },
+  source: {
+    mix_code: string;
+    history: ChatTurnRecord[];
+    snapshots?: string[];
+  },
 ): SavedMix {
   const trimmedName = name.trim().slice(0, 60) || 'Untitled mix';
   const mix: SavedMix = {
@@ -146,6 +163,9 @@ export function saveMixAs(
     mix_code: source.mix_code,
     history: trimHistory(source.history),
     created_at: Date.now(),
+    ...(source.snapshots && source.snapshots.length > 0
+      ? { snapshots: source.snapshots }
+      : {}),
   };
   const existing = listSavedMixes();
   // newest-first; evict from the tail when over cap

@@ -1093,14 +1093,40 @@ button.liked { background: #6b2a4a; border-color: #80303f; color: #ffd6e3; }
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.saved-mix-replay,
 .saved-mix-delete {
   padding: 4px 8px;
   font-size: 0.85rem;
-  color: #c8888d;
 }
+.saved-mix-delete { color: #c8888d; }
 .saved-mix-delete:hover:not(:disabled) {
   background: #2a1a1f;
   border-color: #6b1f2a;
+}
+.saved-mix-replay:hover:not(:disabled) {
+  background: #1a1f33;
+  border-color: #4f7cff;
+  color: #d6dde6;
+}
+
+/* replay banner — fixed strip while a saved mix is auto-playing */
+.replay-banner {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  background: #1a1f33;
+  border: 1px solid #4f7cff;
+  border-radius: 999px;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.86rem;
+  color: #d6dde6;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  z-index: 50;
+  animation: bubble-in 200ms ease-out;
 }
 
 /* keyframes */
