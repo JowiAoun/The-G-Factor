@@ -15,6 +15,14 @@ let initialized = false;
 let initPromise: Promise<void> | null = null;
 let lastError: string | null = null;
 let audioContext: AudioContext | null = null;
+let analyser: AnalyserNode | null = null;
+// `getByteTimeDomainData` requires an ArrayBuffer-backed view (not the
+// looser `ArrayBufferLike` that allows SharedArrayBuffer). Tighten the
+// generic so the call typechecks under modern lib.dom.d.ts.
+let timeDomainBuf: Uint8Array<ArrayBuffer> | null = null;
+
+// Symbol-guarded so HMR-triggered re-init doesn't stack patches.
+const PATCH_FLAG = Symbol.for('strudel-tutor.connect-patched');
 
 export function getLastError(): string | null {
   return lastError;
@@ -26,6 +34,105 @@ export function clearLastError(): void {
 
 export function getStrudelAudioContext(): AudioContext | null {
   return audioContext;
+}
+
+/**
+ * Insert a side-branch `AnalyserNode` into Strudel's audio path.
+ *
+ * Strudel/superdough route every source through their internal graph and
+ * finally `.connect(audioContext.destination)`. We have no public hook to
+ * grab a master gain, but we DO control the AudioNode prototype. By
+ * wrapping `AudioNode.prototype.connect`, every existing-or-future node
+ * that connects to `destination` ALSO gets connected to our analyser as a
+ * parallel branch — a fan-out is free in WebAudio's signal model. The
+ * original `connect` is called first and its return value is preserved,
+ * so existing audio routing is unchanged.
+ *
+ * Guarded by a global symbol so HMR-triggered re-inits don't double-wrap.
+ */
+function installAudioAnalyser(ctx: AudioContext): void {
+  if (analyser) return;
+  analyser = ctx.createAnalyser();
+  analyser.fftSize = 256;
+  analyser.smoothingTimeConstant = 0.6;
+  // Allocate with an explicit ArrayBuffer so the type narrows to
+  // Uint8Array<ArrayBuffer>, matching getByteTimeDomainData's signature.
+  timeDomainBuf = new Uint8Array(new ArrayBuffer(analyser.fftSize));
+
+  const proto = AudioNode.prototype as unknown as Record<symbol, boolean>;
+  if (proto[PATCH_FLAG]) return;
+  const original = AudioNode.prototype.connect;
+
+  type ConnectFn = (
+    this: AudioNode,
+    target: AudioNode | AudioParam,
+    output?: number,
+    input?: number,
+  ) => AudioNode | void;
+
+  const patched: ConnectFn = function (this, target, output, input) {
+    const result = (original as ConnectFn).call(this, target, output, input);
+    if (
+      analyser &&
+      this !== analyser &&
+      target instanceof AudioNode &&
+      target === ctx.destination
+    ) {
+      try {
+        (original as ConnectFn).call(this, analyser);
+      } catch {
+        // a source-less node, a wrong-channel-count node, etc — ignore;
+        // the original connection already succeeded, audio still flows.
+      }
+    }
+    return result;
+  };
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (AudioNode.prototype as any).connect = patched;
+  proto[PATCH_FLAG] = true;
+}
+
+/**
+ * Peak time-domain amplitude in [0, 1], read from the side-branch analyser.
+ * Returns 0 before the analyser exists (model not loaded, no audio yet).
+ */
+export function readAudioAmplitude(): number {
+  if (!analyser || !timeDomainBuf) return 0;
+  analyser.getByteTimeDomainData(timeDomainBuf);
+  let peak = 0;
+  for (let i = 0; i < timeDomainBuf.length; i++) {
+    const dev = Math.abs(timeDomainBuf[i] - 128);
+    if (dev > peak) peak = dev;
+  }
+  return Math.min(1, peak / 128);
+}
+
+// ── shared rAF dispatcher ────────────────────────────────────
+// Multiple components subscribe to amplitude (persona + every visible
+// contestant). One rAF loop reads the analyser once per frame and pushes
+// the value to all subscribers — that's cheaper than each component
+// running its own loop, and keeps every mouth in lock-step.
+
+const amplitudeSubscribers = new Set<(amp: number) => void>();
+let rafHandle: number | null = null;
+
+function amplitudeTick(): void {
+  const amp = readAudioAmplitude();
+  for (const cb of amplitudeSubscribers) cb(amp);
+  rafHandle = requestAnimationFrame(amplitudeTick);
+}
+
+export function subscribeAmplitude(cb: (amp: number) => void): () => void {
+  amplitudeSubscribers.add(cb);
+  if (rafHandle === null) rafHandle = requestAnimationFrame(amplitudeTick);
+  return () => {
+    amplitudeSubscribers.delete(cb);
+    if (amplitudeSubscribers.size === 0 && rafHandle !== null) {
+      cancelAnimationFrame(rafHandle);
+      rafHandle = null;
+    }
+  };
 }
 
 export async function init(): Promise<void> {
@@ -45,6 +152,7 @@ export async function init(): Promise<void> {
     if (typeof mod.getAudioContext === 'function') {
       try {
         audioContext = mod.getAudioContext();
+        if (audioContext) installAudioAnalyser(audioContext);
       } catch {
         // ignore — fall back to scheduler-only stop
       }

@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { renderAvatar, type MouthState } from '../talent/avatar';
 import type { Contestant } from '../talent/bracket';
-import { useTalkCycle } from './useTalkCycle';
+import { useAudioMouth } from './useAudioMouth';
 
 export type ContestantViewState =
   | 'idle'
@@ -37,8 +37,10 @@ export function ContestantCard({
   compact?: boolean;
 }) {
   const isDnf = contestant.status === 'dnf';
-  const talkFrame = useTalkCycle(state === 'playing');
-  const mouth = mouthFor(state, talkFrame, isDnf);
+  // Live amplitude tap — mouth opens on actual kicks / hits instead of a
+  // fixed 150 ms timer, so the lip-sync feels musically reactive.
+  const audioFrame = useAudioMouth(state === 'playing');
+  const mouth = mouthFor(state, audioFrame, isDnf);
   const svg = useMemo(
     () => renderAvatar(contestant.avatarSeed, mouth),
     [contestant.avatarSeed, mouth],

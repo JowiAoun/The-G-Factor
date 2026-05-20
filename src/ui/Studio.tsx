@@ -345,7 +345,7 @@ function StudioInner({
   return (
     <div className="studio-grid">
       <div className="studio-main">
-        <Persona mood={mood} />
+        <Persona mood={mood} playing={playing} />
 
         <MixCanvas
           mixCode={mixCode}
