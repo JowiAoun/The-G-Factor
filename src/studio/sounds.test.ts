@@ -29,10 +29,10 @@ describe('SOUND_PALETTE', () => {
   it('every snippet is syntactically valid JS (passes acorn firewall)', async () => {
     for (const chip of SOUND_PALETTE) {
       const result = await parse(chip.snippet);
-      expect(
-        result.valid,
-        `snippet for ${chip.name} did not parse: ${result.error}`,
-      ).toBe(true);
+      const detail = result.valid ? '' : `: ${result.error}`;
+      expect(result.valid, `snippet for ${chip.name} did not parse${detail}`).toBe(
+        true,
+      );
     }
   });
 
