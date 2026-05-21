@@ -26,6 +26,8 @@ import { MixInspector } from './MixInspector';
 import { ChatBubble } from './ChatBubble';
 import { ChatInput } from './ChatInput';
 import { SavedMixes } from './SavedMixes';
+import { SoundPalette } from './SoundPalette';
+import type { SoundChip } from '../studio/sounds';
 
 type StudioProps = {
   modelReady: boolean;
@@ -73,6 +75,22 @@ function StudioInner({
   const abortRef = useRef<AbortController | null>(null);
   const replayAbortRef = useRef<AbortController | null>(null);
   const [replaying, setReplaying] = useState(false);
+
+  // Editor-edit debounce + drop-flag bookkeeping.
+  //
+  // CodeMirror has its own per-keystroke history; Studio's undoStack stays
+  // at "macro" granularity (one entry per chat turn / palette drop / settled
+  // typing burst) so the ↶ Undo button doesn't take 50 clicks to back out
+  // one Bleep turn. `editStartMixRef` snapshots the pre-typing mix on the
+  // first keystroke of a burst; `editDebounceRef` is the 1.5 s timer.
+  // `dropFlagRef` lets the drop handler claim an undo push for itself so
+  // the subsequent onChange echo doesn't schedule a duplicate.
+  const editStartMixRef = useRef<string | null>(null);
+  const editDebounceRef = useRef<number | null>(null);
+  const dropFlagRef = useRef(false);
+  // Audition timer for the sound-palette click-to-audition path. Holding
+  // a ref means rapid clicks cancel each other instead of stacking.
+  const auditionTimerRef = useRef<number | null>(null);
 
   // Auto-save on every state change that matters. localStorage writes are
   // synchronous but trivially cheap at this size; the four-dep effect fires
@@ -233,6 +251,84 @@ function StudioInner({
   const handleStop = useCallback(() => {
     stop();
     setPlaying(false);
+  }, []);
+
+  /**
+   * Direct edits in the CodeMirror editor. Three paths:
+   *   1. External echo — parent set value, CM6 dispatched, onChange came
+   *      back with `next === mixCode`. No-op.
+   *   2. Drop completion — drop handler already pushed the pre-drop mix to
+   *      undoStack. Skip the typing-debounce snapshot.
+   *   3. User typed — capture pre-typing mix on the first keystroke of a
+   *      burst, then push it to undoStack 1.5 s after typing settles.
+   */
+  const handleCodeChange = useCallback(
+    (next: string) => {
+      if (next === mixCode) return;
+      setMixCode(next);
+      if (dropFlagRef.current) {
+        dropFlagRef.current = false;
+        if (editDebounceRef.current !== null) {
+          window.clearTimeout(editDebounceRef.current);
+          editDebounceRef.current = null;
+        }
+        editStartMixRef.current = null;
+        return;
+      }
+      if (editStartMixRef.current === null) {
+        editStartMixRef.current = mixCode;
+      }
+      if (editDebounceRef.current !== null) {
+        window.clearTimeout(editDebounceRef.current);
+      }
+      editDebounceRef.current = window.setTimeout(() => {
+        const startMix = editStartMixRef.current;
+        if (startMix !== null && startMix !== next) {
+          setUndoStack((s) => [...s, startMix]);
+          setRedoStack([]);
+        }
+        editStartMixRef.current = null;
+        editDebounceRef.current = null;
+      }, 1500);
+    },
+    [mixCode],
+  );
+
+  /**
+   * Fired by the CodeEditor BEFORE its dispatch — we record the pre-drop
+   * mix on the undo stack and set a flag so the following onChange (from
+   * the dispatched insertion) doesn't schedule a duplicate typing-debounce
+   * undo entry.
+   */
+  const handleDropSnippet = useCallback(() => {
+    setUndoStack((s) => [...s, mixCode]);
+    setRedoStack([]);
+    dropFlagRef.current = true;
+  }, [mixCode]);
+
+  /**
+   * Click-to-audition on a palette chip: play the chip's snippet for a
+   * short window, then stop. Cancels any prior in-flight audition so
+   * rapid clicks don't pile up sample tails.
+   */
+  const handleAudition = useCallback(async (chip: SoundChip) => {
+    if (auditionTimerRef.current !== null) {
+      window.clearTimeout(auditionTimerRef.current);
+      auditionTimerRef.current = null;
+    }
+    stop();
+    setPlaying(false);
+    setEngineError(null);
+    clearLastError();
+    try {
+      await play(chip.snippet);
+      auditionTimerRef.current = window.setTimeout(() => {
+        stop();
+        auditionTimerRef.current = null;
+      }, 600);
+    } catch (err) {
+      setEngineError(err instanceof Error ? err.message : String(err));
+    }
   }, []);
 
   const handleUndo = useCallback(() => {
@@ -445,10 +541,14 @@ function StudioInner({
           onRedo={handleRedo}
           onSaveAs={handleSaveAs}
           onNewMix={handleNewMix}
+          onCodeChange={handleCodeChange}
+          onDropSnippet={handleDropSnippet}
           onLike={handleToggleLike}
           liked={likedMixCodes.has(mixCode)}
           onBracket={onBracketCurrent ? handleBracket : undefined}
         />
+
+        <SoundPalette onAudition={handleAudition} />
 
         <MixInspector mixCode={mixCode} />
 
