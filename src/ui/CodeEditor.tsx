@@ -85,11 +85,15 @@ export function CodeEditor({
           const padded = needsLeadingSpace(view.state.doc, pos)
             ? ' ' + snippet
             : snippet;
+          // Notify the parent BEFORE the dispatch so it can record an undo
+          // snapshot of the pre-drop mix. The onChange that fires from the
+          // dispatch will then see the parent's drop-flag and skip its own
+          // typing-debounce snapshot, avoiding a duplicate undo entry.
+          onDropRef.current?.(snippet);
           view.dispatch({
             changes: { from: pos, insert: padded },
             selection: { anchor: pos + padded.length },
           });
-          onDropRef.current?.(snippet);
           return true;
         },
       }),

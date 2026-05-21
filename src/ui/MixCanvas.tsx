@@ -1,3 +1,5 @@
+import { CodeEditor } from './CodeEditor';
+
 export type MixCanvasProps = {
   mixCode: string;
   playing: boolean;
@@ -10,6 +12,10 @@ export type MixCanvasProps = {
   onRedo: () => void;
   onSaveAs: () => void;
   onNewMix: () => void;
+  /** Direct edits in the editor (typing, paste, etc.). */
+  onCodeChange: (next: string) => void;
+  /** Fires after a chip is dropped into the editor and inserted. */
+  onDropSnippet?: (snippet: string) => void;
   onLike?: () => void;
   liked?: boolean;
   /** When provided, renders a "🎪 Bracket" button that hands the mix to the Talent Show. */
@@ -28,6 +34,8 @@ export function MixCanvas({
   onRedo,
   onSaveAs,
   onNewMix,
+  onCodeChange,
+  onDropSnippet,
   onLike,
   liked,
   onBracket,
@@ -38,10 +46,18 @@ export function MixCanvas({
       <div className="mix-canvas-head">
         <span className="mix-canvas-label">Now playing</span>
         {playing && <span className="mix-playing-pulse" aria-hidden="true" />}
+        <span className="mix-canvas-hint">
+          ⌘/Ctrl+Enter to play · Esc to stop · drag a sound below
+        </span>
       </div>
-      <pre className={`mix-canvas-code${isEmpty ? ' empty' : ''}`}>
-        {isEmpty ? '// empty — ask Bleep for something to start with' : mixCode}
-      </pre>
+      <CodeEditor
+        value={mixCode}
+        onChange={onCodeChange}
+        onPlay={onPlay}
+        onStop={onStop}
+        onDropSnippet={onDropSnippet}
+        placeholder='// empty — ask Bleep, type a pattern, or drag a sound'
+      />
       <div className="mix-canvas-controls" role="toolbar" aria-label="Mix controls">
         {playing ? (
           <button className="primary" onClick={onStop} aria-label="Stop playback">
