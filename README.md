@@ -51,6 +51,16 @@ written to `localStorage` on every successful turn, so a refresh resumes
 exactly where you stopped. **💾 Save as…** names the current mix and adds
 it to a sidebar library (capped at 30 entries, oldest evicted).
 
+**Editable canvas + sound palette:** Bleep isn't the only one who can
+write code. The canvas is a CodeMirror 6 editor — type directly, syntax
+colour and bracket matching included. Below it, a 12-chip **sound palette**
+(7 drums + 5 synths) sits ready to be dragged into the editor; chips
+also click-to-audition for ~600 ms so you can hear `piano` or `cp` before
+deciding where it goes. `Ctrl/⌘ + Enter` plays the current mix, `Esc`
+stops. The Studio's ↶ Undo button stays at "macro" granularity (one
+click per chat turn, palette drop, or settled-typing burst) while
+CM6's own per-keystroke history handles `⌘+Z` inside the editor.
+
 Animations: Bleep's mouth swaps `smile ↔ agape` every 200 ms while
 generating, settles to `smile` at rest, flashes `laugh` after a successful
 Save as, and `sad` with a small shake when retries run out.

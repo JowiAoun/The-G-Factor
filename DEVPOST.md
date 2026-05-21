@@ -12,8 +12,10 @@ It's called **Strudel Tutor**. Two surfaces sit alongside each other. In the
 **Remix Studio** you chat with **Bleep** — a cartoon producer toon — and Bleep
 types updated [Strudel](https://strudel.cc) code back at you each turn ("add a
 four-on-the-floor kick", "make the hats busier", "give it a bit of reverb").
-Mixes auto-save to the browser, and a "Save as…" button stashes named entries
-into a sidebar library. The **Talent Show** runs a single-elimination bracket
+Or sit down at the console yourself: the mix canvas is a real CodeMirror 6
+editor, a 12-chip sound palette drags drums and synths straight into the code,
+and `⌘+Enter` plays. Mixes auto-save to the browser, and a "Save as…" button
+stashes named entries into a sidebar library. The **Talent Show** runs a single-elimination bracket
 between four (or eight) Gemma-generated variations of a seed, each personified
 by another toon-head; you listen to two at a time and crown your champion. Both
 write surfaces feed the same per-browser **taste library** stored in IndexedDB,
