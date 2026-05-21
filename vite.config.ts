@@ -27,9 +27,26 @@ export default defineConfig({
         // it under manualChunks would force-preload it on initial page
         // load (the chunk is ~770 kB / ~250 kB gzip; the user only pays
         // that cost when they hit Play for the first time).
-        manualChunks: {
-          react: ['react', 'react-dom'],
-          zod: ['zod'],
+        //
+        // Function form so the codemirror split catches every transitive
+        // @codemirror/* and @uiw/codemirror-* module without needing to
+        // enumerate them by hand.
+        manualChunks(id) {
+          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
+            return 'react';
+          }
+          if (id.includes('node_modules/zod/')) {
+            return 'zod';
+          }
+          if (
+            id.includes('node_modules/@codemirror/') ||
+            id.includes('node_modules/@uiw/react-codemirror') ||
+            id.includes('node_modules/@uiw/codemirror-') ||
+            id.includes('node_modules/@lezer/')
+          ) {
+            return 'codemirror';
+          }
+          return undefined;
         },
       },
     },
