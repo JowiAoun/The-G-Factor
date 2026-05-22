@@ -1,0 +1,243 @@
+import { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  REMOTE_MODEL_ID,
+  getEnvApiKey,
+  getMode,
+  getStoredApiKey,
+  hasMadeBackendChoice,
+  looksLikeApiKey,
+  setMode,
+  setStoredApiKey,
+  type BackendMode,
+} from '../model/backend';
+
+type Props = {
+  /** Hides the close/cancel affordances when true (first-time decision is required). */
+  isFirstVisit: boolean;
+  onClose: () => void;
+};
+
+/**
+ * Two-card chooser for the inference backend. Mounted by App on first
+ * visit (blocking) and on demand via the ⚙ settings button (dismissable).
+ *
+ * Key-input only appears when:
+ *   - The user has selected Remote
+ *   - AND neither localStorage nor `.env` already resolves a key
+ *
+ * Otherwise we show a confirmation strip noting which key source is in
+ * play, with an override input the user can still use.
+ */
+export function BackendChooserModal({ isFirstVisit, onClose }: Props) {
+  const [selected, setSelected] = useState<BackendMode | null>(() => {
+    // Settings-triggered: pre-select the current mode. First-visit: no
+    // pre-selection so the user has to make a deliberate choice.
+    if (isFirstVisit) return null;
+    return hasMadeBackendChoice() ? getMode() : null;
+  });
+  const [keyInput, setKeyInput] = useState('');
+  const envKey = useMemo(() => getEnvApiKey(), []);
+  const storedKey = useMemo(() => getStoredApiKey(), []);
+  const resolvedKey = storedKey ?? envKey ?? null;
+
+  const firstFocusRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    firstFocusRef.current?.focus();
+  }, []);
+
+  // ESC closes in settings mode only.
+  useEffect(() => {
+    if (isFirstVisit) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [isFirstVisit, onClose]);
+
+  const showsKeyInput = selected === 'remote' && !resolvedKey;
+  const showsOverrideInput = selected === 'remote' && !!resolvedKey;
+  const keyInputTrimmed = keyInput.trim();
+  const keyInputValid =
+    keyInputTrimmed.length === 0 || looksLikeApiKey(keyInputTrimmed);
+
+  const canSave = (() => {
+    if (selected === null) return false;
+    if (selected === 'local') return true;
+    // Remote with a resolved key (env or stored) and no override typed → ok.
+    if (resolvedKey && keyInputTrimmed.length === 0) return true;
+    // Remote with a typed key → require it to look valid.
+    if (keyInputTrimmed.length > 0) return looksLikeApiKey(keyInputTrimmed);
+    return false;
+  })();
+
+  const handleSave = () => {
+    if (!selected) return;
+    if (selected === 'remote' && keyInputTrimmed.length > 0) {
+      setStoredApiKey(keyInputTrimmed);
+    }
+    setMode(selected);
+    onClose();
+  };
+
+  const handleBackdrop = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (isFirstVisit) return;
+    if (e.target === e.currentTarget) onClose();
+  };
+
+  return (
+    <div
+      className="backend-modal-backdrop"
+      role="presentation"
+      onClick={handleBackdrop}
+    >
+      <div
+        className="backend-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="backend-modal-title"
+      >
+        <div className="backend-modal-head">
+          <h2 id="backend-modal-title">Where should we run Gemma?</h2>
+          {!isFirstVisit && (
+            <button
+              className="backend-modal-close"
+              onClick={onClose}
+              aria-label="Close settings"
+              title="Close"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+
+        <div className="backend-cards">
+          <button
+            ref={firstFocusRef}
+            className={`backend-card ${selected === 'local' ? 'selected' : ''}`}
+            onClick={() => setSelected('local')}
+            role="radio"
+            aria-checked={selected === 'local'}
+          >
+            <div className="backend-card-icon" aria-hidden="true">
+              💻
+            </div>
+            <div className="backend-card-title">Locally</div>
+            <div className="backend-card-subtitle">Gemma 4 E2B</div>
+            <div className="backend-card-body">
+              ~1.5 GB one-time download. Needs WebGPU. Runs entirely in your
+              browser — zero network calls during generation.
+            </div>
+          </button>
+          <button
+            className={`backend-card ${selected === 'remote' ? 'selected' : ''}`}
+            onClick={() => setSelected('remote')}
+            role="radio"
+            aria-checked={selected === 'remote'}
+          >
+            <div className="backend-card-icon" aria-hidden="true">
+              ☁
+            </div>
+            <div className="backend-card-title">On OpenRouter</div>
+            <div className="backend-card-subtitle">
+              {REMOTE_MODEL_ID.replace('google/', '').replace(':free', ' (free)')}
+            </div>
+            <div className="backend-card-body">
+              No download. Faster contestants. Calls OpenRouter directly from
+              your browser using your key — nothing routes through our
+              servers.
+            </div>
+          </button>
+        </div>
+
+        {showsKeyInput && (
+          <div className="backend-key-block">
+            <label htmlFor="backend-key-input" className="backend-key-label">
+              Your OpenRouter API key
+            </label>
+            <input
+              id="backend-key-input"
+              type="password"
+              className="backend-key-input"
+              placeholder="sk-or-v1-…"
+              value={keyInput}
+              onChange={(e) => setKeyInput(e.target.value)}
+              autoComplete="off"
+              spellCheck={false}
+            />
+            <div className="backend-key-note">
+              We call OpenRouter <em>directly from your browser</em> — your
+              key never goes to our servers. We recommend creating a fresh
+              key for this demo with a low spending limit, or relying on the
+              <code> :free </code> tier of Gemma 4 31B which is rate-limited
+              but costs nothing.{' '}
+              <a
+                href="https://openrouter.ai/keys"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Get a key →
+              </a>
+            </div>
+            {keyInputTrimmed.length > 0 && !keyInputValid && (
+              <div className="backend-key-error">
+                That doesn't look like an OpenRouter key (should start with{' '}
+                <code>sk-or-</code>).
+              </div>
+            )}
+          </div>
+        )}
+
+        {showsOverrideInput && (
+          <div className="backend-key-block">
+            <div className="backend-key-status">
+              ✓ Using key from{' '}
+              {storedKey ? (
+                <>
+                  your browser (<code>localStorage</code>)
+                </>
+              ) : (
+                <code>VITE_OPENROUTER_API_KEY</code>
+              )}
+              .
+            </div>
+            <label htmlFor="backend-key-input" className="backend-key-label">
+              Paste a different key to override (optional)
+            </label>
+            <input
+              id="backend-key-input"
+              type="password"
+              className="backend-key-input"
+              placeholder="sk-or-v1-…"
+              value={keyInput}
+              onChange={(e) => setKeyInput(e.target.value)}
+              autoComplete="off"
+              spellCheck={false}
+            />
+            {keyInputTrimmed.length > 0 && !keyInputValid && (
+              <div className="backend-key-error">
+                That doesn't look like an OpenRouter key (should start with{' '}
+                <code>sk-or-</code>).
+              </div>
+            )}
+          </div>
+        )}
+
+        <div className="backend-actions">
+          <button
+            className="primary"
+            disabled={!canSave}
+            onClick={handleSave}
+          >
+            Save &amp; continue
+          </button>
+          {!isFirstVisit && (
+            <button className="muted" onClick={onClose}>
+              Cancel
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

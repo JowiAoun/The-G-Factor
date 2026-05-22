@@ -16,11 +16,20 @@ import {
   formatBytes,
   type CacheInfo,
 } from '../model/cache-info';
+import {
+  REMOTE_MODEL_ID,
+  getMode,
+  getResolvedApiKey,
+  getStoredApiKey,
+  hasMadeBackendChoice,
+  subscribeBackendChange,
+} from '../model/backend';
 import { SEED_GALLERY, type GallerySeed } from '../seeds/gallery';
 import { loadDraft, seedStudioDraft } from '../studio/storage';
 import { TasteSidebar } from './TasteSidebar';
 import { TalentShow } from './TalentShow';
 import { Studio } from './Studio';
+import { BackendChooserModal } from './BackendChooserModal';
 
 type ModelState = 'idle' | 'loading' | 'ready' | 'error';
 export type AppMode = 'remix' | 'talentshow';
@@ -40,6 +49,30 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
   const [seedCode, setSeedCode] = useState(SEED_GALLERY[0].code);
   const [activeSeedId, setActiveSeedId] = useState(SEED_GALLERY[0].id);
   const [tasteVersion, setTasteVersion] = useState(0);
+
+  // Backend chooser state. `backendVersion` increments whenever
+  // backend.ts emits a change so derived values like `currentMode`
+  // re-read after a save. `firstVisit` controls whether the modal
+  // can be dismissed.
+  const [backendVersion, setBackendVersion] = useState(0);
+  const [settingsOpen, setSettingsOpen] = useState(() => !hasMadeBackendChoice());
+  const [firstVisit, setFirstVisit] = useState(() => !hasMadeBackendChoice());
+  useEffect(() => {
+    const unsub = subscribeBackendChange(() => setBackendVersion((v) => v + 1));
+    return unsub;
+  }, []);
+  const currentMode = getMode();
+  const resolvedApiKey = getResolvedApiKey();
+  // `effectiveModelReady` short-circuits to true for remote-with-key —
+  // there's nothing to download, so Studio + TalentShow can act
+  // immediately. Local path stays as today.
+  const effectiveModelReady =
+    currentMode === 'remote'
+      ? !!resolvedApiKey
+      : modelState === 'ready';
+  // Reference backendVersion so React re-evaluates derived values
+  // (currentMode, effectiveModelReady) when subscribers fire.
+  void backendVersion;
 
   const refreshCacheInfo = useCallback(async () => {
     try {
@@ -174,39 +207,67 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
           >
             🎪 Talent Show
           </button>
+          <button
+            className="header-settings-btn"
+            onClick={() => {
+              setFirstVisit(false);
+              setSettingsOpen(true);
+            }}
+            title="Switch model backend"
+            aria-label="Open backend settings"
+          >
+            ⚙
+          </button>
         </div>
       </header>
 
-      <div className="panel">
-        <h2>Model</h2>
-        <div className="row">
-          <button
-            className="primary"
-            onClick={handleLoad}
-            disabled={modelState === 'loading' || modelState === 'ready'}
-          >
-            {modelState === 'ready'
-              ? `Loaded (${device ?? 'cpu'})`
-              : modelState === 'loading'
-                ? 'Loading…'
-                : savedProgress
-                  ? `▶ Resume Gemma 4 E2B (${savedProgress.pct.toFixed(0)}%)`
-                  : 'Load Gemma 4 E2B'}
-          </button>
-          <div className="progressbar">
-            <div style={{ width: `${progressPct}%` }} />
+      {currentMode === 'remote' ? (
+        <div className="panel remote-mode-indicator">
+          <span aria-hidden="true">☁</span>
+          <div>
+            <div className="remote-mode-line">
+              Using <b>OpenRouter</b> — {REMOTE_MODEL_ID}
+            </div>
+            <div className="remote-mode-sub">
+              Key from{' '}
+              {getStoredApiKey()
+                ? 'your browser (localStorage)'
+                : 'VITE_OPENROUTER_API_KEY (.env)'}
+              . Switch via ⚙ in the header.
+            </div>
           </div>
-          <span style={{ fontSize: '0.85rem', color: '#9aa0a8' }}>
-            {progressMsg ||
-              (modelState === 'idle'
-                ? savedProgress
-                  ? `previous attempt reached ${savedProgress.pct.toFixed(0)}% — completed shards are cached, resume skips them`
-                  : 'click to download (~1.5 GB, cached after)'
-                : '')}
-          </span>
         </div>
-        {modelError && <div className="errors">load error: {modelError}</div>}
-        {cacheInfo && (
+      ) : (
+        <div className="panel">
+          <h2>Model</h2>
+          <div className="row">
+            <button
+              className="primary"
+              onClick={handleLoad}
+              disabled={modelState === 'loading' || modelState === 'ready'}
+            >
+              {modelState === 'ready'
+                ? `Loaded (${device ?? 'cpu'})`
+                : modelState === 'loading'
+                  ? 'Loading…'
+                  : savedProgress
+                    ? `▶ Resume Gemma 4 E2B (${savedProgress.pct.toFixed(0)}%)`
+                    : 'Load Gemma 4 E2B'}
+            </button>
+            <div className="progressbar">
+              <div style={{ width: `${progressPct}%` }} />
+            </div>
+            <span style={{ fontSize: '0.85rem', color: '#9aa0a8' }}>
+              {progressMsg ||
+                (modelState === 'idle'
+                  ? savedProgress
+                    ? `previous attempt reached ${savedProgress.pct.toFixed(0)}% — completed shards are cached, resume skips them`
+                    : 'click to download (~1.5 GB, cached after)'
+                  : '')}
+            </span>
+          </div>
+          {modelError && <div className="errors">load error: {modelError}</div>}
+          {cacheInfo && (
           <div
             className="cache-info"
             title={cacheInfo.cacheNames.join(', ') || 'no transformers cache buckets found'}
@@ -246,8 +307,9 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
               ↻
             </button>
           </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
 
       {mode === 'talentshow' && (
         <div className="panel">
@@ -273,7 +335,7 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
 
       {mode === 'remix' && (
         <Studio
-          modelReady={modelState === 'ready'}
+          modelReady={effectiveModelReady}
           onSavedChange={bumpTaste}
           tasteVersion={tasteVersion}
           onBracketCurrent={handleBracketFromStudio}
@@ -282,7 +344,7 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
 
       {mode === 'talentshow' && (
         <TalentShow
-          modelReady={modelState === 'ready'}
+          modelReady={effectiveModelReady}
           seedCode={seedCode}
           onChampionSaved={bumpTaste}
           onContinueInStudio={handleContinueInStudio}
@@ -294,6 +356,16 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
       <footer className="app-foot">
         <a href="?spike">Day-1 spike harness →</a>
       </footer>
+
+      {settingsOpen && (
+        <BackendChooserModal
+          isFirstVisit={firstVisit}
+          onClose={() => {
+            setSettingsOpen(false);
+            setFirstVisit(false);
+          }}
+        />
+      )}
     </div>
   );
 }
