@@ -233,6 +233,7 @@
 - [ ] Embedded demo video
 - [ ] Repo URL + deploy URL + MIT license link
 - [ ] 4+ screenshots embedded with captions
+- [ ] **Talking point**: the casting-stage humor (Buzz the host filling the model's ~100-200 s generation latency with rotating jokes + a patience-mode pool after 60 s) is a UX detail worth surfacing — it turns a forced wait into part of the show and is the kind of warmth that makes a 2B-model demo feel like *a product*, not a benchmark
 
 ### Submission
 - [ ] Repo is public on GitHub
@@ -345,6 +346,40 @@
 - [-] Multi-track stack management (mix stays a single string)
 - [-] Persona roster / picker (Bleep is solo for v1)
 - [-] Sharing a mix by URL / export
+
+---
+
+## Phase 8 — Casting Stage (X-Factor)
+
+> Replaces the shimmer-row casting screen with an animated theatre stage:
+> Buzz (a DiceBear toon-head host) tells rotating jokes during the
+> ~100-200 s generation window, kicks into a patience-themed pool after
+> 60 s if not enough contestants are ready, and curtains slide open when
+> all slots resolve to reveal the first match. Plan at
+> `~/.claude/plans/work-on-the-next-noble-grove.md`.
+
+### Pure logic
+- [x] `src/talent/jokes.ts` — `NORMAL_JOKES` (18), `PATIENCE_JOKES` (10), `REVEAL_JOKES` (4) + `pickFromPool` + `durationForJoke` + `PATIENCE_THRESHOLD_MS` + `PATIENCE_MIN_CONTESTANTS`
+- [x] `src/talent/jokes.test.ts` — catalogue integrity (counts, uniqueness, length bounds, exclusion semantics, duration clamping)
+
+### UI
+- [x] `src/ui/useAnnouncerJoke.ts` — length-aware rotation hook with patience-mode predicate and one-shot reveal line
+- [x] `src/ui/CastingStage.tsx` — backdrop + spotlight + two red curtains + Buzz avatar + speech bubble + progress dots + reveal-class wiring
+- [x] `src/ui/TalentShow.tsx` — `revealing` state + `castingStartedAt` ref + 1500 ms reveal timer between bracket creation and `phase='showing'`
+- [x] `src/styles.css` — casting-stage palette, `host-bob`, `bubble-pop`, `stage-spotlight-pulse` keyframes, `prefers-reduced-motion` guard that swaps the curtain slide for an opacity fade
+
+### Verification (user)
+- [ ] Cold smoke: load `/?talentshow`, pick a seed, hold a 4-bracket → Buzz appears, jokes rotate every 4-7 s, mouth animates while a joke is on screen
+- [ ] Progress dots fill one by one as contestants resolve, no faces or code visible until reveal
+- [ ] Patience trigger: throttle CPU to "6× slowdown" so generation drags past 60 s → joke pool switches to PATIENCE entries ("they should be ready any minute now…!")
+- [ ] When the last contestant resolves: Buzz delivers a reveal line, curtains slide outward, bracket + first match mount in
+- [ ] `prefers-reduced-motion`: curtains fade instead of slide, spotlight + bubble + host-bob animations stilled
+
+### Deferred to follow-up
+- [-] Drumroll / applause SFX on reveal (would step on the Strudel mix audio)
+- [-] Buzz reappearing between matches with commentary
+- [-] Backstage silhouettes of the cast assembling (visible progress would split attention away from Buzz)
+- [-] AI-generated jokes (handwritten so generation cycles stay with the contestants)
 
 ---
 
