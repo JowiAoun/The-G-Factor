@@ -39,6 +39,7 @@ Output:
 {"variation_code":"s(\\"bd hh sd hh\\").every(4, x => x.fast(2))","transformation_label":"fast every 4 bars","explanation_one_line":"doubles the speed every 4th cycle for a fill"}`;
 
 import type { Exemplar } from '../memory/taste';
+import type { VariationAxis } from '../remix/axes';
 export type { Exemplar };
 
 function formatExemplars(exemplars: Exemplar[]): string {
@@ -74,4 +75,67 @@ Seed: ${seedCode}${hint}
 
 Output:`,
   };
+}
+
+// Appended to SYSTEM_PROMPT only when the Talent Show is building a prompt.
+// Bleep (the Studio chat builder) never sees this — its voice should stay
+// surgical, not maximalist.
+export const TALENT_SHOW_SYSTEM_PROMPT_SUFFIX = `TALENT SHOW STAGE
+You are auditioning for a remix bracket. Each contestant explores a different musical territory. Compose a layered Strudel pattern — typically a \`stack(...)\` of 3 to 4 lines, or a single line with 3+ chained methods. Aim for ~5 to 12 lines of formatted code. The seed's identity should still be recognisable, but boldness wins.
+
+LAYERED COMPOSITION EXAMPLES:
+A) stack(
+     s("bd(3,8)").gain(0.9),
+     s("~ sd ~ sd").room(0.25),
+     s("hh*8").gain(0.45).every(4, x => x.fast(2)),
+     note("<c3 eb3 g3 bb3>").s("sawtooth").lpf(900).slow(2)
+   )
+B) s("bd sd hh sd").lpf(sine.range(200, 2000).slow(8)).room(0.5).jux(rev)
+C) stack(
+     s("bd*2").every(4, x => x.fast(2)),
+     s("cp(3,8)").gain(0.6),
+     note("<c eb g bb>*2").s("sawtooth").slow(2).delay(0.25)
+   )`;
+
+export type TalentShowPromptOpts = {
+  axis: VariationAxis;
+  exemplars?: Exemplar[];
+  previousLabels?: string[];
+  retryHint?: string;
+};
+
+export function buildTalentShowVariationPrompt(
+  seedCode: string,
+  opts: TalentShowPromptOpts,
+): { system: string; user: string } {
+  const { axis, exemplars = [], previousLabels = [], retryHint } = opts;
+  const filteredLabels = previousLabels.filter((l) => l && l.trim().length > 0);
+  const taste = formatExemplars(exemplars);
+  const hint = retryHint
+    ? `\n\nPrevious attempt was invalid because: ${retryHint}. Produce a different, valid variation.`
+    : '';
+  const redundancyBlock =
+    filteredLabels.length > 0
+      ? `Other contestants in this round have already produced: ${filteredLabels.join(', ')}. Your variation must explore a different musical territory.\n\n`
+      : '';
+
+  const system = `${SYSTEM_PROMPT}
+
+${TALENT_SHOW_SYSTEM_PROMPT_SUFFIX}
+
+AXIS EXAMPLE — ${axis.id}:
+${axis.exemplar}`;
+
+  const user = `${FEWSHOT_REMIX}${taste}
+
+${redundancyBlock}AXIS DIRECTIVE: ${axis.directive}
+Favoured techniques: ${axis.techniques.join(', ')}.
+
+Now remix this seed into ONE layered, musically substantial variation following the axis directive above. Output strict JSON with keys: variation_code, transformation_label, explanation_one_line.
+
+Seed: ${seedCode}${hint}
+
+Output:`;
+
+  return { system, user };
 }
