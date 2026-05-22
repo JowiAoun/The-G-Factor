@@ -1,3 +1,6 @@
+import { getMode, getResolvedApiKey, REMOTE_MODEL_ID } from './backend';
+import { generateRemote } from './openrouter';
+
 export type LoadProgress = {
   status: string;
   name?: string;
@@ -85,6 +88,17 @@ export function getDetectedDevice(): 'webgpu' | 'wasm' | null {
 }
 
 export async function loadModel(options: LoadOptions = {}): Promise<void> {
+  // Remote mode has nothing to download — the OpenRouter API is always
+  // ready. Report it as such so callers' progress UI flips to the
+  // ready state without spinning on a phantom download.
+  if (getMode() === 'remote') {
+    options.onProgress?.({
+      status: 'ready',
+      name: `openrouter:${REMOTE_MODEL_ID}`,
+    });
+    return;
+  }
+
   const modelId = options.modelId ?? DEFAULT_MODEL_ID;
   if (model && processor && loadedModelId === modelId) return;
   if (loadPromise) return loadPromise;
@@ -128,6 +142,16 @@ export async function generate(
   messages: GenerateMessage[],
   options: GenerateOptions = {},
 ): Promise<string> {
+  if (getMode() === 'remote') {
+    const key = getResolvedApiKey();
+    if (!key) {
+      throw new Error(
+        'Remote mode is on but no OpenRouter API key is configured. Open ⚙ Settings.',
+      );
+    }
+    return generateRemote(messages, options, key, REMOTE_MODEL_ID);
+  }
+
   if (!model || !processor) throw new Error('Model not loaded. Call loadModel() first.');
 
   // Gemma 4's chat template applies `| trim` to `messages[i]['content']`
