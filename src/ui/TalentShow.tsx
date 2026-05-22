@@ -14,6 +14,9 @@ import { ContestantCard } from './Contestant';
 import { MatchView } from './Match';
 import { BracketView } from './BracketView';
 import { Confetti } from './Confetti';
+import { CastingStage } from './CastingStage';
+
+const REVEAL_DURATION_MS = 1500;
 
 type Phase = 'setup' | 'casting' | 'showing' | 'champion';
 
@@ -38,9 +41,12 @@ function TalentShowInner({
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [championSaved, setChampionSaved] = useState(false);
   const [engineError, setEngineError] = useState<string | null>(null);
+  const [revealing, setRevealing] = useState(false);
 
   const playLock = useRef(false);
   const autoSaveTimer = useRef<number | null>(null);
+  const revealTimer = useRef<number | null>(null);
+  const castingStartedAt = useRef<number>(0);
 
   const handleHoldShow = useCallback(async () => {
     if (!modelReady || phase === 'casting') return;
@@ -53,6 +59,8 @@ function TalentShowInner({
     setBracket(null);
     setChampionSaved(false);
     setPlayingId(null);
+    setRevealing(false);
+    castingStartedAt.current = performance.now();
 
     const collected: Contestant[] = [];
     try {
@@ -80,10 +88,24 @@ function TalentShowInner({
       });
       const initial = createBracket(collected);
       setBracket(initial);
-      setPhase(initial.champion ? 'champion' : 'showing');
+      if (initial.champion) {
+        // One-valid-contestant edge case: jump straight to the
+        // champion scene, skipping the curtain-reveal beat.
+        setPhase('champion');
+      } else {
+        // Theatrical reveal: Buzz delivers a final line, the
+        // curtains slide outward (~800 ms), then the bracket mounts.
+        setRevealing(true);
+        revealTimer.current = window.setTimeout(() => {
+          setPhase('showing');
+          setRevealing(false);
+          revealTimer.current = null;
+        }, REVEAL_DURATION_MS);
+      }
     } catch (err) {
       setEngineError(err instanceof Error ? err.message : String(err));
       setPhase('setup');
+      setRevealing(false);
     }
   }, [modelReady, phase, seedCode, bracketSize]);
 
@@ -172,8 +194,18 @@ function TalentShowInner({
     };
   }, [phase, bracket?.champion, championSaved, persistChampion]);
 
-  // Stop audio on unmount (e.g. mode switch back to Remix Studio).
-  useEffect(() => () => stop(), []);
+  // Stop audio on unmount (e.g. mode switch back to Remix Studio)
+  // and clear any in-flight reveal timer so it can't fire post-unmount.
+  useEffect(
+    () => () => {
+      stop();
+      if (revealTimer.current) {
+        window.clearTimeout(revealTimer.current);
+        revealTimer.current = null;
+      }
+    },
+    [],
+  );
 
   const handleReset = useCallback(() => {
     stop();
@@ -237,38 +269,12 @@ function TalentShowInner({
       )}
 
       {phase === 'casting' && (
-        <div className="panel">
-          <h2>Casting…</h2>
-          <div style={{ color: '#9aa0a8', marginBottom: 12 }}>
-            Generating contestant {Math.min(contestants.length + 1, bracketSize)} of{' '}
-            {bracketSize}…
-          </div>
-          <div className="contestant-row">
-            {Array.from({ length: bracketSize }).map((_, i) => {
-              const c = contestants[i];
-              if (c) {
-                return (
-                  <ContestantCard
-                    key={c.id}
-                    contestant={c}
-                    state="idle"
-                    onPlay={() => handlePlay(c.id, c.code)}
-                    onStop={handleStop}
-                  />
-                );
-              }
-              return (
-                <div key={`placeholder-${i}`} className="contestant placeholder">
-                  <div className="contestant-stage">
-                    <div className="contestant-avatar placeholder-dot" />
-                  </div>
-                  <div className="contestant-name">…</div>
-                  <div className="shimmer" style={{ height: 32 }} />
-                </div>
-              );
-            })}
-          </div>
-        </div>
+        <CastingStage
+          bracketSize={bracketSize}
+          contestantsReady={contestants.length}
+          startedAt={castingStartedAt.current}
+          revealing={revealing}
+        />
       )}
 
       {phase === 'showing' && bracket && (
