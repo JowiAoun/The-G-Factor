@@ -1,5 +1,6 @@
 import { SPIKE_SEEDS, type Seed } from './seeds';
 import { generateVariation, type GenerationResult } from '../remix/generate';
+import { pickAxesForBracket } from '../remix/axes';
 
 export type SpikeRow = {
   id: string;
@@ -20,6 +21,7 @@ export const SPIKE_TOTAL = SPIKE_SEEDS.length * 3;
 export async function runSpike(onProgress: (p: SpikeProgress) => void): Promise<SpikeRow[]> {
   const rows: SpikeRow[] = [];
   for (const seed of SPIKE_SEEDS) {
+    const axes = pickAxesForBracket(seed.code, 3);
     for (let v = 0; v < 3; v++) {
       onProgress({
         done: rows.length,
@@ -27,7 +29,7 @@ export async function runSpike(onProgress: (p: SpikeProgress) => void): Promise<
         current: { seedId: seed.id, variationIndex: v },
         rows: [...rows],
       });
-      const result = await generateVariation(seed.code);
+      const result = await generateVariation(seed.code, axes[v]);
       rows.push({ id: `${seed.id}-${v}`, seed, variationIndex: v, result });
       onProgress({ done: rows.length, total: SPIKE_TOTAL, rows: [...rows] });
     }

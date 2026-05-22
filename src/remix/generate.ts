@@ -1,7 +1,8 @@
-import { buildRemixPrompt, type Exemplar } from '../model/prompts';
+import { buildTalentShowVariationPrompt, type Exemplar } from '../model/prompts';
 import { generate } from '../model/gemma';
 import { safeParseVariation, type Variation } from './schema';
 import { parse as strudelParse } from '../strudel/parse';
+import type { VariationAxis } from './axes';
 
 export type GenerationStatus =
   | 'valid'
@@ -25,17 +26,34 @@ export type GenerationResult = {
 };
 
 const MAX_RETRIES = 3;
+// Talent Show variations are now layered compositions (`stack(...)` of 3-4
+// lines, or single chains with several methods). 480 tokens accommodates the
+// target shape with headroom for the JSON envelope.
+const MAX_NEW_TOKENS = 480;
+// Higher base temperature so the per-axis directive has room to push the
+// sampler into different regions of the output distribution. Retries bump
+// further, capped at 1.25 so JSON shape stays robust.
+function temperatureForAttempt(i: number): number {
+  return Math.min(0.95 + i * 0.1, 1.25);
+}
 
 export async function generateVariation(
   seedCode: string,
+  axis: VariationAxis,
   exemplars: Exemplar[] = [],
+  previousLabels: string[] = [],
 ): Promise<GenerationResult> {
   const t0 = performance.now();
   const attempts: GenerationAttempt[] = [];
   let lastError: string | undefined;
 
   for (let i = 0; i < MAX_RETRIES; i++) {
-    const { system, user } = buildRemixPrompt(seedCode, lastError, exemplars);
+    const { system, user } = buildTalentShowVariationPrompt(seedCode, {
+      axis,
+      exemplars,
+      previousLabels,
+      retryHint: lastError,
+    });
     let raw = '';
     try {
       raw = await generate(
@@ -43,7 +61,10 @@ export async function generateVariation(
           { role: 'system', content: system },
           { role: 'user', content: user },
         ],
-        { maxNewTokens: 220, temperature: 0.85 + i * 0.05 },
+        {
+          maxNewTokens: MAX_NEW_TOKENS,
+          temperature: temperatureForAttempt(i),
+        },
       );
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);

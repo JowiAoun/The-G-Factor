@@ -1,4 +1,5 @@
 import { generateVariation, type GenerationResult } from './generate';
+import { pickAxesForBracket } from './axes';
 import { getTopKSimilar, type Exemplar } from '../memory/taste';
 
 export type RemixProgress = (latest: GenerationResult, index: number) => void;
@@ -16,6 +17,11 @@ export type RemixContext = {
  * Before generating, retrieve the top-K most-similar liked variations from
  * taste memory and inject them as few-shot exemplars (Layer 2 of the
  * pedagogy: the model gets context-better at predicting *this* user's style).
+ *
+ * Each slot is also pre-assigned a musical axis from a deterministic
+ * seed-keyed shuffle. The axis becomes a directive in the prompt so the four
+ * (or eight) variations explore different musical territories instead of
+ * relying on sampling alone for diversity.
  */
 export async function remixSeed(
   seedCode: string,
@@ -27,10 +33,21 @@ export async function remixSeed(
     // eslint-disable-next-line no-console
     console.log('[remix] injecting taste exemplars:', exemplars);
   }
+  const axes = pickAxesForBracket(seedCode, count);
+  // eslint-disable-next-line no-console
+  console.log('[remix] axis lineup:', axes.map((a) => a.id));
   const results: GenerationResult[] = [];
+  const previousLabels: string[] = [];
   for (let i = 0; i < count; i++) {
-    const res = await generateVariation(seedCode, exemplars);
+    const res = await generateVariation(
+      seedCode,
+      axes[i],
+      exemplars,
+      previousLabels,
+    );
     results.push(res);
+    const label = res.variation?.transformation_label;
+    if (label) previousLabels.push(label);
     onResult(res, i);
   }
   return { results, context: { exemplars } };
