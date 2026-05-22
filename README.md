@@ -77,6 +77,15 @@ not just passive likes. Mouth, eyes, and pose all come from DiceBear; the
 talking mouth swaps between `smile` and `agape` on a 150 ms cycle, winners
 laugh and jump with sparkles, losers fade with a sad mouth.
 
+**Axis-driven diversity.** Each contestant is pre-assigned a different
+*musical axis* — polyrhythm, polyphony, modulation, timbre, harmony, tempo,
+sparse, dense — and the prompt for that slot carries the axis directive
+plus a micro-exemplar tailored to it. The lineup is a deterministic
+seed-keyed Fisher-Yates over the 8 axes, so the same seed always casts the
+same axis cohort while a new seed gets a fresh draw. Outputs target
+layered `stack(...)` compositions (≈5-12 lines), so contestants sound
+substantial individually and meaningfully different from each other.
+
 ## How it works — three layers
 
 1. **Static priors** (`src/model/prompts.ts`) — a ~600-token system prompt
