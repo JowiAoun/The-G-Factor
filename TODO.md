@@ -383,6 +383,51 @@
 
 ---
 
+## Phase 9 — OpenRouter Backend
+
+> Adds an optional cloud backend via OpenRouter's `:free` tier of
+> `google/gemma-4-31b-it:free` alongside the existing local Gemma 4 E2B
+> path. First-visit modal picks Local vs Remote; a ⚙ button in the
+> header switches any time. Plan at
+> `~/.claude/plans/work-on-the-next-noble-grove.md`.
+
+### Pure logic
+- [x] `src/model/backend.ts` — mode/key state, localStorage round-trip, `.env` fallback (`VITE_OPENROUTER_API_KEY`), subscriber registry, `looksLikeApiKey` validator, `REMOTE_MODEL_ID` constant
+- [x] `src/model/backend.test.ts` — 36 tests covering round-trip, env precedence, validation, subscribers, throwing-localStorage paths
+- [x] `src/model/openrouter.ts` — `generateRemote` calling OpenRouter's `/api/v1/chat/completions` with bearer auth, mapping `maxNewTokens`/`temperature`/`topP`, surfacing 401/429 with actionable messages
+- [x] `src/model/gemma.ts` — dispatcher: `generate()` and `loadModel()` short-circuit to the remote path when `getMode()==='remote'`; local path otherwise byte-identical
+
+### UI
+- [x] `src/ui/BackendChooserModal.tsx` — two-card chooser (Local / Remote) with conditional API-key input, save/cancel, ESC + backdrop close in settings mode, focus on first focusable element
+- [x] `src/ui/App.tsx` — first-visit `useEffect` opens the modal; ⚙ button in the header reopens it dismissably; subscribes to backend changes; Model panel hidden when mode is remote (replaced with a "Using OpenRouter" indicator); `effectiveModelReady` short-circuits true for remote-with-key
+- [x] `src/styles.css` — `.backend-modal-backdrop` / `.backend-modal` / `.backend-card` / `.backend-key-*` / `.header-settings-btn` / `.remote-mode-indicator` with reduced-motion guard
+
+### Env / Tooling
+- [x] `.env.example` with `VITE_OPENROUTER_API_KEY` placeholder + security disclaimer
+- [x] `src/vite-env.d.ts` declaring `ImportMetaEnv.VITE_OPENROUTER_API_KEY`
+
+### Verification (user)
+- [ ] Cold load with no `.env`: modal appears, choose Local, reload → modal does not reappear
+- [ ] Click ⚙ → modal opens dismissable; ESC / Cancel / backdrop close it without changes
+- [ ] Switch to Remote, paste a real OpenRouter key → Model panel disappears, "Using OpenRouter" indicator appears, Studio + Talent Show unlock instantly
+- [ ] Studio: send Bleep a turn → response arrives from OpenRouter; ↶ Undo works
+- [ ] Talent Show: hold a 4-bracket → Buzz tells jokes during a faster wait, curtains open, bracket runs as today
+- [ ] With `.env` set, choose Remote → key input is replaced with "✓ Using key from VITE_OPENROUTER_API_KEY"
+- [ ] Bad key → 401 surfaces with the actionable error message
+- [ ] DevTools → localStorage round-trip of `strudel-tutor.model.backend-mode`, `…openrouter-key`, `…has-chosen`
+
+### Deferred to follow-up
+- [-] SSE streaming for remote responses (current `generate()` returns a full string)
+- [-] AbortController-driven cancellation for in-flight generations
+- [-] Model picker beyond the pinned `google/gemma-4-31b-it:free`
+- [-] "Test connection" button in the modal
+- [-] Server-side proxy to hide the API key (out of scope for a static demo)
+
+### Writeup hook
+- [ ] DEVPOST / README: surface the dual-backend wiring as a "judges can run it both ways" detail — same prompts, same parser firewall, same axis directives across both backends
+
+---
+
 ## Pivot Trigger (Phase 0 → Sigil)
 
 If Phase 0's hard gate fails (≤5/15 interesting on both 2B and 4B):

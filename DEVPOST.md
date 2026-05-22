@@ -72,6 +72,11 @@ as the marginal-case fallback after a Day-1 brutal feasibility spike.
 The model-choice story is the whole pitch: **a 2B model is *enough* when you
 let the runtime carry the structure.**
 
+An optional cloud backend via OpenRouter's `:free` tier of Gemma 4 31B is
+wired in too — same prompts, same parser firewall, same axis directives — for
+visitors without WebGPU or who want a faster bracket. A first-visit modal
+picks Local vs Remote and a ⚙ button in the header switches any time.
+
 ## Demo
 
 <DEMO_VIDEO_EMBED>

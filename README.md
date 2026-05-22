@@ -25,6 +25,26 @@ First load downloads ~1.5 GB of Gemma 4 E2B (q4 ONNX); cached after.
 - 🎪 Talent Show: `http://localhost:5173/?talentshow` (or the tab in the header)
 - Day-1 feasibility spike harness: `http://localhost:5173/?spike`
 
+## Backends
+
+On first visit a modal asks where to run Gemma:
+
+- **Local** (default) — Gemma 4 E2B via `@huggingface/transformers` on
+  WebGPU/WASM. ~1.5 GB one-time download, cached after, zero network
+  calls during generation.
+- **Remote** — `google/gemma-4-31b-it:free` via OpenRouter. No download,
+  faster contestants, calls made directly from your browser using your
+  key (nothing is proxied through any server we control).
+
+The choice persists in `localStorage` and can be flipped any time via
+the ⚙ button in the header.
+
+To pre-configure remote mode on your own deploy, copy `.env.example` to
+`.env` and set `VITE_OPENROUTER_API_KEY`. The key is baked into the
+bundle at build time and is therefore visible to anyone loading the
+deployed site — we recommend a dedicated key with a low spending limit,
+or relying on the rate-limited `:free` tier which costs nothing.
+
 ## 🎛 Remix Studio — chat with Bleep
 
 The Studio is conversational. Bleep is a cartoon producer (a DiceBear
