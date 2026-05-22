@@ -1269,3 +1269,209 @@ button.liked { background: #6b2a4a; border-color: #80303f; color: #ffd6e3; }
   color: #d6dde6;
   margin: 0 1px;
 }
+
+/* ---------- Casting stage (Talent Show / X-Factor) ---------- */
+
+.casting-stage {
+  position: relative;
+  background: linear-gradient(180deg, #0a0d18 0%, #050608 60%, #03050a 100%);
+  border-radius: 16px;
+  overflow: hidden;
+  min-height: 460px;
+  padding: 28px 24px 36px;
+  isolation: isolate;
+}
+
+.stage-backdrop {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 100%, rgba(120, 60, 30, 0.18) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 30% at 50% 0%, rgba(50, 70, 120, 0.18) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.stage-spotlight {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 55% 80% at 50% 22%,
+    rgba(255, 220, 140, 0.28) 0%,
+    rgba(255, 180, 90, 0.10) 30%,
+    transparent 65%
+  );
+  pointer-events: none;
+  z-index: 1;
+  animation: stage-spotlight-pulse 4.5s ease-in-out infinite;
+}
+
+.stage-curtain {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 32%;
+  background:
+    repeating-linear-gradient(90deg,
+      rgba(0, 0, 0, 0.18) 0px,
+      rgba(0, 0, 0, 0.18) 4px,
+      transparent 4px,
+      transparent 28px),
+    linear-gradient(90deg, #4a0808 0%, #8c1818 35%, #6a1010 65%, #3a0404 100%);
+  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.5);
+  z-index: 2;
+  transition: transform 850ms cubic-bezier(0.35, 0.1, 0.25, 1);
+}
+
+.stage-curtain.left {
+  left: 0;
+  border-right: 2px solid #2a0303;
+}
+
+.stage-curtain.right {
+  right: 0;
+  border-left: 2px solid #2a0303;
+}
+
+.casting-stage.is-revealing .stage-curtain.left {
+  transform: translateX(-100%);
+}
+
+.casting-stage.is-revealing .stage-curtain.right {
+  transform: translateX(100%);
+}
+
+.casting-host {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 28px;
+  transition: opacity 600ms ease;
+}
+
+.casting-stage.is-revealing .casting-host {
+  opacity: 0.7;
+}
+
+.casting-host-avatar {
+  width: 140px;
+  height: 140px;
+  filter: drop-shadow(0 8px 24px rgba(255, 200, 120, 0.25));
+  animation: host-bob 3.2s ease-in-out infinite;
+}
+
+.casting-host-avatar svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.casting-host-name {
+  color: #c9b06e;
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.casting-host-bubble {
+  position: relative;
+  background: #1d1f25;
+  border: 1px solid #2a2d34;
+  border-radius: 14px;
+  padding: 14px 18px;
+  max-width: 480px;
+  font-size: 1.05rem;
+  line-height: 1.45;
+  color: #e7e9ee;
+  text-align: center;
+  animation: bubble-pop 350ms cubic-bezier(0.2, 1, 0.3, 1);
+}
+
+.casting-host-bubble::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-bottom: 7px solid #2a2d34;
+}
+
+.casting-host-bubble::after {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 6px solid #1d1f25;
+}
+
+.stage-progress-dots {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  gap: 9px;
+  justify-content: center;
+  margin-top: 28px;
+}
+
+.stage-progress-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  transition:
+    background 420ms,
+    box-shadow 420ms,
+    transform 420ms,
+    border-color 420ms;
+}
+
+.stage-progress-dot.filled {
+  background: linear-gradient(135deg, #ffd97d 0%, #ff9a3c 100%);
+  border-color: rgba(255, 220, 140, 0.6);
+  box-shadow: 0 0 14px rgba(255, 200, 100, 0.65);
+  transform: scale(1.15);
+}
+
+@keyframes stage-spotlight-pulse {
+  0%, 100% { opacity: 0.85; }
+  50%      { opacity: 1.0; }
+}
+
+@keyframes host-bob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+
+@keyframes bubble-pop {
+  from { opacity: 0; transform: translateY(8px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage-curtain {
+    transition: opacity 400ms ease;
+  }
+  .casting-stage.is-revealing .stage-curtain {
+    transform: none;
+    opacity: 0;
+  }
+  .stage-spotlight,
+  .casting-host-avatar,
+  .casting-host-bubble {
+    animation: none;
+  }
+}
