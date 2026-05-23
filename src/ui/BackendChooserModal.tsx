@@ -1,12 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   REMOTE_MODEL_ID,
+  THROTTLE_DEFAULTS,
   getMode,
   getStoredApiKey,
+  getThrottleMs,
   hasMadeBackendChoice,
   looksLikeApiKey,
   setMode,
   setStoredApiKey,
+  setThrottleMs,
   type BackendMode,
 } from '../model/backend';
 
@@ -34,6 +37,7 @@ export function BackendChooserModal({ isFirstVisit, onClose }: Props) {
   });
   const [keyInput, setKeyInput] = useState('');
   const storedKey = useMemo(() => getStoredApiKey(), []);
+  const [throttle, setThrottle] = useState<number>(() => getThrottleMs());
 
   const firstFocusRef = useRef<HTMLButtonElement>(null);
   useEffect(() => {
@@ -70,6 +74,9 @@ export function BackendChooserModal({ isFirstVisit, onClose }: Props) {
     if (!selected) return;
     if (selected === 'remote' && keyInputTrimmed.length > 0) {
       setStoredApiKey(keyInputTrimmed);
+    }
+    if (!isFirstVisit) {
+      setThrottleMs(throttle);
     }
     setMode(selected);
     onClose();
@@ -207,6 +214,33 @@ export function BackendChooserModal({ isFirstVisit, onClose }: Props) {
                 <code>sk-or-</code>).
               </div>
             )}
+          </div>
+        )}
+
+        {!isFirstVisit && (
+          <div className="backend-throttle-block">
+            <label
+              htmlFor="backend-throttle-input"
+              className="backend-key-label"
+            >
+              Delay between contestants: <b>{throttle} ms</b>
+            </label>
+            <input
+              id="backend-throttle-input"
+              type="range"
+              min={0}
+              max={5000}
+              step={100}
+              value={throttle}
+              onChange={(e) => setThrottle(Number(e.target.value))}
+              className="backend-throttle-slider"
+            />
+            <div className="backend-key-note">
+              How long to pause between each Talent Show contestant generation.
+              Higher values keep the free OpenRouter tier under its per-minute
+              cap; <code>0</code> is fine for Local mode. Default{' '}
+              {THROTTLE_DEFAULTS.default} ms.
+            </div>
           </div>
         )}
 

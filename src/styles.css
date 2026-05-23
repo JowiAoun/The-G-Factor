@@ -1688,6 +1688,29 @@ button.liked { background: #6b2a4a; border-color: #80303f; color: #ffd6e3; }
   color: #d6dde6;
 }
 
+.backend-throttle-block {
+  background: #181a1f;
+  border: 1px solid #2a2d34;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.backend-throttle-block .backend-key-label {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.9rem;
+  color: #d6dde6;
+}
+
+.backend-throttle-slider {
+  width: 100%;
+  accent-color: #4f7cff;
+}
+
 .backend-actions {
   display: flex;
   gap: 10px;
