@@ -1,3 +1,5 @@
+import { parse } from './parse';
+
 type Globals = typeof globalThis & {
   evaluate?: (code: string) => Promise<unknown> | unknown;
   hush?: () => void;
@@ -162,6 +164,19 @@ export async function init(): Promise<void> {
 }
 
 export async function play(code: string): Promise<void> {
+  // Parser firewall — refuse unsafe code BEFORE booting Strudel or touching
+  // the audio context. Catches both LLM-emitted prompt-injection attempts
+  // (already filtered by the retry loop, but defence-in-depth) and code the
+  // user typed or pasted directly into the editor.
+  const safety = await parse(code);
+  if (!safety.valid) {
+    throw new Error(
+      safety.reason === 'unsafe'
+        ? `Refused to play: ${safety.error}`
+        : `Invalid Strudel: ${safety.error}`,
+    );
+  }
+
   await init();
   // A prior stop() may have suspended the context; resume before evaluating
   // so new pattern events can actually reach the speakers. Also covers the
