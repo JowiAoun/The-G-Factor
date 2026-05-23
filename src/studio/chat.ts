@@ -120,7 +120,9 @@ export async function composeTurn(args: {
         error: firewall.error,
         parsed: parsed.value,
       });
-      lastError = `invalid_strudel: ${firewall.error}`;
+      // Pass the `reason` along so the next retry hint tells Gemma whether
+      // to fix syntax vs. drop a disallowed reference.
+      lastError = `invalid_strudel (${firewall.reason}): ${firewall.error}`;
       continue;
     }
 
