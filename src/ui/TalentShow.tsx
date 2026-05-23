@@ -47,6 +47,10 @@ function TalentShowInner({
   const autoSaveTimer = useRef<number | null>(null);
   const revealTimer = useRef<number | null>(null);
   const castingStartedAt = useRef<number>(0);
+  // Monotonic id of the current run. Bumped on every Hold-the-show and on
+  // every reset so in-flight `remixSeed` callbacks can detect that the run
+  // they belong to was abandoned and discard their state updates.
+  const runIdRef = useRef(0);
 
   const handleHoldShow = useCallback(async () => {
     if (!modelReady || phase === 'casting') return;
@@ -61,10 +65,12 @@ function TalentShowInner({
     setPlayingId(null);
     setRevealing(false);
     castingStartedAt.current = performance.now();
+    const runId = ++runIdRef.current;
 
     const collected: Contestant[] = [];
     try {
       await remixSeed(trimmed, bracketSize, (result, index) => {
+        if (runIdRef.current !== runId) return;
         const variation = result.variation;
         const valid = result.status === 'valid' && variation;
         const avatarSeed = hashSeed(
@@ -86,6 +92,7 @@ function TalentShowInner({
         collected.push(c);
         setContestants([...collected]);
       });
+      if (runIdRef.current !== runId) return;
       const initial = createBracket(collected);
       setBracket(initial);
       if (initial.champion) {
@@ -97,12 +104,14 @@ function TalentShowInner({
         // curtains slide outward (~800 ms), then the bracket mounts.
         setRevealing(true);
         revealTimer.current = window.setTimeout(() => {
+          if (runIdRef.current !== runId) return;
           setPhase('showing');
           setRevealing(false);
           revealTimer.current = null;
         }, REVEAL_DURATION_MS);
       }
     } catch (err) {
+      if (runIdRef.current !== runId) return;
       setEngineError(err instanceof Error ? err.message : String(err));
       setPhase('setup');
       setRevealing(false);
@@ -208,6 +217,16 @@ function TalentShowInner({
   );
 
   const handleReset = useCallback(() => {
+    // Invalidate any in-flight remixSeed callbacks for the previous run.
+    runIdRef.current++;
+    if (revealTimer.current) {
+      window.clearTimeout(revealTimer.current);
+      revealTimer.current = null;
+    }
+    if (autoSaveTimer.current) {
+      window.clearTimeout(autoSaveTimer.current);
+      autoSaveTimer.current = null;
+    }
     stop();
     setPhase('setup');
     setContestants([]);
@@ -215,6 +234,7 @@ function TalentShowInner({
     setPlayingId(null);
     setChampionSaved(false);
     setEngineError(null);
+    setRevealing(false);
   }, []);
 
   return (
@@ -265,6 +285,22 @@ function TalentShowInner({
               {engineError}
             </div>
           )}
+        </div>
+      )}
+
+      {(phase === 'casting' || phase === 'showing') && (
+        <div className="talentshow-toolbar">
+          <button
+            className="muted talentshow-restart-btn"
+            onClick={handleReset}
+            title={
+              phase === 'casting'
+                ? 'Stop casting and return to setup'
+                : 'Discard this bracket and return to setup'
+            }
+          >
+            🔁 Restart show
+          </button>
         </div>
       )}
 

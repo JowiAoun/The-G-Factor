@@ -1270,6 +1270,19 @@ button.liked { background: #6b2a4a; border-color: #80303f; color: #ffd6e3; }
   margin: 0 1px;
 }
 
+/* ---------- Talent Show toolbar (restart) ---------- */
+
+.talentshow-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+.talentshow-restart-btn {
+  font-size: 0.85rem;
+  padding: 6px 12px;
+}
+
 /* ---------- Casting stage (Talent Show / X-Factor) ---------- */
 
 .casting-stage {
