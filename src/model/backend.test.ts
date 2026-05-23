@@ -1,12 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   REMOTE_MODEL_ID,
+  THROTTLE_DEFAULTS,
   getMode,
   getStoredApiKey,
+  getThrottleMs,
   hasMadeBackendChoice,
   looksLikeApiKey,
   setMode,
   setStoredApiKey,
+  setThrottleMs,
   subscribeBackendChange,
 } from './backend';
 
@@ -91,6 +94,44 @@ describe('getStoredApiKey / setStoredApiKey', () => {
     setStoredApiKey('sk-or-v1-abc');
     setStoredApiKey(null);
     expect(getStoredApiKey()).toBeNull();
+  });
+});
+
+describe('getThrottleMs / setThrottleMs', () => {
+  it('defaults to the documented default when unset', () => {
+    expect(getThrottleMs()).toBe(THROTTLE_DEFAULTS.default);
+  });
+
+  it('round-trips a value', () => {
+    setThrottleMs(2500);
+    expect(getThrottleMs()).toBe(2500);
+  });
+
+  it('clamps negative values to 0', () => {
+    setThrottleMs(-500);
+    expect(getThrottleMs()).toBe(0);
+  });
+
+  it('clamps values above the max to the max', () => {
+    setThrottleMs(THROTTLE_DEFAULTS.max + 99999);
+    expect(getThrottleMs()).toBe(THROTTLE_DEFAULTS.max);
+  });
+
+  it('rounds non-integer ms', () => {
+    setThrottleMs(1234.7);
+    expect(getThrottleMs()).toBe(1235);
+  });
+
+  it('ignores garbage stored values and returns the default', () => {
+    localStorage.setItem('strudel-tutor.model.throttle-ms', 'not-a-number');
+    expect(getThrottleMs()).toBe(THROTTLE_DEFAULTS.default);
+  });
+
+  it('notifies subscribers', () => {
+    const cb = vi.fn();
+    subscribeBackendChange(cb);
+    setThrottleMs(1000);
+    expect(cb).toHaveBeenCalled();
   });
 });
 

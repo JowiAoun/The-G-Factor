@@ -21,6 +21,15 @@ export const REMOTE_MODEL_ID = 'google/gemma-4-31b-it:free';
 const LS_MODE = 'strudel-tutor.model.backend-mode';
 const LS_KEY = 'strudel-tutor.model.openrouter-key';
 const LS_CHOSEN = 'strudel-tutor.model.has-chosen';
+const LS_THROTTLE = 'strudel-tutor.model.throttle-ms';
+
+// Min delay between sequential contestant generations, applied by
+// `remixSeed` in `src/remix/orchestrate.ts`. The default is tuned to keep
+// the free OpenRouter tier under its per-minute cap on a 4-bracket even
+// when each contestant retries once. Local mode users can drop it to 0
+// via Settings since WebGPU already serialises on the adapter.
+const THROTTLE_DEFAULT_MS = 1500;
+const THROTTLE_MAX_MS = 30_000;
 
 function safeGetItem(key: string): string | null {
   try {
@@ -72,6 +81,25 @@ export function setStoredApiKey(key: string | null): void {
 export function hasMadeBackendChoice(): boolean {
   return safeGetItem(LS_CHOSEN) === '1';
 }
+
+export function getThrottleMs(): number {
+  const raw = safeGetItem(LS_THROTTLE);
+  if (raw === null) return THROTTLE_DEFAULT_MS;
+  const n = Number.parseInt(raw, 10);
+  if (!Number.isFinite(n) || n < 0) return THROTTLE_DEFAULT_MS;
+  return Math.min(n, THROTTLE_MAX_MS);
+}
+
+export function setThrottleMs(ms: number): void {
+  const clamped = Math.max(0, Math.min(Math.round(ms), THROTTLE_MAX_MS));
+  safeSetItem(LS_THROTTLE, String(clamped));
+  emit();
+}
+
+export const THROTTLE_DEFAULTS = {
+  default: THROTTLE_DEFAULT_MS,
+  max: THROTTLE_MAX_MS,
+} as const;
 
 /**
  * Lightweight client-side sanity check. OpenRouter keys start with
