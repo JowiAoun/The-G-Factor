@@ -1,17 +1,69 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-// COOP/COEP are required for transformers.js + WebGPU + cross-origin isolated
-// contexts (SharedArrayBuffer). Same headers go on Vercel via vercel.json.
-const isolationHeaders = {
+// Security headers shared between dev (Vite) and prod (Vercel). Keep this
+// in sync with `vercel.json` — the README's Security model section calls
+// the duplication out explicitly. Notes on each directive live in
+// `~/.claude/plans/work-on-the-next-noble-grove.md`.
+//
+// `unsafe-eval` + `wasm-unsafe-eval` in script-src are unavoidable:
+// Strudel's runtime evaluates user JS via eval; transformers.js loads
+// ONNX/WASM. The parser firewall in `src/strudel/parse.ts` rejects
+// dangerous globals before any eval site is reached, so unsafe-eval is
+// gated by an AST deny-list rather than left wide open.
+const csp = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-eval' 'wasm-unsafe-eval'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data:",
+  "font-src 'self' data:",
+  "connect-src 'self' https://openrouter.ai https://huggingface.co https://*.huggingface.co https://*.hf.co",
+  "worker-src 'self' blob:",
+  "child-src 'self' blob:",
+  "frame-ancestors 'none'",
+  "base-uri 'self'",
+  "form-action 'none'",
+  "object-src 'none'",
+  "manifest-src 'self'",
+  "media-src 'self' blob: data:",
+].join('; ');
+
+const permissionsPolicy = [
+  'camera=()',
+  'microphone=()',
+  'geolocation=()',
+  'gyroscope=()',
+  'accelerometer=()',
+  'magnetometer=()',
+  'payment=()',
+  'usb=()',
+  'midi=()',
+  'serial=()',
+  'bluetooth=()',
+].join(', ');
+
+const securityHeaders = {
+  // COOP/COEP — required for transformers.js + WebGPU + SharedArrayBuffer.
   'Cross-Origin-Opener-Policy': 'same-origin',
   'Cross-Origin-Embedder-Policy': 'require-corp',
+  // CSP — primary defense against script injection and unintended network use.
+  'Content-Security-Policy': csp,
+  // Clickjacking defense (CSP `frame-ancestors` is the modern equivalent;
+  // X-Frame-Options is kept for older-browser coverage).
+  'X-Frame-Options': 'DENY',
+  // MIME-sniffing defense.
+  'X-Content-Type-Options': 'nosniff',
+  // Default referrer behaviour; OpenRouter still gets origin via the
+  // explicit `HTTP-Referer` header we set in the fetch call.
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  // Deny all sensor / payment / serial / bluetooth / etc. APIs we never use.
+  'Permissions-Policy': permissionsPolicy,
 } as const;
 
 export default defineConfig({
   plugins: [react()],
-  server: { headers: isolationHeaders, host: true },
-  preview: { headers: isolationHeaders },
+  server: { headers: securityHeaders, host: true },
+  preview: { headers: securityHeaders },
   optimizeDeps: {
     exclude: ['@huggingface/transformers'],
   },
