@@ -1,6 +1,7 @@
 import { generateVariation, type GenerationResult } from './generate';
 import { pickAxesForBracket } from './axes';
 import { getTopKSimilar, type Exemplar } from '../memory/taste';
+import { getThrottleMs } from '../model/backend';
 
 export type RemixProgress = (latest: GenerationResult, index: number) => void;
 
@@ -39,6 +40,10 @@ export async function remixSeed(
   const results: GenerationResult[] = [];
   const previousLabels: string[] = [];
   for (let i = 0; i < count; i++) {
+    if (i > 0) {
+      const delay = getThrottleMs();
+      if (delay > 0) await sleep(delay);
+    }
     const res = await generateVariation(
       seedCode,
       axes[i],
@@ -51,4 +56,8 @@ export async function remixSeed(
     onResult(res, i);
   }
   return { results, context: { exemplars } };
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => globalThis.setTimeout(resolve, ms));
 }
