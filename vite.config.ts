@@ -32,22 +32,35 @@ function swVersion(): Plugin {
 // ONNX/WASM. The parser firewall in `src/strudel/parse.ts` rejects
 // dangerous globals before any eval site is reached, so unsafe-eval is
 // gated by an AST deny-list rather than left wide open.
-const csp = [
-  "default-src 'self'",
-  "script-src 'self' 'unsafe-eval' 'wasm-unsafe-eval'",
-  "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data:",
-  "font-src 'self' data:",
-  "connect-src 'self' https://openrouter.ai https://huggingface.co https://*.huggingface.co https://*.hf.co",
-  "worker-src 'self' blob:",
-  "child-src 'self' blob:",
-  "frame-ancestors 'none'",
-  "base-uri 'self'",
-  "form-action 'none'",
-  "object-src 'none'",
-  "manifest-src 'self'",
-  "media-src 'self' blob: data:",
-].join('; ');
+//
+// `script-src` policy differs between dev and prod:
+//  - Prod: no `'unsafe-inline'` — we ship zero inline <script> blocks.
+//  - Dev: Vite injects the React-Refresh preamble as an inline script
+//    in index.html; blocking it kills HMR and leaves the React tree
+//    unmounted (blank #root). We add `'unsafe-inline'` for dev only.
+//    Production stays strict so the deployed surface isn't relaxed.
+function buildCsp(mode: 'dev' | 'prod'): string {
+  const scriptSrc =
+    mode === 'dev'
+      ? "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval'"
+      : "script-src 'self' 'unsafe-eval' 'wasm-unsafe-eval'";
+  return [
+    "default-src 'self'",
+    scriptSrc,
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data:",
+    "font-src 'self' data:",
+    "connect-src 'self' https://openrouter.ai https://huggingface.co https://*.huggingface.co https://*.hf.co",
+    "worker-src 'self' blob:",
+    "child-src 'self' blob:",
+    "frame-ancestors 'none'",
+    "base-uri 'self'",
+    "form-action 'none'",
+    "object-src 'none'",
+    "manifest-src 'self'",
+    "media-src 'self' blob: data:",
+  ].join('; ');
+}
 
 const permissionsPolicy = [
   'camera=()',
@@ -60,7 +73,8 @@ const permissionsPolicy = [
   'usb=()',
   'midi=()',
   'serial=()',
-  'bluetooth=()',
+  // `bluetooth=()` was rejected by Chrome as an unrecognized feature
+  // and only added console noise — dropped.
 ].join(', ');
 
 const securityHeaders = {
@@ -68,7 +82,7 @@ const securityHeaders = {
   'Cross-Origin-Opener-Policy': 'same-origin',
   'Cross-Origin-Embedder-Policy': 'require-corp',
   // CSP — primary defense against script injection and unintended network use.
-  'Content-Security-Policy': csp,
+  'Content-Security-Policy': buildCsp('dev'),
   // Clickjacking defense (CSP `frame-ancestors` is the modern equivalent;
   // X-Frame-Options is kept for older-browser coverage).
   'X-Frame-Options': 'DENY',
