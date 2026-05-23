@@ -424,6 +424,42 @@
 
 ---
 
+## Phase 10 — Security hardening
+
+> Tightens the security posture around the *evaluation* surface (Strudel
+> runs user-supplied JS) and the *transport* surface (HTTP headers) so the
+> demo is reasonable to deploy to the public web. Plan at
+> `~/.claude/plans/work-on-the-next-noble-grove.md`.
+
+### Pure logic
+- [x] `package.json` — add `acorn-walk` dep (matches existing `acorn` major)
+- [x] `src/strudel/parse.ts` — extend ParseResult with `reason: 'syntax' \| 'unsafe'`. AST walker rejects bare references to dangerous globals (`fetch`, `eval`, `localStorage`, `document`, …), sandbox-escape member access (`.constructor`, `.__proto__`, …), dynamic `import()`, and bracket-notation equivalents. Banned sets exported for tests.
+- [x] `src/strudel/parse.test.ts` — 19 unsafe-pattern rejections + axis-exemplar regression guard + reclassified syntax cases. 49 total parse tests.
+- [x] `src/strudel/engine.ts` — `play()` runs `parse()` before booting Strudel or touching the audio context; throws `Refused to play: …` for unsafe code.
+- [x] `src/strudel/engine.test.ts` — 5 tests asserting `play()` refuses unsafe code before reaching the mocked Strudel boundary.
+- [x] `src/remix/generate.ts` and `src/studio/chat.ts` — surface `firewall.reason` in retry hints so Gemma knows whether to fix syntax vs. drop a banned reference.
+
+### Headers
+- [x] `vite.config.ts` — `securityHeaders` block (CSP + X-Frame-Options + X-Content-Type-Options + Referrer-Policy + Permissions-Policy + existing COOP/COEP) applied to dev + preview servers.
+- [x] `vercel.json` — mirrors the same headers for production. CSP scoped to `'self'` + OpenRouter + Hugging Face; `frame-ancestors 'none'`; `worker-src 'self' blob:`; `media-src 'self' blob: data:`.
+
+### Verification (user)
+- [ ] Cold load with CSP enforcing — DevTools Console shows no violations
+- [ ] Paste `fetch("https://example.com")` into the Studio editor → "Refused to play: disallowed reference: fetch" surfaces in the engine-error UI
+- [ ] Paste `(0).constructor.constructor("alert(1)")()` → "Refused to play: disallowed property access: .constructor", no alert fires
+- [ ] Paste a legitimate Strudel pattern (`s("bd*4").jux(rev)`) → plays normally
+- [ ] Hold a Talent Show bracket → contestants generate and play; CSP doesn't block HF model downloads
+- [ ] `curl -sI https://<preview>.vercel.app/ | grep -iE 'content-security|x-frame|referrer|permissions'` returns the expected directives
+
+### Deferred to follow-up
+- [-] Iframe sandbox for Strudel evaluation (real isolation; touches the audio pipeline)
+- [-] Key encryption at rest (pointless on the same origin)
+- [-] Server-side proxy for OpenRouter (out of scope for a static demo)
+- [-] CSP violation reporting endpoint (no server)
+- [-] Removing `unsafe-eval` from `script-src` (Strudel and transformers.js both require it)
+
+---
+
 ## Pivot Trigger (Phase 0 → Sigil)
 
 If Phase 0's hard gate fails (≤5/15 interesting on both 2B and 4B):

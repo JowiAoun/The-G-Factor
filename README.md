@@ -112,19 +112,55 @@ substantial individually and meaningfully different from each other.
    talent-show champions carry `avatar_seed` + `tournament` metadata so the
    sidebar can render their face.
 3. **Parser firewall** (`src/strudel/parse.ts`) — every JSON output is parsed
-   by `acorn` before display; invalid code triggers up to three retries with a
-   hint, then drops the slot.
+   by `acorn` before display, then walked by `acorn-walk` to reject bare
+   references to dangerous globals (`fetch`, `eval`, `localStorage`,
+   `document`, etc.) and sandbox-escape primitives (`.constructor`,
+   `.__proto__`, dynamic `import()`). Invalid code triggers up to three
+   retries with the `(syntax)` vs. `(unsafe)` reason fed back to Gemma, then
+   drops the slot. The same firewall guards `engine.play()` so user-typed or
+   pasted code in the editor goes through the check too.
 
 Studio is the "talk-to-Gemma" write path; Talent Show is the "let Gemma
 fight Gemma" write path; both feed the same IndexedDB taste store.
 
+## Security model
+
+The site is a static SPA — no server, no auth, no user PII beyond what the
+user produces themselves. The two surfaces that matter:
+
+- **OpenRouter API key**: only ever lives in `localStorage` per browser, set
+  by the user via the chooser modal. Never bundled into the deployed code,
+  never logged, never sent anywhere except as `Authorization: Bearer …` to
+  `https://openrouter.ai/api/v1/chat/completions` over HTTPS.
+- **JS evaluation**: Strudel evaluates user-ish code in the same origin as
+  the app, so a stolen API key would be game-over if hostile code ran. The
+  parser firewall (Layer 3 above) is the defense — an AST-walked deny-list
+  of dangerous globals and member accesses. Defense in depth, not a sandbox;
+  multi-step obfuscation could in principle bypass it, but no realistic
+  Gemma output ever would. A proper isolation layer (iframe with the
+  `sandbox` attribute) is an explicit follow-up — out of scope for now
+  because it touches the entire audio pipeline.
+
+The deploy also ships a strict `Content-Security-Policy` (only
+`'self'`, OpenRouter, and the Hugging Face hub are reachable; `frame-
+ancestors 'none'` blocks click-jacking), `X-Frame-Options: DENY`,
+`X-Content-Type-Options: nosniff`, `Referrer-Policy:
+strict-origin-when-cross-origin`, and a `Permissions-Policy` that denies
+camera, microphone, geolocation, payment, USB, and other sensor APIs we
+never use. Headers are kept in sync between `vite.config.ts` (dev) and
+`vercel.json` (prod).
+
+`'unsafe-eval'` is unavoidable in `script-src` (both Strudel and
+transformers.js need it). The AST deny-list bounds the surface that
+unsafe-eval can reach.
+
 ## Tech
 
 - **Model:** Gemma 4 E2B via [@huggingface/transformers v4](https://huggingface.co/docs/transformers.js) — `Gemma4ForConditionalGeneration` + `AutoProcessor`, q4f16 ONNX, WebGPU primary with WASM fallback
-- **Live coding:** [@strudel/web](https://strudel.cc), `acorn` for the parser firewall
+- **Live coding:** [@strudel/web](https://strudel.cc), `acorn` + `acorn-walk` for the parser firewall
 - **Validation:** [zod](https://zod.dev) on the JSON output shape, 3-retry loop on invalid Strudel
 - **Stack:** Vite · React 18 · TypeScript (strict) · IndexedDB (taste memory) · localStorage (studio drafts + saved mixes)
-- **Deploy:** Vercel with `COOP: same-origin` / `COEP: require-corp` (required for transformers.js + WebGPU)
+- **Deploy:** Vercel with `COOP: same-origin` / `COEP: require-corp` (for transformers.js + WebGPU) plus CSP + X-Frame-Options + Referrer-Policy + Permissions-Policy hardening
 
 ## License
 
