@@ -10,7 +10,7 @@ const evaluate = vi.fn(async () => undefined);
 const hush = vi.fn();
 
 vi.mock('@strudel/web', () => ({
-  initStrudel: (...args: unknown[]) => initStrudel(...args),
+  initStrudel: () => initStrudel(),
   getAudioContext: () => null,
 }));
 
