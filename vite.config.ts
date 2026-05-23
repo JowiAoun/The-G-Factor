@@ -1,5 +1,26 @@
-import { defineConfig } from 'vite';
+import { readFile, writeFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
+import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
+
+// Replace the `__SW_VERSION__` placeholder in `public/sw.js` with a
+// build-time-unique value, so each production bundle activates a fresh
+// cache and the previous build's cached HTML/assets get purged on the
+// service worker's `activate` event. Vite copies `public/sw.js` to
+// `dist/sw.js` verbatim, so we patch the file after the copy in the
+// `closeBundle` hook.
+function swVersion(): Plugin {
+  return {
+    name: 'strudel-sw-version',
+    apply: 'build',
+    async closeBundle() {
+      const swPath = resolve(__dirname, 'dist/sw.js');
+      const src = await readFile(swPath, 'utf8');
+      const version = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+      await writeFile(swPath, src.replaceAll('__SW_VERSION__', version));
+    },
+  };
+}
 
 // Security headers shared between dev (Vite) and prod (Vercel). Keep this
 // in sync with `vercel.json` — the README's Security model section calls
@@ -61,7 +82,7 @@ const securityHeaders = {
 } as const;
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), swVersion()],
   server: { headers: securityHeaders, host: true },
   preview: { headers: securityHeaders },
   optimizeDeps: {
