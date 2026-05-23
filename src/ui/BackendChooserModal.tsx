@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   REMOTE_MODEL_ID,
-  getEnvApiKey,
   getMode,
   getStoredApiKey,
   hasMadeBackendChoice,
@@ -21,12 +20,10 @@ type Props = {
  * Two-card chooser for the inference backend. Mounted by App on first
  * visit (blocking) and on demand via the ⚙ settings button (dismissable).
  *
- * Key-input only appears when:
- *   - The user has selected Remote
- *   - AND neither localStorage nor `.env` already resolves a key
- *
- * Otherwise we show a confirmation strip noting which key source is in
- * play, with an override input the user can still use.
+ * The OpenRouter key, when remote is selected, is supplied by the user
+ * here and only here — it is stored in `localStorage` per browser and
+ * never lands in the deployed bundle. If a stored key already exists,
+ * the input becomes an optional override field.
  */
 export function BackendChooserModal({ isFirstVisit, onClose }: Props) {
   const [selected, setSelected] = useState<BackendMode | null>(() => {
@@ -36,9 +33,7 @@ export function BackendChooserModal({ isFirstVisit, onClose }: Props) {
     return hasMadeBackendChoice() ? getMode() : null;
   });
   const [keyInput, setKeyInput] = useState('');
-  const envKey = useMemo(() => getEnvApiKey(), []);
   const storedKey = useMemo(() => getStoredApiKey(), []);
-  const resolvedKey = storedKey ?? envKey ?? null;
 
   const firstFocusRef = useRef<HTMLButtonElement>(null);
   useEffect(() => {
@@ -55,8 +50,8 @@ export function BackendChooserModal({ isFirstVisit, onClose }: Props) {
     return () => window.removeEventListener('keydown', handler);
   }, [isFirstVisit, onClose]);
 
-  const showsKeyInput = selected === 'remote' && !resolvedKey;
-  const showsOverrideInput = selected === 'remote' && !!resolvedKey;
+  const showsKeyInput = selected === 'remote' && !storedKey;
+  const showsOverrideInput = selected === 'remote' && !!storedKey;
   const keyInputTrimmed = keyInput.trim();
   const keyInputValid =
     keyInputTrimmed.length === 0 || looksLikeApiKey(keyInputTrimmed);
@@ -64,8 +59,8 @@ export function BackendChooserModal({ isFirstVisit, onClose }: Props) {
   const canSave = (() => {
     if (selected === null) return false;
     if (selected === 'local') return true;
-    // Remote with a resolved key (env or stored) and no override typed → ok.
-    if (resolvedKey && keyInputTrimmed.length === 0) return true;
+    // Remote with a previously-saved key and no override typed → ok.
+    if (storedKey && keyInputTrimmed.length === 0) return true;
     // Remote with a typed key → require it to look valid.
     if (keyInputTrimmed.length > 0) return looksLikeApiKey(keyInputTrimmed);
     return false;
@@ -191,18 +186,10 @@ export function BackendChooserModal({ isFirstVisit, onClose }: Props) {
         {showsOverrideInput && (
           <div className="backend-key-block">
             <div className="backend-key-status">
-              ✓ Using key from{' '}
-              {storedKey ? (
-                <>
-                  your browser (<code>localStorage</code>)
-                </>
-              ) : (
-                <code>VITE_OPENROUTER_API_KEY</code>
-              )}
-              .
+              ✓ Using your saved OpenRouter key (stored in this browser).
             </div>
             <label htmlFor="backend-key-input" className="backend-key-label">
-              Paste a different key to override (optional)
+              Paste a new key to replace it (optional)
             </label>
             <input
               id="backend-key-input"

@@ -33,17 +33,12 @@ On first visit a modal asks where to run Gemma:
   WebGPU/WASM. ~1.5 GB one-time download, cached after, zero network
   calls during generation.
 - **Remote** — `google/gemma-4-31b-it:free` via OpenRouter. No download,
-  faster contestants, calls made directly from your browser using your
-  key (nothing is proxied through any server we control).
+  faster contestants. The user supplies their own OpenRouter key in the
+  modal; the key lives in `localStorage` for that browser only and is
+  never bundled into the deployed site or proxied through any server.
 
 The choice persists in `localStorage` and can be flipped any time via
 the ⚙ button in the header.
-
-To pre-configure remote mode on your own deploy, copy `.env.example` to
-`.env` and set `VITE_OPENROUTER_API_KEY`. The key is baked into the
-bundle at build time and is therefore visible to anyone loading the
-deployed site — we recommend a dedicated key with a low spending limit,
-or relying on the rate-limited `:free` tier which costs nothing.
 
 ## 🎛 Remix Studio — chat with Bleep
 

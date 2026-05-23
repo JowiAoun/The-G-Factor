@@ -6,12 +6,9 @@
  *   - `'remote'` → Gemma 4 31B free tier on OpenRouter
  *
  * State lives in `localStorage` with the project's standard key convention
- * (`strudel-tutor.<domain>.<key>`). The API key has a build-time fallback
- * via `import.meta.env.VITE_OPENROUTER_API_KEY` so a self-deployed demo
- * can ship pre-configured without exposing a key-input modal step.
- *
- * Resolution precedence for the active key:
- *   localStorage (user-pasted) > .env (deploy-bundled) > null (none)
+ * (`strudel-tutor.<domain>.<key>`). The OpenRouter API key is supplied
+ * exclusively at runtime by the user via the chooser modal — there is no
+ * build-time fallback, so the key never lands in the deployed bundle.
  *
  * A simple subscriber registry lets the App shell re-render when the
  * mode or key changes, without pulling in a context provider.
@@ -49,19 +46,8 @@ function safeRemoveItem(key: string): void {
   }
 }
 
-export function getEnvApiKey(): string | undefined {
-  const v = import.meta.env.VITE_OPENROUTER_API_KEY;
-  if (typeof v !== 'string') return undefined;
-  const trimmed = v.trim();
-  return trimmed.length > 0 ? trimmed : undefined;
-}
-
 export function getStoredApiKey(): string | null {
   return safeGetItem(LS_KEY);
-}
-
-export function getResolvedApiKey(): string | null {
-  return getStoredApiKey() ?? getEnvApiKey() ?? null;
 }
 
 export function getMode(): BackendMode {

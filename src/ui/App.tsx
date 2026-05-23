@@ -19,7 +19,6 @@ import {
 import {
   REMOTE_MODEL_ID,
   getMode,
-  getResolvedApiKey,
   getStoredApiKey,
   hasMadeBackendChoice,
   subscribeBackendChange,
@@ -62,13 +61,13 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
     return unsub;
   }, []);
   const currentMode = getMode();
-  const resolvedApiKey = getResolvedApiKey();
+  const storedApiKey = getStoredApiKey();
   // `effectiveModelReady` short-circuits to true for remote-with-key —
   // there's nothing to download, so Studio + TalentShow can act
   // immediately. Local path stays as today.
   const effectiveModelReady =
     currentMode === 'remote'
-      ? !!resolvedApiKey
+      ? !!storedApiKey
       : modelState === 'ready';
   // Reference backendVersion so React re-evaluates derived values
   // (currentMode, effectiveModelReady) when subscribers fire.
@@ -229,11 +228,7 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
               Using <b>OpenRouter</b> — {REMOTE_MODEL_ID}
             </div>
             <div className="remote-mode-sub">
-              Key from{' '}
-              {getStoredApiKey()
-                ? 'your browser (localStorage)'
-                : 'VITE_OPENROUTER_API_KEY (.env)'}
-              . Switch via ⚙ in the header.
+              Key stored in this browser. Switch via ⚙ in the header.
             </div>
           </div>
         </div>

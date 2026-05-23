@@ -1,9 +1,7 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   REMOTE_MODEL_ID,
-  getEnvApiKey,
   getMode,
-  getResolvedApiKey,
   getStoredApiKey,
   hasMadeBackendChoice,
   looksLikeApiKey,
@@ -37,11 +35,6 @@ class MemStorage implements Storage {
 
 beforeEach(() => {
   (globalThis as { localStorage: Storage }).localStorage = new MemStorage();
-  vi.unstubAllEnvs();
-});
-
-afterEach(() => {
-  vi.unstubAllEnvs();
 });
 
 describe('REMOTE_MODEL_ID', () => {
@@ -98,53 +91,6 @@ describe('getStoredApiKey / setStoredApiKey', () => {
     setStoredApiKey('sk-or-v1-abc');
     setStoredApiKey(null);
     expect(getStoredApiKey()).toBeNull();
-  });
-});
-
-describe('getEnvApiKey', () => {
-  it('returns undefined when env is not set', () => {
-    vi.stubEnv('VITE_OPENROUTER_API_KEY', '');
-    expect(getEnvApiKey()).toBeUndefined();
-  });
-
-  it('returns the env value when present', () => {
-    vi.stubEnv('VITE_OPENROUTER_API_KEY', 'sk-or-env-key-12345');
-    expect(getEnvApiKey()).toBe('sk-or-env-key-12345');
-  });
-
-  it('trims whitespace', () => {
-    vi.stubEnv('VITE_OPENROUTER_API_KEY', '   sk-or-env-key-12345   ');
-    expect(getEnvApiKey()).toBe('sk-or-env-key-12345');
-  });
-
-  it('treats whitespace-only env value as undefined', () => {
-    vi.stubEnv('VITE_OPENROUTER_API_KEY', '   ');
-    expect(getEnvApiKey()).toBeUndefined();
-  });
-});
-
-describe('getResolvedApiKey precedence', () => {
-  it('prefers stored over env', () => {
-    vi.stubEnv('VITE_OPENROUTER_API_KEY', 'sk-or-env-key-12345');
-    setStoredApiKey('sk-or-stored-key-12345');
-    expect(getResolvedApiKey()).toBe('sk-or-stored-key-12345');
-  });
-
-  it('falls back to env when no stored key', () => {
-    vi.stubEnv('VITE_OPENROUTER_API_KEY', 'sk-or-env-key-12345');
-    expect(getResolvedApiKey()).toBe('sk-or-env-key-12345');
-  });
-
-  it('returns null when neither is set', () => {
-    vi.stubEnv('VITE_OPENROUTER_API_KEY', '');
-    expect(getResolvedApiKey()).toBeNull();
-  });
-
-  it('returns env again after stored key is cleared', () => {
-    vi.stubEnv('VITE_OPENROUTER_API_KEY', 'sk-or-env-key-12345');
-    setStoredApiKey('sk-or-stored-key-12345');
-    setStoredApiKey(null);
-    expect(getResolvedApiKey()).toBe('sk-or-env-key-12345');
   });
 });
 

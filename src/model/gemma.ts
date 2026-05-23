@@ -1,4 +1,4 @@
-import { getMode, getResolvedApiKey, REMOTE_MODEL_ID } from './backend';
+import { getMode, getStoredApiKey, REMOTE_MODEL_ID } from './backend';
 import { generateRemote } from './openrouter';
 
 export type LoadProgress = {
@@ -143,7 +143,7 @@ export async function generate(
   options: GenerateOptions = {},
 ): Promise<string> {
   if (getMode() === 'remote') {
-    const key = getResolvedApiKey();
+    const key = getStoredApiKey();
     if (!key) {
       throw new Error(
         'Remote mode is on but no OpenRouter API key is configured. Open ⚙ Settings.',
