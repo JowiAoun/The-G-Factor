@@ -17,7 +17,6 @@ import {
   type CacheInfo,
 } from '../model/cache-info';
 import {
-  REMOTE_MODEL_ID,
   getMode,
   getStoredApiKey,
   hasMadeBackendChoice,
@@ -220,19 +219,7 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
         </div>
       </header>
 
-      {currentMode === 'remote' ? (
-        <div className="panel remote-mode-indicator">
-          <span aria-hidden="true">☁</span>
-          <div>
-            <div className="remote-mode-line">
-              Using <b>OpenRouter</b> — {REMOTE_MODEL_ID}
-            </div>
-            <div className="remote-mode-sub">
-              Key stored in this browser. Switch via ⚙ in the header.
-            </div>
-          </div>
-        </div>
-      ) : (
+      {currentMode !== 'remote' && (
         <div className="panel">
           <h2>Model</h2>
           <div className="row">
