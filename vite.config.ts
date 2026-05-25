@@ -50,7 +50,7 @@ function buildCsp(mode: 'dev' | 'prod'): string {
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data:",
     "font-src 'self' data:",
-    "connect-src 'self' https://openrouter.ai https://huggingface.co https://*.huggingface.co https://*.hf.co",
+    "connect-src 'self' https://openrouter.ai https://huggingface.co https://*.huggingface.co https://*.hf.co https://raw.githubusercontent.com",
     "worker-src 'self' blob:",
     "child-src 'self' blob:",
     "frame-ancestors 'none'",
