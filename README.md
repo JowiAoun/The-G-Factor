@@ -1,11 +1,14 @@
 *This is a submission for the [Gemma 4 Challenge: Write About Gemma 4](https://dev.to/challenges/google-gemma-2026-05-06)*
 
+<img src="PASTE_LOGO_URL" alt="The G Factor" width="130" />
+<!-- LOGO at top of post: public/assets/images/logo.png -->
+
 <!-- You are free to structure your post however you want. You might consider: walking through a local setup or fine-tuning experiment, writing a getting started guide for one of the Gemma 4 models, comparing the model variants and when to use each, or reflecting on what open-source models at this capability level mean for developers. Whatever your angle, make it yours. -->
 
 <!-- Don't forget to add a cover image if you want! -->
 
-![The G Factor main stage: a velvet talent-show theatre with Gemma-generated contestants](PASTE_COVER_IMAGE_URL)
-<!-- COVER / SCREENSHOT A: upload screens/01-home-mainstage.png (the Talent Show main stage). dev.to also lets you set this as the post cover image in the editor settings. -->
+![Welcome to The G Factor, with Gemma as your host for tonight](PASTE_COVER_IMAGE_URL)
+<!-- COVER: public/assets/images/gemma.png (the "Welcome to The G Factor" host banner). You can also set this as the post's cover image in dev.to's editor settings. -->
 
 In psychometrics there is a beautiful, slightly controversial idea called the **g factor**. The short version: across wildly different mental tasks (vocabulary, spatial puzzles, arithmetic, pattern matching) people who do well on one tend to do well on the others, and statisticians can squeeze that shared variance into a single number. One latent "general intelligence" that quietly predicts performance everywhere. 🧠
 
@@ -35,14 +38,16 @@ That middle meaning is the one I keep coming back to. Lay the psychometric idea 
 
 The interesting question in intelligence research was never "how big is the brain." It was "where does general capability actually come from." That is exactly the question I find myself asking about small language models, so I built a music app to chase it.
 
-## So what is it?
+## So what is it? 🤔
 
-**The G Factor** is a browser-native live-coding companion for [Strudel](https://strudel.cc), a JavaScript dialect for writing music as code. There is no server doing the thinking. Gemma 4 runs *in your tab* on WebGPU, generates Strudel patterns, and you play them out loud.
+**The G Factor** is a browser-native live-coding companion for [Strudel](https://strudel.cc). There is no server doing the thinking. Gemma 4 runs *in your tab* on WebGPU, generates Strudel patterns, and you play them out loud!
 
-There are two ways in. In the **Rehearsal Room** you chat with **Bleep**, a cartoon producer who rewrites the track turn by turn ("add a four-on-the-floor kick", "make the hats busier", "give it some reverb"). In the **Talent Show** you drop a seed and Gemma fields a bracket of contestants, each told to explore a different musical axis, and you crown a champion two at a time. Both feed the same taste memory. Here is a single generation, start to finish:
+If you have not met Strudel before: it is a free, open-source environment for making music by writing code, and it runs entirely in the browser. You type small JavaScript-like snippets such as `s("bd hh sd hh")` and it loops them back as a beat, rewriting the sound the instant you change the code. It is a web port of the TidalCycles live-coding tradition, and it is a great target for this experiment precisely because the "language" is compact, composable, and instantly audible: you hear a wrong note the moment it plays.
 
-![One generation, end to end: request, retrieve taste, build prompt, generate, validate, play](PASTE_ONE_GENERATION_GIF_URL)
-<!-- Upload: public/assets/videos/one-generation-theme/one-generation-theme.gif (swap to public/assets/videos/one-generation/one-generation.gif for the light version) -->
+There are two ways in. In the **Rehearsal Room** you chat with **Bleep**, a cartoon producer who rewrites the track turn by turn ("add a four-on-the-floor kick", "make the hats busier", "give it some reverb"). In the **Talent Show** you drop a seed and Gemma fields a bracket of contestants, each told to explore a different musical axis, and you judge them two at a time until one is left standing. Both surfaces feed the same taste memory.
+
+![A Talent Show semifinal: two Gemma-generated contestants going head to head](PASTE_1V1_SCREENSHOT_URL)
+<!-- public/assets/images/1v1.png (a live head-to-head match) -->
 
 <!-- SCREENSHOT B: upload a fresh shot of the Rehearsal Room with Bleep mid-conversation (a few chat turns visible and code in the mix canvas). screens/02-rehearsal-room.png is close but re-take it with an active chat for the post. -->
 ![Chatting with Bleep in the Rehearsal Room](PASTE_REHEARSAL_ROOM_SCREENSHOT_URL)
@@ -66,10 +71,10 @@ A roughly 600-token system prompt that *is* the documentation the model never re
 
 Every time you like a pattern, the app writes `{seed_code, variation_code, transformation_label}` into IndexedDB. On the next generation it scores your past likes against the current seed with a character-bigram Jaccard similarity, takes the top 3, and injects them as a labelled *"this user has previously liked..."* block.
 
-That is the **"learns your taste"** claim, and it is honest: no weights move, no GPU time, no API call. The model adapts to you the way the psychometric test adapts to the test-taker, by feeding it the right few-shot context at the right moment. Cold start works on priors alone, and the experience just gets warmer the more you use it.
+That is the **"learns your taste"** claim, and it is honest: no weights move, no GPU time, no API call. The model adapts to you the way the psychometric test adapts to the test-taker, by feeding it the right few-shot context at the right moment. Cold start works on priors alone, and the experience just gets warmer the more you use it. And when a contestant wins its bracket, that head-to-head-verified preference is exactly what gets written back into the taste memory:
 
-<!-- SCREENSHOT C (NEW): upload a shot of the taste sidebar populated, showing avatar thumbnails and the trophy badge (heart a few patterns or finish a tournament first). -->
-![The taste sidebar filling up with liked patterns and tournament champions](PASTE_TASTE_SIDEBAR_SCREENSHOT_URL)
+![A crowned Talent Show champion, saved as a head-to-head-verified taste signal](PASTE_WINNER_SCREENSHOT_URL)
+<!-- public/assets/images/winner.png (the champion screen) -->
 
 ### Layer 3: the parser firewall
 
