@@ -10,9 +10,11 @@ export function MatchView({
   rounds,
   playingId,
   curtain,
+  buzzedId,
   onPlay,
   onStop,
   onChoose,
+  onGoldenBuzz,
 }: {
   match: Match;
   totalMatches: number;
@@ -20,9 +22,13 @@ export function MatchView({
   rounds: number;
   playingId: string | null;
   curtain: CurtainState;
+  /** Id of the contestant currently in the golden-buzz shock window
+   *  (1.5 s before the phase flips to champion). */
+  buzzedId: string | null;
   onPlay: (contestantId: string, code: string) => void;
   onStop: () => void;
   onChoose: (contestantId: string) => void;
+  onGoldenBuzz: (contestantId: string) => void;
 }) {
   if (!match.a || !match.b) {
     return (
@@ -34,6 +40,7 @@ export function MatchView({
   const b = match.b;
 
   const stateFor = (cid: string): ContestantViewState => {
+    if (buzzedId === cid) return 'golden-buzzed';
     if (match.winnerId === cid) return 'winner';
     if (match.loserId === cid) return 'loser';
     if (playingId === cid) return 'playing';
@@ -47,7 +54,12 @@ export function MatchView({
         ? 'Semifinal'
         : `Round ${match.round}`;
 
-  const marquee = `🎤 ${roundName} · Match ${matchIndex + 1} of ${totalMatches}`;
+  // If either contestant in the current match has been buzzed, hijack the
+  // marquee for the shock window so the playbill matches the moment.
+  const buzzedHere = buzzedId === a.id || buzzedId === b.id;
+  const marquee = buzzedHere
+    ? '✨ GOLDEN BUZZER ✨'
+    : `🎤 ${roundName} · Match ${matchIndex + 1} of ${totalMatches}`;
 
   return (
     <>
@@ -65,6 +77,7 @@ export function MatchView({
             onPlay={() => onPlay(a.id, a.code)}
             onStop={onStop}
             onChoose={match.winnerId ? undefined : () => onChoose(a.id)}
+            onGoldenBuzz={match.winnerId ? undefined : () => onGoldenBuzz(a.id)}
           />
           <div key={match.id} className="vs-sash" aria-hidden="true">
             VS
@@ -76,6 +89,7 @@ export function MatchView({
             onPlay={() => onPlay(b.id, b.code)}
             onStop={onStop}
             onChoose={match.winnerId ? undefined : () => onChoose(b.id)}
+            onGoldenBuzz={match.winnerId ? undefined : () => onGoldenBuzz(b.id)}
           />
         </div>
       </TalentStage>

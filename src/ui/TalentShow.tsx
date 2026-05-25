@@ -19,6 +19,9 @@ import { CastingStage } from './CastingStage';
 import { TalentStage, type CurtainState } from './TalentStage';
 import { Performer } from './Performer';
 import { Toast, useToast } from './Toast';
+import { fireGoldenConfetti } from './goldenConfetti';
+
+const GOLDEN_BUZZ_SHOCK_MS = 1500;
 
 type Phase = 'setup' | 'casting' | 'showing' | 'champion';
 
@@ -71,6 +74,9 @@ function TalentShowInner({
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [championSaved, setChampionSaved] = useState(false);
   const [engineError, setEngineError] = useState<string | null>(null);
+  // Id of the contestant currently in the golden-buzz shock window.
+  // Null outside that window. Cleared once the phase flips to champion.
+  const [buzzedId, setBuzzedId] = useState<string | null>(null);
 
   const { toast, showToast, dismissToast } = useToast();
 
@@ -221,6 +227,26 @@ function TalentShowInner({
     setPlayingId(null);
   }, []);
 
+  const handleGoldenBuzz = useCallback((winnerId: string) => {
+    if (!bracket) return;
+    const winner = bracket.contestants.find((c) => c.id === winnerId);
+    if (!winner) return;
+    setBuzzedId(winnerId);
+    stop();
+    setPlayingId(null);
+    void fireGoldenConfetti();
+    // Hold the shock for the full window; the curtain choreography
+    // useEffect picks up the phase change afterwards and runs
+    // close -> swap -> open over the champion scene.
+    window.setTimeout(() => {
+      setBracket((b) =>
+        b ? { ...b, champion: winner, cursor: b.matches.length } : b,
+      );
+      setPhase('champion');
+      setBuzzedId(null);
+    }, GOLDEN_BUZZ_SHOCK_MS);
+  }, [bracket]);
+
   const handleChoose = useCallback((winnerId: string) => {
     setBracket((b) => {
       if (!b) return b;
@@ -313,6 +339,7 @@ function TalentShowInner({
     setPlayingId(null);
     setChampionSaved(false);
     setEngineError(null);
+    setBuzzedId(null);
     onShowFinished?.();
   }, [onShowFinished]);
 
@@ -409,9 +436,11 @@ function TalentShowInner({
               rounds={bracket.rounds}
               playingId={playingId}
               curtain={curtainState}
+              buzzedId={buzzedId}
               onPlay={handlePlay}
               onStop={handleStop}
               onChoose={handleChoose}
+              onGoldenBuzz={handleGoldenBuzz}
             />
           )}
           {engineError && <div className="errors">{engineError}</div>}

@@ -1597,6 +1597,75 @@ button.liked { background: #6b2a4a; border-color: #80303f; color: #ffd6e3; }
   z-index: -1;
 }
 
+/* Golden buzzer button - juicy, pulses to draw the eye. */
+.golden-buzz {
+  margin-top: 6px;
+  padding: 6px 14px;
+  background: linear-gradient(135deg, #ffd86b 0%, #ff9a3c 100%);
+  color: #2a1a04;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  font-size: 0.78rem;
+  border: 2px solid #ffe6a3;
+  border-radius: 999px;
+  box-shadow: 0 0 18px rgba(255, 216, 107, 0.55);
+  cursor: pointer;
+  animation: golden-pulse 1.8s ease-in-out infinite;
+  transition: transform 120ms ease, box-shadow 200ms ease;
+}
+.golden-buzz:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 30px rgba(255, 216, 107, 0.9);
+}
+.golden-buzz:active { transform: scale(0.97); }
+.golden-buzz:disabled {
+  opacity: 0.4;
+  animation: none;
+  cursor: not-allowed;
+  filter: grayscale(0.4);
+}
+
+/* Surprise: scale-up wiggle + brightness boost when buzzed. */
+.performer.state-golden-buzzed .performer-avatar {
+  animation: golden-buzz-shock 1500ms cubic-bezier(0.2, 1, 0.3, 1) forwards;
+}
+.performer.state-golden-buzzed .performer-avatar-wrap::after {
+  /* Suppress the ground shadow during the shock pop - it reads weird
+     when the avatar lifts off the floor. */
+  opacity: 0;
+}
+.performer.state-golden-buzzed::after {
+  content: '🤯';
+  position: absolute;
+  top: -22px;
+  left: 50%;
+  transform: translate(-50%, 0) scale(1);
+  font-size: 2.4rem;
+  pointer-events: none;
+  animation: shock-pop 600ms 200ms cubic-bezier(0.2, 1.4, 0.3, 1) both;
+  filter: drop-shadow(0 4px 10px rgba(255, 216, 107, 0.55));
+}
+
+@keyframes golden-pulse {
+  0%, 100% { box-shadow: 0 0 18px rgba(255, 216, 107, 0.55); }
+  50%      { box-shadow: 0 0 30px rgba(255, 216, 107, 0.92); }
+}
+
+@keyframes golden-buzz-shock {
+  0%   { transform: scale(1)    rotate(0); filter: brightness(1)   saturate(1); }
+  20%  { transform: scale(1.45) rotate(-4deg); filter: brightness(1.5) saturate(1.35); }
+  40%  { transform: scale(1.30) rotate(4deg); }
+  60%  { transform: scale(1.50) rotate(-2deg); }
+  80%  { transform: scale(1.40) rotate(2deg); }
+  100% { transform: scale(1.35); filter: brightness(1.2) saturate(1.15); }
+}
+
+@keyframes shock-pop {
+  0%   { opacity: 0; transform: translate(-50%, 14px) scale(0.4) rotate(-12deg); }
+  60%  { opacity: 1; transform: translate(-50%, -8px) scale(1.2) rotate(4deg); }
+  100% { opacity: 1; transform: translate(-50%, 0)   scale(1)   rotate(0); }
+}
+
 /* Gold aura around the playing performer - intensity comes from the
    --aura CSS variable set live by Performer.tsx (0..1 amplitude). */
 .performer.is-playing .performer-avatar-wrap::before {

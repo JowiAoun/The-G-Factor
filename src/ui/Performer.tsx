@@ -7,6 +7,7 @@ import { useAudioAmplitude } from './useAudioAmplitude';
 
 function mouthFor(state: ContestantViewState, talkFrame: 0 | 1, dnf: boolean): MouthState {
   if (dnf) return 'angry';
+  if (state === 'golden-buzzed') return 'agape';
   if (state === 'winner' || state === 'champion') return 'laugh';
   if (state === 'loser') return 'sad';
   if (state === 'playing') return talkFrame === 0 ? 'smile' : 'agape';
@@ -22,6 +23,8 @@ type PerformerProps = {
   onPlay?: () => void;
   onStop?: () => void;
   onChoose?: () => void;
+  /** Skip-to-champion. When provided, renders the golden buzzer button. */
+  onGoldenBuzz?: () => void;
 };
 
 /**
@@ -38,6 +41,7 @@ export function Performer({
   onPlay,
   onStop,
   onChoose,
+  onGoldenBuzz,
 }: PerformerProps) {
   const isDnf = contestant.status === 'dnf';
   const isPlaying = state === 'playing';
@@ -126,6 +130,21 @@ export function Performer({
             </button>
           ) : null}
         </div>
+        {onGoldenBuzz ? (
+          <button
+            onClick={onGoldenBuzz}
+            disabled={
+              isDnf ||
+              state === 'winner' ||
+              state === 'loser' ||
+              state === 'golden-buzzed'
+            }
+            className="golden-buzz"
+            title="Send straight to champion"
+          >
+            ✨ GOLDEN BUZZ
+          </button>
+        ) : null}
       </div>
     </div>
   );

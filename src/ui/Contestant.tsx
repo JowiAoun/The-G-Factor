@@ -8,7 +8,11 @@ export type ContestantViewState =
   | 'playing'
   | 'winner'
   | 'loser'
-  | 'champion';
+  | 'champion'
+  // X-Factor golden buzzer: the picked contestant is mid-shock and
+  // about to skip straight to champion. Performer renders the scale-up
+  // surprise animation + 🤯 pop above the head.
+  | 'golden-buzzed';
 
 function mouthFor(state: ContestantViewState, talkFrame: 0 | 1, dnf: boolean): MouthState {
   if (dnf) return 'angry';
