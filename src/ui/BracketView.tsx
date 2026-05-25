@@ -48,12 +48,16 @@ export function BracketView({ state }: { state: BracketState }) {
                         ]
                           .filter(Boolean)
                           .join(' ')}
-                        title={c.label}
+                        title={`${c.character.name} — ${c.label}`}
                       >
                         <div
                           className="bracket-avatar"
                           dangerouslySetInnerHTML={{
-                            __html: renderAvatar(c.avatarSeed, 'smile'),
+                            __html: renderAvatar(
+                              c.character.id,
+                              'smile',
+                              c.character.avatarOptions,
+                            ),
                           }}
                         />
                       </div>

@@ -6,6 +6,7 @@ import {
   isResolved,
   type Contestant,
 } from './bracket';
+import { CHARACTERS } from './characters';
 
 function mkContestants(n: number, opts: { dnf?: number[] } = {}): Contestant[] {
   const dnf = new Set(opts.dnf ?? []);
@@ -14,7 +15,7 @@ function mkContestants(n: number, opts: { dnf?: number[] } = {}): Contestant[] {
     label: `Contestant ${i}`,
     code: `s("bd ${i}")`,
     explanation: `variation ${i}`,
-    avatarSeed: `seed-${i}`,
+    character: CHARACTERS[i % CHARACTERS.length],
     status: dnf.has(i) ? 'dnf' : 'valid',
   }));
 }

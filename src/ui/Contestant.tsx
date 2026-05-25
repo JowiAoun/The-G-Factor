@@ -42,8 +42,13 @@ export function ContestantCard({
   const audioFrame = useAudioMouth(state === 'playing');
   const mouth = mouthFor(state, audioFrame, isDnf);
   const svg = useMemo(
-    () => renderAvatar(contestant.avatarSeed, mouth),
-    [contestant.avatarSeed, mouth],
+    () =>
+      renderAvatar(
+        contestant.character.id,
+        mouth,
+        contestant.character.avatarOptions,
+      ),
+    [contestant.character, mouth],
   );
 
   const classes = ['contestant', `state-${state}`];
@@ -75,7 +80,9 @@ export function ContestantCard({
         {state === 'champion' ? <div className="crown" aria-hidden="true">👑</div> : null}
         {isDnf ? <div className="dnf-badge">DNF</div> : null}
       </div>
-      <div className="contestant-name">{contestant.label}</div>
+      <div className="contestant-name">{contestant.character.name}</div>
+      <div className="contestant-tagline">{contestant.character.tagline}</div>
+      <div className="contestant-technique">{contestant.label}</div>
       {contestant.code && (
         <pre className="contestant-code">{contestant.code}</pre>
       )}

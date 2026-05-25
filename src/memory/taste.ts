@@ -9,6 +9,14 @@ export type TournamentMeta = {
   rounds_beaten: number;
   /** Labels of the variations this champion defeated, in order of defeat. */
   defeated_labels: string[];
+  /** Stable character id (e.g. 'mira', 'jaylen') — used by the winners' wall
+   *  to aggregate wins per character across multiple shows. Optional so
+   *  pre-roster entries written before this field existed stay valid. */
+  champion_character_id?: string;
+  /** Cached display name of the champion character — denormalized so the
+   *  sidebar can render without re-looking-up the roster if the character
+   *  ever gets renamed or removed. */
+  champion_character_name?: string;
 };
 
 export type Like = {

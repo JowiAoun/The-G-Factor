@@ -2,7 +2,8 @@ import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { play, stop, clearLastError } from '../strudel/engine';
 import { remixSeed } from '../remix/orchestrate';
 import { addTournamentWin } from '../memory/taste';
-import { hashSeed, preloadAvatar } from '../talent/avatar';
+import { preloadAvatar } from '../talent/avatar';
+import { pickCharactersForBracket } from '../talent/characters';
 import { getStoredApiKey, type BackendMode } from '../model/backend';
 import {
   chooseWinner,
@@ -103,17 +104,19 @@ function TalentShowInner({
     castingStartedAt.current = performance.now();
     const runId = ++runIdRef.current;
 
+    // Deterministic per-seed roster pick — restarting the same bracket
+    // shows the same faces in the same slots.
+    const roster = pickCharactersForBracket(trimmed, bracketSize);
     const collected: Contestant[] = [];
     try {
       await remixSeed(trimmed, bracketSize, (result, index) => {
         if (runIdRef.current !== runId) return;
         const variation = result.variation;
         const valid = result.status === 'valid' && variation;
-        const avatarSeed = hashSeed(
-          `${trimmed}|${index}|${variation?.variation_code ?? `dnf-${index}`}`,
-        );
-        // Pre-warm cache for all five mouth states.
-        preloadAvatar(avatarSeed);
+        const character = roster[index];
+        // Pre-warm cache for all five mouth states using the character's
+        // pinned avatar options.
+        preloadAvatar(character.id, character.avatarOptions);
         const c: Contestant = {
           id: `c-${index}`,
           label: variation?.transformation_label ?? `Contestant ${index + 1}`,
@@ -122,7 +125,7 @@ function TalentShowInner({
             variation?.explanation_one_line ??
             result.attempts.at(-1)?.error ??
             'generation failed',
-          avatarSeed,
+          character,
           status: valid ? 'valid' : 'dnf',
         };
         collected.push(c);
@@ -209,11 +212,13 @@ function TalentShowInner({
         variation_code: champ.code,
         transformation_label: champ.label,
         explanation_one_line: champ.explanation,
-        avatar_seed: champ.avatarSeed,
+        avatar_seed: champ.character.id,
         tournament: {
           size: bracket.size,
           rounds_beaten: defeated.length,
           defeated_labels: defeated,
+          champion_character_id: champ.character.id,
+          champion_character_name: champ.character.name,
         },
       });
       setChampionSaved(true);

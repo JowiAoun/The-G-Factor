@@ -15,17 +15,20 @@
 
 export type ContestantStatus = 'valid' | 'dnf';
 
+import type { Character } from './characters';
+
 export type Contestant = {
   /** Stable within one show. e.g. `c-0`, `c-1`. */
   id: string;
-  /** From the generated variation's `transformation_label`. */
+  /** From the generated variation's `transformation_label`. Used as the
+   *  technique subtitle under the character's name on the card. */
   label: string;
   /** From the generated variation's `variation_code`. */
   code: string;
   /** From the generated variation's `explanation_one_line`. */
   explanation: string;
-  /** Hash-derived DiceBear seed; stable across sessions. */
-  avatarSeed: string;
+  /** Persistent character identity (name, tagline, pinned avatar options). */
+  character: Character;
   /** Generation outcome — DNFs auto-lose. */
   status: ContestantStatus;
 };

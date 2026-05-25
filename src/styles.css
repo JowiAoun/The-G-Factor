@@ -366,6 +366,21 @@ button.liked { background: #6b2a4a; border-color: #80303f; color: #ffd6e3; }
   gap: 6px;
   min-height: 1.2em;
 }
+.contestant-tagline {
+  font-size: 0.78rem;
+  color: #9aa0a8;
+  text-align: center;
+  margin-top: -2px;
+  font-style: italic;
+  line-height: 1.25;
+}
+.contestant-technique {
+  font-size: 0.72rem;
+  color: #c8a165;
+  text-align: center;
+  letter-spacing: 0.02em;
+  text-transform: lowercase;
+}
 .contestant-code {
   font-family: ui-monospace, monospace;
   font-size: 0.74rem;
