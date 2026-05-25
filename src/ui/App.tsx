@@ -35,7 +35,7 @@ import { RouteCurtain } from './RouteCurtain';
 type ModelState = 'idle' | 'loading' | 'ready' | 'error';
 export type AppMode = 'remix' | 'talentshow' | 'leaderboard';
 
-export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
+export function App({ initialMode = 'talentshow' }: { initialMode?: AppMode } = {}) {
   const [mode, setMode] = useState<AppMode>(initialMode);
   // Two-stage mode switch so the route-curtain wipe can hide the
   // content swap. Clicking a venue sets `pendingMode`; once the
@@ -110,11 +110,15 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
   }, [refreshCacheInfo]);
 
   // Mirror active tab into the URL so refresh + deep-link both work.
+  // The Talent Show is the canonical "/" landing, so it gets no query
+  // param. The Rehearsal Room (?studio=1) and Hall of Fame
+  // (?leaderboard=1) live behind explicit params.
   useEffect(() => {
     const url = new URL(window.location.href);
-    url.searchParams.delete('talentshow');
+    url.searchParams.delete('studio');
     url.searchParams.delete('leaderboard');
-    if (mode === 'talentshow') url.searchParams.set('talentshow', '1');
+    url.searchParams.delete('talentshow');
+    if (mode === 'remix') url.searchParams.set('studio', '1');
     else if (mode === 'leaderboard') url.searchParams.set('leaderboard', '1');
     window.history.replaceState({}, '', url.toString());
   }, [mode]);

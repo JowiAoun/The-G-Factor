@@ -14,11 +14,14 @@ if (import.meta.env.DEV && params.has('audit')) {
     mountAudit(document.getElementById('root')!);
   });
 } else {
+  // The Talent Show is the default landing; the Rehearsal Room (studio)
+  // and Hall of Fame (leaderboard) live behind explicit query params.
+  // ?talentshow=1 is kept as a no-op alias for older bookmarks.
   const initialMode: AppMode = params.has('leaderboard')
     ? 'leaderboard'
-    : params.has('talentshow')
-      ? 'talentshow'
-      : 'remix';
+    : params.has('studio')
+      ? 'remix'
+      : 'talentshow';
 
   ReactDOM.createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
