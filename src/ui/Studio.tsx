@@ -20,6 +20,7 @@ import {
 } from '../studio/storage';
 import { addLike, deleteLike, getAllLikes } from '../memory/taste';
 import { play, stop, clearLastError } from '../strudel/engine';
+import { getStoredApiKey, type BackendMode } from '../model/backend';
 import { Persona, type PersonaMood } from './Persona';
 import { MixCanvas } from './MixCanvas';
 import { MixInspector } from './MixInspector';
@@ -27,15 +28,24 @@ import { ChatBubble } from './ChatBubble';
 import { ChatInput } from './ChatInput';
 import { SavedMixes } from './SavedMixes';
 import { SoundPalette } from './SoundPalette';
+import { Toast, useToast } from './Toast';
 import type { SoundChip } from '../studio/sounds';
 
 type StudioProps = {
   modelReady: boolean;
+  /**
+   * Active backend mode. Lets the chat input stay enabled for remote-mode
+   * sessions even when no API key is set yet — submitting then surfaces a
+   * toast instead of silently no-op'ing.
+   */
+  currentMode: BackendMode;
   onSavedChange?: () => void;
   /** Bumped by the parent when the taste store changes (e.g. sidebar cleared). */
   tasteVersion?: number;
   /** Hand the current mix off to the Talent Show as a bracket seed. */
   onBracketCurrent?: (mixCode: string) => void;
+  /** Open the backend chooser modal — wired into the no-key toast CTA. */
+  onOpenSettings?: () => void;
 };
 
 const MOOD_HOLD_MS = 1600;
@@ -46,9 +56,11 @@ function freshGreetingHistory(): ChatTurnRecord[] {
 
 function StudioInner({
   modelReady,
+  currentMode,
   onSavedChange,
   tasteVersion = 0,
   onBracketCurrent,
+  onOpenSettings,
 }: StudioProps) {
   // Boot from a persisted draft when present; otherwise start fresh with
   // Bleep's greeting. We read once on first render via useMemo so React
@@ -68,6 +80,8 @@ function StudioInner({
   const [diagnostic, setDiagnostic] = useState<string | null>(null);
   const [usedExemplars, setUsedExemplars] = useState(0);
   const [likedMixCodes, setLikedMixCodes] = useState<Set<string>>(new Set());
+
+  const { toast, showToast, dismissToast } = useToast();
 
   const playLock = useRef(false);
   const moodTimer = useRef<number | null>(null);
@@ -147,7 +161,19 @@ function StudioInner({
 
   const handleSubmit = useCallback(
     async (text: string) => {
-      if (!modelReady || generating) return;
+      if (generating) return;
+      // Fresh localStorage read at submit time — the user may have just
+      // closed the settings modal after pasting (or removing) a key.
+      if (currentMode === 'remote' && !getStoredApiKey()) {
+        showToast(
+          'OpenRouter API key required for remote mode.',
+          onOpenSettings
+            ? { label: 'Open Settings', onClick: onOpenSettings }
+            : undefined,
+        );
+        return;
+      }
+      if (!modelReady) return;
       setEngineError(null);
       setDiagnostic(null);
       setGenerating(true);
@@ -225,7 +251,7 @@ function StudioInner({
         abortRef.current = null;
       }
     },
-    [modelReady, generating, history, mixCode, flashMood],
+    [modelReady, generating, history, mixCode, flashMood, currentMode, showToast, onOpenSettings],
   );
 
   const handleCancel = useCallback(() => {
@@ -607,13 +633,15 @@ function StudioInner({
         <ChatInput
           onSubmit={handleSubmit}
           onCancel={generating ? handleCancel : undefined}
-          disabled={!modelReady || generating}
+          disabled={generating || (currentMode === 'local' && !modelReady)}
           placeholder={
-            !modelReady
+            currentMode === 'local' && !modelReady
               ? 'load the model first'
               : generating
                 ? 'bleep is thinking…'
-                : '> ask Bleep for what to add or change (try "start with a four-on-the-floor kick")'
+                : currentMode === 'remote' && !modelReady
+                  ? '> add your OpenRouter key in ⚙ Settings to chat with Bleep'
+                  : '> ask Bleep for what to add or change (try "start with a four-on-the-floor kick")'
           }
         />
       </div>
@@ -633,6 +661,8 @@ function StudioInner({
           </button>
         </div>
       )}
+
+      <Toast state={toast} onDismiss={dismissToast} />
     </div>
   );
 }

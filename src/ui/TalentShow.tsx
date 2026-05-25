@@ -3,6 +3,7 @@ import { play, stop, clearLastError } from '../strudel/engine';
 import { remixSeed } from '../remix/orchestrate';
 import { addTournamentWin } from '../memory/taste';
 import { hashSeed, preloadAvatar } from '../talent/avatar';
+import { getStoredApiKey, type BackendMode } from '../model/backend';
 import {
   chooseWinner,
   createBracket,
@@ -15,6 +16,7 @@ import { MatchView } from './Match';
 import { BracketView } from './BracketView';
 import { Confetti } from './Confetti';
 import { CastingStage } from './CastingStage';
+import { Toast, useToast } from './Toast';
 
 const REVEAL_DURATION_MS = 1500;
 
@@ -22,17 +24,36 @@ type Phase = 'setup' | 'casting' | 'showing' | 'champion';
 
 type TalentShowProps = {
   modelReady: boolean;
+  /**
+   * Active backend mode. We use this (rather than just `modelReady`) so we
+   * can distinguish "local model not loaded yet" (button stays disabled,
+   * user must use the loader) from "remote selected, no OpenRouter key"
+   * (button stays clickable so the click can surface a toast pointing at
+   * Settings).
+   */
+  currentMode: BackendMode;
   seedCode: string;
   onChampionSaved?: () => void;
   /** Hand the bracket champion off to the Studio for further chat editing. */
   onContinueInStudio?: (mixCode: string, label: string) => void;
+  /**
+   * Fired whenever the show wraps up (restart mid-show, or "Hold another
+   * show" from the champion scene). App uses this to auto-pick a fresh
+   * seed so the next setup phase starts in different musical territory.
+   */
+  onShowFinished?: () => void;
+  /** Open the backend chooser modal — wired into the no-key toast CTA. */
+  onOpenSettings?: () => void;
 };
 
 function TalentShowInner({
   modelReady,
+  currentMode,
   seedCode,
   onChampionSaved,
   onContinueInStudio,
+  onShowFinished,
+  onOpenSettings,
 }: TalentShowProps) {
   const [bracketSize, setBracketSize] = useState<4 | 8>(4);
   const [phase, setPhase] = useState<Phase>('setup');
@@ -42,6 +63,8 @@ function TalentShowInner({
   const [championSaved, setChampionSaved] = useState(false);
   const [engineError, setEngineError] = useState<string | null>(null);
   const [revealing, setRevealing] = useState(false);
+
+  const { toast, showToast, dismissToast } = useToast();
 
   const playLock = useRef(false);
   const autoSaveTimer = useRef<number | null>(null);
@@ -53,7 +76,20 @@ function TalentShowInner({
   const runIdRef = useRef(0);
 
   const handleHoldShow = useCallback(async () => {
-    if (!modelReady || phase === 'casting') return;
+    if (phase === 'casting') return;
+    // Re-read the key at click time — backendVersion-driven re-renders keep
+    // `modelReady` fresh, but we want a hard guarantee at the moment of
+    // submit so a key cleared mid-session can't slip a bad request through.
+    if (currentMode === 'remote' && !getStoredApiKey()) {
+      showToast(
+        'OpenRouter API key required for remote mode.',
+        onOpenSettings
+          ? { label: 'Open Settings', onClick: onOpenSettings }
+          : undefined,
+      );
+      return;
+    }
+    if (!modelReady) return;
     const trimmed = seedCode.trim();
     if (!trimmed) return;
     stop();
@@ -116,7 +152,7 @@ function TalentShowInner({
       setPhase('setup');
       setRevealing(false);
     }
-  }, [modelReady, phase, seedCode, bracketSize]);
+  }, [modelReady, phase, seedCode, bracketSize, currentMode, showToast, onOpenSettings]);
 
   const handlePlay = useCallback(async (cid: string, code: string) => {
     if (playLock.current) return;
@@ -235,10 +271,12 @@ function TalentShowInner({
     setChampionSaved(false);
     setEngineError(null);
     setRevealing(false);
-  }, []);
+    onShowFinished?.();
+  }, [onShowFinished]);
 
   return (
     <>
+      <Toast state={toast} onDismiss={dismissToast} />
       {phase === 'setup' && (
         <div className="panel">
           <div className="taste-head">
@@ -263,22 +301,25 @@ function TalentShowInner({
             </div>
           </div>
           <p style={{ color: '#9aa0a8', fontSize: '0.92rem', marginTop: 10 }}>
-            Gemma generates {bracketSize} variations of the current seed; each gets a face. Pick one from
-            every pair until a champion is crowned — and the champion gets a 🏆 entry in your taste memory.
+            Gemma picks a fresh seed and spins up {bracketSize} variations of it; each gets a face.
+            Pick one from every pair until a champion is crowned — and the champion gets a 🏆 entry
+            in your taste memory.
           </p>
           <div className="setup-seed-row">
-            <span className="setup-seed-label">Starting from</span>
-            <code className="setup-seed-code">
-              {seedCode.trim() || '<no seed yet — pick one from the gallery>'}
-            </code>
+            <span className="setup-seed-label">🎲 AI picked</span>
+            <code className="setup-seed-code">{seedCode.trim()}</code>
           </div>
           <button
             className="primary"
             onClick={handleHoldShow}
-            disabled={!modelReady || !seedCode.trim()}
+            disabled={
+              !seedCode.trim() || (currentMode === 'local' && !modelReady)
+            }
             style={{ marginTop: 8 }}
           >
-            {modelReady ? '🎪 Hold the show' : 'Load the model first'}
+            {currentMode === 'local' && !modelReady
+              ? 'Load the model first'
+              : '🎪 Hold the show'}
           </button>
           {engineError && (
             <div className="errors" style={{ marginTop: 10 }}>

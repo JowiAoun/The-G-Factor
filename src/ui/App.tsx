@@ -22,7 +22,7 @@ import {
   hasMadeBackendChoice,
   subscribeBackendChange,
 } from '../model/backend';
-import { SEED_GALLERY, type GallerySeed } from '../seeds/gallery';
+import { pickRandomSeed } from '../seeds/gallery';
 import { loadDraft, seedStudioDraft } from '../studio/storage';
 import { TasteSidebar } from './TasteSidebar';
 import { TalentShow } from './TalentShow';
@@ -44,8 +44,16 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
   );
   const [cacheInfo, setCacheInfo] = useState<CacheInfo | null>(null);
 
-  const [seedCode, setSeedCode] = useState(SEED_GALLERY[0].code);
-  const [activeSeedId, setActiveSeedId] = useState(SEED_GALLERY[0].id);
+  // The Talent Show no longer asks the user to pick a seed — the AI auto-picks
+  // from `SEED_GALLERY` on cold load and again after every show via the
+  // `onShowFinished` callback. `lastPickedIdRef` keeps successive picks from
+  // landing on the same seed twice in a row.
+  const lastPickedIdRef = useRef<string | null>(null);
+  const [seedCode, setSeedCode] = useState(() => {
+    const initial = pickRandomSeed();
+    lastPickedIdRef.current = initial.id;
+    return initial.code;
+  });
   const [tasteVersion, setTasteVersion] = useState(0);
 
   // Backend chooser state. `backendVersion` increments whenever
@@ -130,9 +138,18 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
     }
   }, [onLoadProgress, refreshCacheInfo]);
 
-  const handleSelectSeed = useCallback((s: GallerySeed) => {
-    setActiveSeedId(s.id);
-    setSeedCode(s.code);
+  const handlePickFreshSeed = useCallback(() => {
+    const next = pickRandomSeed(lastPickedIdRef.current);
+    lastPickedIdRef.current = next.id;
+    setSeedCode(next.code);
+  }, []);
+
+  // Shared hook for child components (Studio + TalentShow) so the
+  // "OpenRouter key required" toast can offer a one-click jump into
+  // the backend chooser.
+  const handleOpenSettings = useCallback(() => {
+    setFirstVisit(false);
+    setSettingsOpen(true);
   }, []);
 
   const bumpTaste = useCallback(() => setTasteVersion((v) => v + 1), []);
@@ -142,12 +159,13 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
     setTasteVersion((v) => v + 1);
   }, []);
 
-  /** Studio → Talent Show bridge: switch tabs with the current mix as the seed. */
+  /**
+   * Studio → Talent Show bridge: switch tabs with the current mix as the seed.
+   * One-shot — the next show after this one runs goes back to auto-pick via
+   * `onShowFinished`.
+   */
   const handleBracketFromStudio = useCallback((mixCode: string) => {
     setSeedCode(mixCode);
-    // Sentinel id so no gallery card highlights as "active" — the active
-    // seed is now whatever the studio handed over.
-    setActiveSeedId('__from-studio__');
     setMode('talentshow');
   }, []);
 
@@ -171,9 +189,6 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
   );
 
   const device = getDetectedDevice();
-  const seedDirty = activeSeedId
-    ? seedCode.trim() !== SEED_GALLERY.find((s) => s.id === activeSeedId)?.code
-    : true;
 
   return (
     <div className="app">
@@ -207,14 +222,11 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
           </button>
           <button
             className="header-settings-btn"
-            onClick={() => {
-              setFirstVisit(false);
-              setSettingsOpen(true);
-            }}
+            onClick={handleOpenSettings}
             title="Switch model backend"
             aria-label="Open backend settings"
           >
-            ⚙
+            <span className="header-settings-glyph" aria-hidden="true">⚙</span>
           </button>
         </div>
       </header>
@@ -293,43 +305,26 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
         </div>
       )}
 
-      {mode === 'talentshow' && (
-        <div className="panel">
-          <h2>Seed gallery</h2>
-          <div className="gallery">
-            {SEED_GALLERY.map((s) => (
-              <button
-                key={s.id}
-                className={`seed-card${s.id === activeSeedId && !seedDirty ? ' active' : ''}`}
-                onClick={() => handleSelectSeed(s)}
-              >
-                <div className="seed-label">{s.label}</div>
-                <div className="seed-meta">
-                  <span className="seed-genre">{s.genre}</span>
-                  <span className="seed-diff">{'★'.repeat(s.difficulty)}</span>
-                </div>
-                <div className="seed-code">{s.code}</div>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
       {mode === 'remix' && (
         <Studio
           modelReady={effectiveModelReady}
+          currentMode={currentMode}
           onSavedChange={bumpTaste}
           tasteVersion={tasteVersion}
           onBracketCurrent={handleBracketFromStudio}
+          onOpenSettings={handleOpenSettings}
         />
       )}
 
       {mode === 'talentshow' && (
         <TalentShow
           modelReady={effectiveModelReady}
+          currentMode={currentMode}
           seedCode={seedCode}
           onChampionSaved={bumpTaste}
           onContinueInStudio={handleContinueInStudio}
+          onShowFinished={handlePickFreshSeed}
+          onOpenSettings={handleOpenSettings}
         />
       )}
 

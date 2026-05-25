@@ -13,7 +13,7 @@ describe('hashSeed', () => {
     expect(hashSeed('s("bd*4")')).not.toBe(hashSeed('s("bd*8")'));
   });
 
-  it('produces distinct hashes for all seven gallery seeds', () => {
+  it('produces distinct hashes for every gallery seed', () => {
     const hashes = SEED_GALLERY.map((s) => hashSeed(s.code));
     expect(new Set(hashes).size).toBe(SEED_GALLERY.length);
   });
