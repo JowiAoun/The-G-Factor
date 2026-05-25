@@ -20,6 +20,22 @@ describe('VARIATION_AXES catalogue', () => {
     }
   });
 
+  it('has a non-empty timbre and timbreNote for every axis', () => {
+    for (const axis of VARIATION_AXES) {
+      expect(axis.timbre.trim().length, axis.id).toBeGreaterThan(0);
+      expect(axis.timbreNote.trim().length, axis.id).toBeGreaterThan(0);
+    }
+  });
+
+  it('spans at least 6 distinct timbre families (regression fence)', () => {
+    // The whole point of the timbre rewrite: contestants in a bracket should
+    // span the sonic space, not all default to sawtooth. If a future edit
+    // collapses two axes onto the same family, that's fine, but collapsing
+    // most of them isn't — re-diversify before merging.
+    const families = new Set(VARIATION_AXES.map((a) => a.timbre));
+    expect(families.size).toBeGreaterThanOrEqual(6);
+  });
+
   it.each(VARIATION_AXES)('exemplar for $id passes the parser firewall', async (axis) => {
     const r = await parse(axis.exemplar);
     const err = r.valid ? '' : `: ${r.error}`;

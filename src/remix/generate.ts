@@ -42,6 +42,7 @@ export async function generateVariation(
   axis: VariationAxis,
   exemplars: Exemplar[] = [],
   previousLabels: string[] = [],
+  previousTimbres: string[] = [],
 ): Promise<GenerationResult> {
   const t0 = performance.now();
   const attempts: GenerationAttempt[] = [];
@@ -52,6 +53,7 @@ export async function generateVariation(
       axis,
       exemplars,
       previousLabels,
+      previousTimbres,
       retryHint: lastError,
     });
     let raw = '';

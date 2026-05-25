@@ -54,8 +54,12 @@ export async function remixSeed(
     const pending: Promise<GenerationResult>[] = [];
     for (let i = 0; i < count; i++) {
       if (i > 0 && stagger > 0) await sleep(stagger);
+      // Axis-derived timbre roster: deterministic, available up-front (the
+      // axes are picked before any HTTP launches), and consistent with how
+      // the prompt builder already nudges per-axis families.
+      const previousTimbres = axes.slice(0, i).map((a) => a.timbre);
       pending.push(
-        generateVariation(seedCode, axes[i], exemplars, []),
+        generateVariation(seedCode, axes[i], exemplars, [], previousTimbres),
       );
     }
     const results: GenerationResult[] = [];
@@ -74,11 +78,13 @@ export async function remixSeed(
       const delay = getThrottleMs();
       if (delay > 0) await sleep(delay);
     }
+    const previousTimbres = axes.slice(0, i).map((a) => a.timbre);
     const res = await generateVariation(
       seedCode,
       axes[i],
       exemplars,
       previousLabels,
+      previousTimbres,
     );
     results.push(res);
     const label = res.variation?.transformation_label;

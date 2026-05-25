@@ -21,15 +21,24 @@ METHOD CHAINS (call on a pattern):
 .lpf(hz) low-pass filter, .fast(x) speed up, .slow(x) slow down,
 .rev() reverse, .jux(fn) split L/R applying fn to right, .every(N, fn) apply fn every N cycles.
 
+NAMED SAMPLES you may use inside s("..."):
+- drums:    bd sd hh oh cp rim cb lt mt ht (add :N for variants — bd:2, hh:5, sd:3)
+- pitched:  piano pluck pad jvbass bass stab tabla tabla2 arpy sitar sax
+- texture:  wind space noise birds
+- raw osc:  sawtooth square triangle sine
+Spread your timbre choices — don't make every patch a sawtooth. Match the timbre to the musical intent (piano for chords, jvbass for basslines, pluck for melody, pad for atmosphere, sawtooth only for acid).
+
 CANONICAL IDIOMS:
 1) Minimal kick:        s("bd*4")
 2) Kick+hat groove:     s("bd hh sd hh")
-3) Euclidean kick:      s("bd(3,8)")
-4) Polyrhythm stack:    s("bd(3,8), hh(5,8)")
-5) Ambient pad:         note("<c eb g bb>").s("sawtooth").slow(4).room(0.5)
-6) Alternating melody:  note("<c e g b>").s("sawtooth")
-7) Drum stack:          stack(s("bd*2"), s("~ sd"), s("hh*8"))
-8) Sometimes-variation: s("bd sd").every(4, x => x.fast(2))
+3) Sample variants:     s("bd:2 hh:5 sd:3 hh:1")
+4) Euclidean kick:      s("bd(3,8)")
+5) Piano chords:        note("<c eb g bb>").s("piano").slow(4).room(0.4)
+6) Plucked melody:      note("<c e g b>").s("pluck")
+7) Bass line:           note("c2 eb2 g2 c2").s("jvbass").lpf(700)
+8) Pad texture:         s("pad").slow(8).room(0.6)
+9) Drum stack:          stack(s("bd*2"), s("~ sd"), s("hh*8"))
+10) Sometimes-variation: s("bd sd").every(4, x => x.fast(2))
 
 Output STRICT JSON only, no markdown fences, no commentary.`;
 
@@ -83,24 +92,34 @@ Output:`,
 export const TALENT_SHOW_SYSTEM_PROMPT_SUFFIX = `TALENT SHOW STAGE
 You are auditioning for a remix bracket. Each contestant explores a different musical territory. Compose a layered Strudel pattern — typically a \`stack(...)\` of 3 to 4 lines, or a single line with 3+ chained methods. Aim for ~5 to 12 lines of formatted code. The seed's identity should still be recognisable, but boldness wins.
 
-LAYERED COMPOSITION EXAMPLES:
+LAYERED COMPOSITION EXAMPLES (notice the timbre variety — piano, pluck, jvbass, pad; not all sawtooth):
 A) stack(
      s("bd(3,8)").gain(0.9),
      s("~ sd ~ sd").room(0.25),
      s("hh*8").gain(0.45).every(4, x => x.fast(2)),
-     note("<c3 eb3 g3 bb3>").s("sawtooth").lpf(900).slow(2)
+     note("<c3 eb3 g3 bb3>").s("piano").lpf(1200).slow(2)
    )
 B) s("bd sd hh sd").lpf(sine.range(200, 2000).slow(8)).room(0.5).jux(rev)
 C) stack(
      s("bd*2").every(4, x => x.fast(2)),
      s("cp(3,8)").gain(0.6),
-     note("<c eb g bb>*2").s("sawtooth").slow(2).delay(0.25)
+     note("<c eb g bb>*2").s("pluck").slow(2).delay(0.25)
+   )
+D) stack(
+     s("bd*4").gain(0.9),
+     note("c2 eb2 g2 c2").s("jvbass").lpf(800),
+     s("pad").slow(8).gain(0.5).room(0.6)
    )`;
 
 export type TalentShowPromptOpts = {
   axis: VariationAxis;
   exemplars?: Exemplar[];
   previousLabels?: string[];
+  /** Timbre families already used by earlier contestants in this bracket.
+   * Spliced into the prompt as a "don't repeat these timbres" directive so
+   * the 4–8 slots span distinct sonic territories instead of all defaulting
+   * to whatever the seed's `s(...)` happens to be. */
+  previousTimbres?: string[];
   retryHint?: string;
 };
 
@@ -108,8 +127,17 @@ export function buildTalentShowVariationPrompt(
   seedCode: string,
   opts: TalentShowPromptOpts,
 ): { system: string; user: string } {
-  const { axis, exemplars = [], previousLabels = [], retryHint } = opts;
+  const {
+    axis,
+    exemplars = [],
+    previousLabels = [],
+    previousTimbres = [],
+    retryHint,
+  } = opts;
   const filteredLabels = previousLabels.filter((l) => l && l.trim().length > 0);
+  const filteredTimbres = Array.from(
+    new Set(previousTimbres.filter((t) => t && t.trim().length > 0)),
+  );
   const taste = formatExemplars(exemplars);
   const hint = retryHint
     ? `\n\nPrevious attempt was invalid because: ${retryHint}. Produce a different, valid variation.`
@@ -117,6 +145,10 @@ export function buildTalentShowVariationPrompt(
   const redundancyBlock =
     filteredLabels.length > 0
       ? `Other contestants in this round have already produced: ${filteredLabels.join(', ')}. Your variation must explore a different musical territory.\n\n`
+      : '';
+  const timbreBlock =
+    filteredTimbres.length > 0
+      ? `Other contestants have already used these timbre families: ${filteredTimbres.join(', ')}. Pick a DIFFERENT family for your pitched/textural layer.\n\n`
       : '';
 
   const system = `${SYSTEM_PROMPT}
@@ -128,8 +160,9 @@ ${axis.exemplar}`;
 
   const user = `${FEWSHOT_REMIX}${taste}
 
-${redundancyBlock}AXIS DIRECTIVE: ${axis.directive}
+${redundancyBlock}${timbreBlock}AXIS DIRECTIVE: ${axis.directive}
 Favoured techniques: ${axis.techniques.join(', ')}.
+TIMBRE: ${axis.timbreNote}
 
 Now remix this seed into ONE layered, musically substantial variation following the axis directive above. Output strict JSON with keys: variation_code, transformation_label, explanation_one_line.
 
