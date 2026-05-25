@@ -1,166 +1,148 @@
-# Strudel Tutor - Gemma 4 Challenge
+*This is a submission for the [Gemma 4 Challenge: Write About Gemma 4](https://dev.to/challenges/google-gemma-2026-05-06)*
 
-> AI that learns your musical taste as you live-code - running entirely in your browser on Gemma 4 E2B.
+<!-- You are free to structure your post however you want. You might consider: walking through a local setup or fine-tuning experiment, writing a getting started guide for one of the Gemma 4 models, comparing the model variants and when to use each, or reflecting on what open-source models at this capability level mean for developers. Whatever your angle, make it yours. -->
 
-Built for the [DEV Gemma 4 Challenge](HACKATHON.md) (Build track). Two surfaces
-sit alongside each other: a chat-driven **Remix Studio** where you talk to a
-cartoon producer named Bleep that types Strudel code back at you and saves
-your mixes to disk, and a **Talent Show** that runs your seed through a
-single-elimination bracket of Gemma-generated variations to capture
-head-to-head-verified taste signals. No fine-tuning, no GPU, no backend.
+<!-- Don't forget to add a cover image if you want! -->
 
-See [DEVPOST.md](DEVPOST.md) for the submission writeup.
+![The G Factor main stage: a velvet talent-show theatre with Gemma-generated contestants](PASTE_COVER_IMAGE_URL)
+<!-- COVER / SCREENSHOT A: upload screens/01-home-mainstage.png (the Talent Show main stage). dev.to also lets you set this as the post cover image in the editor settings. -->
 
-## Run
+In psychometrics there is a beautiful, slightly controversial idea called the **g factor**. The short version: across wildly different mental tasks (vocabulary, spatial puzzles, arithmetic, pattern matching) people who do well on one tend to do well on the others, and statisticians can squeeze that shared variance into a single number. One latent "general intelligence" that quietly predicts performance everywhere. 🧠
+
+I built a browser app that makes a 2-billion-parameter model write music, and I named it **The G Factor** on purpose. Not as a cute pun (although it is one, three times over), but because the name is the whole argument I want to make: **you do not need a giant model to look generally capable across a diverse range of tasks. You need a small model in the right harness.**
+
+## The name is the thesis
+
+The name pulls triple duty, and each meaning maps onto something the app actually does:
+
+- The **G** in **Gemma**, the model doing all the work, fully on your machine.
+- The **g factor** of psychometrics, one capacity stretched across many different tasks.
+- The **"Factor"** in *X-Factor*, because the app is literally a talent show where you judge contestants. 🎤
+
+<!-- HERO VIDEO: upload public/assets/videos/bundle-a/g-factor-bundle-a.mp4 to YouTube and paste the ID below as {% youtube ID %}, OR convert it to a GIF, drag it in, and use the ![]() form instead. -->
+{% youtube PASTE_YOUTUBE_ID %}
+
+That middle meaning is the one I keep coming back to. Lay the psychometric idea next to the app and it lines up almost suspiciously well:
+
+| Psychometric **g factor** | **The G Factor** (the app) |
+|---|---|
+| One latent capacity that predicts performance across diverse tasks | One small Gemma model performing across diverse musical tasks |
+| A battery of varied subtests | A bracket of 4 to 8 contestants |
+| The individual subtests | 8 musical axes (polyrhythmic, polyphonic, modulated, timbral, harmonic, tempo-shifted, sparse, dense) |
+| The examiner scoring each response | You, judging two contestants head to head |
+| Adapting the test to the test-taker | A session taste memory that learns what you like |
+| "Is it generally capable?" | "A 2B model is enough when the runtime carries the structure" |
+
+The interesting question in intelligence research was never "how big is the brain." It was "where does general capability actually come from." That is exactly the question I find myself asking about small language models, so I built a music app to chase it.
+
+## So what is it?
+
+**The G Factor** is a browser-native live-coding companion for [Strudel](https://strudel.cc), a JavaScript dialect for writing music as code. There is no server doing the thinking. Gemma 4 runs *in your tab* on WebGPU, generates Strudel patterns, and you play them out loud.
+
+There are two ways in. In the **Rehearsal Room** you chat with **Bleep**, a cartoon producer who rewrites the track turn by turn ("add a four-on-the-floor kick", "make the hats busier", "give it some reverb"). In the **Talent Show** you drop a seed and Gemma fields a bracket of contestants, each told to explore a different musical axis, and you crown a champion two at a time. Both feed the same taste memory. Here is a single generation, start to finish:
+
+![One generation, end to end: request, retrieve taste, build prompt, generate, validate, play](PASTE_ONE_GENERATION_GIF_URL)
+<!-- Upload: public/assets/videos/one-generation-theme/one-generation-theme.gif (swap to public/assets/videos/one-generation/one-generation.gif for the light version) -->
+
+<!-- SCREENSHOT B: upload a fresh shot of the Rehearsal Room with Bleep mid-conversation (a few chat turns visible and code in the mix canvas). screens/02-rehearsal-room.png is close but re-take it with an active chat for the post. -->
+![Chatting with Bleep in the Rehearsal Room](PASTE_REHEARSAL_ROOM_SCREENSHOT_URL)
+
+That is the demo. The part worth writing about is *why a 2B model can do this at all*.
+
+## Teaching a model a language it never saw
+
+Here is the catch that makes this a real problem and not a toy: Gemma 4 almost certainly never saw Strudel during training. It is a niche live-coding DSL. So how do you get reliable, *playable* code out of a small model for a language it does not know?
+
+You stop asking the model to know things, and you let the runtime carry the structure. Three layers do that, and this is the pattern I think transfers to any small-model-on-an-unfamiliar-domain problem.
+
+![The three-layer teaching stack: static priors and session taste feed Gemma, the parser firewall guards the output](PASTE_THREE_LAYER_GIF_URL)
+<!-- Upload: public/assets/videos/three-layer-stack-theme/three-layer-stack-theme.gif (swap to public/assets/videos/three-layer-stack/three-layer-stack.gif for the light version) -->
+
+### Layer 1: static priors
+
+A roughly 600-token system prompt that *is* the documentation the model never read: Strudel's mini-notation operators, the common method chains, and about 10 canonical idioms. This is not fine-tuning and it is not a vector database. It is a cheat sheet pinned to the front of every request. Cheap, deterministic, and it does most of the work.
+
+### Layer 2: session taste
+
+Every time you like a pattern, the app writes `{seed_code, variation_code, transformation_label}` into IndexedDB. On the next generation it scores your past likes against the current seed with a character-bigram Jaccard similarity, takes the top 3, and injects them as a labelled *"this user has previously liked..."* block.
+
+That is the **"learns your taste"** claim, and it is honest: no weights move, no GPU time, no API call. The model adapts to you the way the psychometric test adapts to the test-taker, by feeding it the right few-shot context at the right moment. Cold start works on priors alone, and the experience just gets warmer the more you use it.
+
+<!-- SCREENSHOT C (NEW): upload a shot of the taste sidebar populated, showing avatar thumbnails and the trophy badge (heart a few patterns or finish a tournament first). -->
+![The taste sidebar filling up with liked patterns and tournament champions](PASTE_TASTE_SIDEBAR_SCREENSHOT_URL)
+
+### Layer 3: the parser firewall
+
+A small model *will* hallucinate broken syntax. So nothing it generates is trusted. Every output is parsed with `acorn`, validated against a `zod` schema, and walked for a deny-list of dangerous references before a single note plays. If it fails, the app retries up to 3 times with a hint that says *exactly* what was wrong ("previous attempt was invalid because: ..."). Invalid code never reaches the UI, and unsafe code (think `fetch`, `eval`, `localStorage`) never reaches the audio engine. 🔒
+
+![The parser firewall: raw output runs through JSON parse, syntax check, and a security walk before it is allowed to play](PASTE_PARSER_FIREWALL_GIF_URL)
+<!-- Upload: public/assets/videos/parser-firewall-theme/parser-firewall-theme.gif (swap to public/assets/videos/parser-firewall/parser-firewall.gif for the light version) -->
+
+Priors tell the model the rules. Taste tells it your style. The firewall guarantees the output is real. None of those three layers is the model getting smarter. They are the *runtime* getting smarter, and that is the point.
+
+## Why the smallest model was the right call
+
+The judging rubric asks for intentional model selection, so let me be blunt about it: I picked the *smallest* model in the family on purpose, and I would defend that choice in a heartbeat.
+
+The app uses **Gemma 4 E2B** (effective 2B parameters, q4f16 ONNX). It is around 1.5 GB on disk, loads in under two minutes on a mid-range laptop, runs comfortably on WebGPU, and falls back to WASM when WebGPU is missing. After the first download it needs *zero* network. The whole loop (generate, like, re-generate) runs offline.
+
+Could I have reached for something bigger? Sure. But once the three layers carry the structure, the model's actual job shrinks to something tiny: take a seed plus 3 stylistic exemplars and emit one short JSON object. That is well within a 2B model's reach. Spending 30 billion parameters on a task this constrained would be paying for generality I already built into the harness.
+
+<!-- SCREENSHOT E (NEW): upload the first-visit backend chooser modal (Local vs Remote cards). Open it with the gear button in the header if you have already chosen. -->
+![The backend chooser: run Gemma locally on WebGPU, or via OpenRouter](PASTE_BACKEND_MODAL_SCREENSHOT_URL)
+
+I did wire in an optional cloud path too, **Gemma 4 31B** via OpenRouter's free tier, for visitors without WebGPU or who want a faster bracket. Same prompts, same firewall, same axis directives. Judges can run it both ways and watch the small local model hold its own against its much larger sibling. *That* comparison, on identical scaffolding, is the most honest demo of the thesis I could ask for.
+
+## The bigger picture
+
+I think we are still over-indexed on model size. The instinct, when a small model stumbles, is to reach for a bigger one. But a lot of "the model is not smart enough" is really "the runtime is not doing its share."
+
+Google does a version of this trick at scale: pre-loading, pre-fetching, doing cheap predictive work *before* you ask so the expensive step feels instant. The same idea applies to small models. A retrieval step, a constrained output schema, a validation firewall, a handful of well-chosen few-shot examples: these are cheap pre-calls that make a 2B model behave like something far larger, and they run on a laptop with no data leaving the machine.
+
+If you take one practical thing from this post, take this: before you upgrade the model, ask what structure you can move out of the weights and into the runtime. Pin the rules. Retrieve the context. Validate the output. A small local model wrapped like that is private, offline-capable, free to run, and genuinely good enough for a surprising amount of real work. Try it on your own niche domain or DSL and I think you will be surprised how far E2B gets you.
+
+## Gemma 4: the good, the bad, the ugly
+
+I keep this section every time, because the honest notes are what I actually want to read in other people's posts.
+
+### The good
+
+E2B running *in a browser tab* still feels a little like magic. WebGPU inference is genuinely usable on mid-range hardware, and with the static priors in place Gemma's JSON-following was reliable enough that the retry path rarely fires past attempt one. For a model this small, on a language it never trained on, that is a great result.
+
+### The bad
+
+It never saw Strudel, full stop. Without the priors and the retry scaffolding it confidently invents operators that do not exist. The structure is doing real work here, and you feel it the moment you remove a layer. Local generation is also serial on a single WebGPU adapter, so a 4-contestant bracket has a real wait. I leaned into that instead of fighting it: a host toon named **Buzz** tells rotating jokes during the casting window and slips into a "patience mode" pool if it drags. A forced wait became part of the show.
+
+<!-- SCREENSHOT D (NEW): upload the casting stage with Buzz mid-joke and the progress dots filling in (open /?talentshow and start a bracket). -->
+![Buzz the host filling the generation wait with jokes while contestants are cast](PASTE_CASTING_STAGE_SCREENSHOT_URL)
+
+### The ugly
+
+The browser-ML reality: the first model download is large, WebGPU support is uneven across browsers, and there is a memory ceiling you can absolutely faceplant into if you are not careful. The fixes were unglamorous but they worked: cache aggressively after first load, fall back to WASM when WebGPU is unavailable, and keep the model's actual job small so memory pressure stays manageable. None of it is exotic, but it is the difference between a demo that works on your machine and one that works on a stranger's.
+
+## Demo
+
+The whole thing is live and runs entirely client-side:
+
+<!-- Live deploy: paste the Vercel URL here once deployed. -->
+**Live demo:** PASTE_DEPLOY_URL
+
+<!-- DEMO VIDEO: upload your screen-recording walkthrough to YouTube and paste the ID, or drop a GIF here. -->
+{% youtube PASTE_DEMO_VIDEO_ID %}
 
 ```bash
 pnpm install
 pnpm dev
 ```
 
-Open `http://localhost:5173` in a Chromium-based browser with WebGPU enabled.
-First load downloads ~1.5 GB of Gemma 4 E2B (q4 ONNX); cached after.
+Open it in any WebGPU-capable Chromium browser. The first load pulls the weights into the HTTP cache; after that you can go fully offline and the whole loop still works.
 
-- 🎛 Remix Studio (default): `http://localhost:5173/`
-- 🎪 Talent Show: `http://localhost:5173/?talentshow` (or the tab in the header)
+## What's next
 
-## Backends
+A few threads I want to pull: audio-reactive avatars so the toon-heads actually mouth along to their own track, swapping the bigram similarity for small on-device embeddings so the taste memory gets sharper, and leaning harder into the "cheap pre-call" idea, doing predictive generation in the background so the next contestant is ready before you ask for it. The pre-loading vision is where I think small local models get genuinely exciting.
 
-On first visit a modal asks where to run Gemma:
+I did not teach Gemma to write Strudel. I let the runtime teach it, and I let *you* teach it your taste. If you build something with a small Gemma, drop it in the comments, I would love to see how far you push E2B. 😁
 
-- **Local** (default) - Gemma 4 E2B via `@huggingface/transformers` on
-  WebGPU/WASM. ~1.5 GB one-time download, cached after, zero network
-  calls during generation.
-- **Remote** - `google/gemma-4-31b-it:free` via OpenRouter. No download,
-  faster contestants. The user supplies their own OpenRouter key in the
-  modal; the key lives in `localStorage` for that browser only and is
-  never bundled into the deployed site or proxied through any server.
+{% embed https://github.com/JowiAoun/Gemma4 %}
 
-The choice persists in `localStorage` and can be flipped any time via
-the ⚙ button in the header.
-
-## 🎛 Remix Studio - chat with Bleep
-
-The Studio is conversational. Bleep is a cartoon producer (a DiceBear
-`toon-head` with a fixed seed so the face survives reloads). Type natural
-language - "start with a four-on-the-floor kick", "add open hats on the
-off-beats", "make the hats busier on every 4th cycle" - and Bleep replies
-with a one- or two-sentence acknowledgement plus the full updated Strudel
-mix. Every reply is a strict JSON turn:
-
-```json
-{
-  "new_mix_code": "<full Strudel code after applying the change>",
-  "assistant_message": "<1-2 sentences, in character>",
-  "action_label": "<short tag like 'added kick', 'halved tempo', 'no-op'>"
-}
-```
-
-Output goes through the same `acorn` parser firewall that the Talent Show
-uses - invalid Strudel triggers up to three retries with the failure
-reason passed back as a hint, then Bleep apologises and the mix stays put.
-
-**Auto-save:** the working mix + chat history + undo/redo stacks are
-written to `localStorage` on every successful turn, so a refresh resumes
-exactly where you stopped. **💾 Save as…** names the current mix and adds
-it to a sidebar library (capped at 30 entries, oldest evicted).
-
-**Editable canvas + sound palette:** Bleep isn't the only one who can
-write code. The canvas is a CodeMirror 6 editor - type directly, syntax
-colour and bracket matching included. Below it, a 12-chip **sound palette**
-(7 drums + 5 synths) sits ready to be dragged into the editor; chips
-also click-to-audition for ~600 ms so you can hear `piano` or `cp` before
-deciding where it goes. `Ctrl/⌘ + Enter` plays the current mix, `Esc`
-stops. The Studio's ↶ Undo button stays at "macro" granularity (one
-click per chat turn, palette drop, or settled-typing burst) while
-CM6's own per-keystroke history handles `⌘+Z` inside the editor.
-
-Animations: Bleep's mouth swaps `smile ↔ agape` every 200 ms while
-generating, settles to `smile` at rest, flashes `laugh` after a successful
-Save as, and `sad` with a small shake when retries run out.
-
-## 🎪 Talent Show - pairwise taste capture
-
-Generate 4 (or 8) Strudel variations of the current seed, give each one a
-cartoon `toon-head` avatar with a hash-derived face, then run them through a
-single-elimination bracket where you pick the winner of every match. The
-champion is auto-saved to taste memory with `avatar_seed` + `tournament`
-metadata, so the sidebar grows little portraits of the variations you've
-crowned and the few-shot retrieval gets head-to-head-verified preferences,
-not just passive likes. Mouth, eyes, and pose all come from DiceBear; the
-talking mouth swaps between `smile` and `agape` on a 150 ms cycle, winners
-laugh and jump with sparkles, losers fade with a sad mouth.
-
-**Axis-driven diversity.** Each contestant is pre-assigned a different
-*musical axis* - polyrhythm, polyphony, modulation, timbre, harmony, tempo,
-sparse, dense - and the prompt for that slot carries the axis directive
-plus a micro-exemplar tailored to it. The lineup is a deterministic
-seed-keyed Fisher-Yates over the 8 axes, so the same seed always casts the
-same axis cohort while a new seed gets a fresh draw. Outputs target
-layered `stack(...)` compositions (≈5-12 lines), so contestants sound
-substantial individually and meaningfully different from each other.
-
-## How it works - three layers
-
-1. **Static priors** (`src/model/prompts.ts`) - a ~600-token system prompt
-   teaching Gemma the 13 Strudel mini-notation operators, 12 chain methods, and
-   8 canonical idioms.
-2. **Taste memory** (`src/memory/taste.ts`) - every ❤ and every 🏆 champion
-   goes into IndexedDB; future remixes inject the top-3 most-similar liked
-   variations as few-shot exemplars (character-bigram Jaccard similarity). The
-   talent-show champions carry `avatar_seed` + `tournament` metadata so the
-   sidebar can render their face.
-3. **Parser firewall** (`src/strudel/parse.ts`) - every JSON output is parsed
-   by `acorn` before display, then walked by `acorn-walk` to reject bare
-   references to dangerous globals (`fetch`, `eval`, `localStorage`,
-   `document`, etc.) and sandbox-escape primitives (`.constructor`,
-   `.__proto__`, dynamic `import()`). Invalid code triggers up to three
-   retries with the `(syntax)` vs. `(unsafe)` reason fed back to Gemma, then
-   drops the slot. The same firewall guards `engine.play()` so user-typed or
-   pasted code in the editor goes through the check too.
-
-Studio is the "talk-to-Gemma" write path; Talent Show is the "let Gemma
-fight Gemma" write path; both feed the same IndexedDB taste store.
-
-## Security model
-
-The site is a static SPA - no server, no auth, no user PII beyond what the
-user produces themselves. The two surfaces that matter:
-
-- **OpenRouter API key**: only ever lives in `localStorage` per browser, set
-  by the user via the chooser modal. Never bundled into the deployed code,
-  never logged, never sent anywhere except as `Authorization: Bearer …` to
-  `https://openrouter.ai/api/v1/chat/completions` over HTTPS.
-- **JS evaluation**: Strudel evaluates user-ish code in the same origin as
-  the app, so a stolen API key would be game-over if hostile code ran. The
-  parser firewall (Layer 3 above) is the defense - an AST-walked deny-list
-  of dangerous globals and member accesses. Defense in depth, not a sandbox;
-  multi-step obfuscation could in principle bypass it, but no realistic
-  Gemma output ever would. A proper isolation layer (iframe with the
-  `sandbox` attribute) is an explicit follow-up - out of scope for now
-  because it touches the entire audio pipeline.
-
-The deploy also ships a strict `Content-Security-Policy` (only
-`'self'`, OpenRouter, and the Hugging Face hub are reachable; `frame-
-ancestors 'none'` blocks click-jacking), `X-Frame-Options: DENY`,
-`X-Content-Type-Options: nosniff`, `Referrer-Policy:
-strict-origin-when-cross-origin`, and a `Permissions-Policy` that denies
-camera, microphone, geolocation, payment, USB, and other sensor APIs we
-never use. Headers are kept in sync between `vite.config.ts` (dev) and
-`vercel.json` (prod).
-
-`'unsafe-eval'` is unavoidable in `script-src` (both Strudel and
-transformers.js need it). The AST deny-list bounds the surface that
-unsafe-eval can reach.
-
-## Tech
-
-- **Model:** Gemma 4 E2B via [@huggingface/transformers v4](https://huggingface.co/docs/transformers.js) - `Gemma4ForConditionalGeneration` + `AutoProcessor`, q4f16 ONNX, WebGPU primary with WASM fallback
-- **Live coding:** [@strudel/web](https://strudel.cc), `acorn` + `acorn-walk` for the parser firewall
-- **Validation:** [zod](https://zod.dev) on the JSON output shape, 3-retry loop on invalid Strudel
-- **Stack:** Vite · React 18 · TypeScript (strict) · IndexedDB (taste memory) · localStorage (studio drafts + saved mixes)
-- **Deploy:** Vercel with `COOP: same-origin` / `COEP: require-corp` (for transformers.js + WebGPU) plus CSP + X-Frame-Options + Referrer-Policy + Permissions-Policy hardening
-
-## License
-
-MIT - see [LICENSE](LICENSE).
+<!-- Thanks for participating! -->
