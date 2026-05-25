@@ -3321,3 +3321,13 @@ button.liked {
   border-left: 2px solid rgba(255, 216, 107, 0.35);
 }
 .route-curtain.is-closed { transform: translateX(0); }
+
+/* ---- Reduced-motion: kill decorative animation on the new chrome ---- */
+@media (prefers-reduced-motion: reduce) {
+  .venue-door.is-here .venue-bulb { animation: none; opacity: 0.85; }
+  .on-air-dot { animation: none; }
+  /* Defence-in-depth: RouteCurtain unmounts under reduced motion via the
+     useReducedMotion hook, but if it's ever forced-rendered (tests, etc.),
+     don't slide. */
+  .route-curtain { transition: none; }
+}
