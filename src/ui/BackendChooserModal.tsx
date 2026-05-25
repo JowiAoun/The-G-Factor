@@ -111,7 +111,7 @@ export function BackendChooserModal({ isFirstVisit, onClose }: Props) {
         aria-labelledby="backend-modal-title"
       >
         <div className="backend-modal-head">
-          <h2 id="backend-modal-title">Where should we run Gemma?</h2>
+          <h2 id="backend-modal-title">Dressing Room: pick your engine</h2>
           {!isFirstVisit && (
             <button
               className="backend-modal-close"

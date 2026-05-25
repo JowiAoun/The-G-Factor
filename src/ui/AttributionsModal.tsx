@@ -33,7 +33,7 @@ export function AttributionsModal({ onClose }: Props) {
     >
       <div className="attr-modal">
         <header className="attr-modal-head">
-          <h2 id="attr-modal-title">Attributions</h2>
+          <h2 id="attr-modal-title">Programme Credits</h2>
           <button
             ref={closeRef}
             type="button"

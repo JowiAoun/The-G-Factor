@@ -29,41 +29,42 @@ export function Footer() {
         <nav className="footer-links" aria-label="Site footer">
           {BLOG_URL ? (
             <a href={BLOG_URL} target="_blank" rel="noreferrer">
-              Blog post
+              Read the blog
             </a>
           ) : (
             <span className="footer-link-todo" title="Coming soon">
-              Blog post
+              Read the blog
             </span>
           )}
           <span className="footer-sep" aria-hidden="true">
-            ·
+            ✦
           </span>
           <button
             type="button"
             className="footer-link-btn"
             onClick={() => setAttrOpen(true)}
           >
-            Attributions
+            Programme credits
           </button>
           <span className="footer-sep" aria-hidden="true">
-            ·
+            ✦
           </span>
           {REPO_URL ? (
             <a href={REPO_URL} target="_blank" rel="noreferrer">
-              GitHub repo
+              Backstage pass
             </a>
           ) : (
             <span className="footer-link-todo" title="Coming soon">
-              GitHub repo
+              Backstage pass
             </span>
           )}
         </nav>
         <div className="footer-credit">
-          Made with <span aria-label="love">❤️</span> by{' '}
+          Direction by{' '}
           <a href={AUTHOR_URL} target="_blank" rel="noreferrer">
             Jowi Aoun
-          </a>
+          </a>{' '}
+          <span aria-label="love">❤️</span>
         </div>
       </footer>
       {attrOpen && <AttributionsModal onClose={() => setAttrOpen(false)} />}

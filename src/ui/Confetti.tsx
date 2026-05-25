@@ -1,13 +1,13 @@
 import { useMemo } from 'react';
 
 const COLORS = [
-  '#4f7cff',
-  '#ff6b9b',
-  '#d4b34a',
-  '#1f9b6b',
-  '#9b59b6',
-  '#e74c3c',
-  '#21d4fd',
+  '#ffd86b',   // theatre gold
+  '#f1d27c',   // light brass
+  '#ffe6a3',   // candle warm
+  '#e74c3c',   // curtain red
+  '#ff9a3c',   // amber footlight
+  '#f6e9c8',   // parchment cream
+  '#c9b06e',   // antique gold
 ];
 
 type Piece = {

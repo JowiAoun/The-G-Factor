@@ -201,15 +201,30 @@ td.code .label { color: #9aa0a8; font-size: 0.78rem; margin-bottom: 4px; }
 .verdict.fail { background: #6b1f2a; }
 .verdict.pending { background: #2a2d34; color: #9aa0a8; }
 .errors {
-  background: #2a1a1f;
-  border: 1px solid #6b1f2a;
-  padding: 8px 12px;
+  position: relative;
+  background: linear-gradient(180deg, var(--theatre-burgundy-soft) 0%, var(--theatre-curtain-deeper) 100%);
+  border: 1px solid var(--ink-danger);
+  padding: 10px 14px 10px 28px;
   border-radius: 6px;
-  font-family: ui-monospace, monospace;
+  font-family: var(--font-mono);
   font-size: 0.8rem;
+  color: var(--ink-cream);
   white-space: pre-wrap;
   max-height: 160px;
   overflow: auto;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+/* Wax seal corner mark. */
+.errors::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ff7a7a 0%, var(--ink-danger) 55%, #6b1f2a 100%);
+  box-shadow: 0 0 6px rgba(255, 90, 90, 0.6);
 }
 
 /* ── main app ─────────────────────────────────────────────── */
@@ -2527,15 +2542,19 @@ button.liked {
 }
 
 .backend-modal {
-  background: #14161b;
-  border: 1px solid #2a2d34;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(255, 216, 107, 0.12) 0%, transparent 50%),
+    linear-gradient(180deg, var(--theatre-burgundy) 0%, var(--theatre-curtain-deeper) 100%);
+  border: 1px solid var(--gold-bright);
   border-radius: 16px;
   padding: 24px;
   max-width: 720px;
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.7),
+    0 0 32px rgba(255, 216, 107, 0.2);
   animation: backend-modal-pop 280ms cubic-bezier(0.2, 1, 0.3, 1);
 }
 
@@ -2545,28 +2564,33 @@ button.liked {
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(201, 176, 110, 0.35);
 }
 
 .backend-modal-head h2 {
   margin: 0;
-  font-size: 1.25rem;
-  color: #e7e9ee;
+  font-family: var(--font-marquee);
+  font-size: 1.4rem;
+  color: var(--gold-bright);
+  text-shadow: 0 0 10px rgba(255, 216, 107, 0.45);
 }
 
 .backend-modal-close {
   background: transparent;
-  border: 1px solid #2a2d34;
+  border: 1px solid rgba(201, 176, 110, 0.45);
   border-radius: 6px;
   width: 30px;
   height: 30px;
   padding: 0;
-  color: #9aa0a8;
+  color: var(--ink-parchment);
   cursor: pointer;
 }
 
 .backend-modal-close:hover {
-  background: #1d1f25;
-  color: #e7e9ee;
+  background: var(--theatre-burgundy-soft);
+  border-color: var(--gold-bright);
+  color: var(--gold-bright);
 }
 
 .backend-cards {
@@ -2830,10 +2854,14 @@ button.liked {
 .app-footer {
   margin-top: 36px;
   padding: 18px 16px 24px;
-  border-top: 1px solid #2a2d34;
+  border-top: 1px solid rgba(201, 176, 110, 0.35);
   text-align: center;
-  color: #8a8f97;
-  font-size: 0.82rem;
+  color: var(--ink-parchment);
+  font-family: var(--font-display);
+  font-size: 0.84rem;
+  letter-spacing: 0.08em;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(255, 216, 107, 0.05) 0%, transparent 60%);
 }
 
 .footer-links {
@@ -2847,38 +2875,53 @@ button.liked {
 
 .footer-links a,
 .footer-link-btn {
-  color: #b5bac1;
+  color: var(--ink-parchment);
   text-decoration: none;
   background: transparent;
   border: none;
+  border-bottom: 1px dotted transparent;
   padding: 2px 4px;
   font: inherit;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 0;
+  text-transform: uppercase;
 }
 
 .footer-links a:hover,
 .footer-link-btn:hover {
-  color: #e7e9ee;
-  text-decoration: underline;
+  color: var(--gold-bright);
+  border-bottom-color: var(--gold-bright);
+  text-decoration: none;
 }
 
 .footer-link-todo {
-  color: #5b5f66;
+  color: var(--ink-muted);
   cursor: default;
   font-style: italic;
+  text-transform: uppercase;
 }
 
 .footer-sep {
-  color: #3a3d44;
+  color: var(--gold);
+  opacity: 0.6;
+  font-size: 0.74rem;
 }
 
+.footer-credit {
+  font-family: var(--font-marquee);
+  font-size: 0.92rem;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: var(--ink-cream);
+}
 .footer-credit a {
-  color: #b5bac1;
+  color: var(--gold-bright);
+  border-bottom: 1px dotted rgba(255, 216, 107, 0.4);
 }
 
 .footer-credit a:hover {
-  color: #4f7cff;
+  color: var(--ink-cream);
+  border-bottom-style: solid;
 }
 
 /* ── attributions modal ───────────────────────────────────── */
