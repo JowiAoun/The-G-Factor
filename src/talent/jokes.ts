@@ -1,5 +1,5 @@
 /**
- * Joke catalogue for Gemma, the Talent Show's host. Three pools:
+ * Joke catalogue for Gemma, The G Factor's host. Three pools:
  *
  *   - NORMAL_JOKES rotate while the bracket is generating.
  *   - PATIENCE_JOKES kick in if generation drags past
@@ -10,48 +10,49 @@
  *
  * Catalogue is handwritten (no LLM calls) so generation cycles stay
  * with the contestants. Tone target: warm host, gentle Strudel /
- * music / AI puns, never punching down at the user.
+ * music / AI puns, never punching down at the user. Short lines so
+ * they read at a glance and rotate often.
  */
 
 export const NORMAL_JOKES: readonly string[] = [
-  'Welcome to the Strudel Talent Show - where every contestant is a 2-billion-parameter understudy.',
-  "A polyrhythm walks into a bar. The bar is in 7. The kick lands on beat 5. Nobody knows where the downbeat is anymore.",
-  'I asked Gemma why hi-hats are so busy. She said, "because they have a lot on their cycle."',
+  'Welcome to The G Factor. Every contestant aged three seconds.',
+  'A polyrhythm walks into a bar. The bar is in seven.',
+  'Why are hi-hats so busy? A lot on their cycle.',
   "What did the stack say to the layer? You're on top.",
-  "Did you hear about the synth that couldn't keep time? It needed therapy. And a `.slow(2)`.",
-  "Our contestants are all original - by which I mean none of them existed three seconds ago.",
-  'Reminder: applause is encouraged. Booing is also encouraged. We grade on volume.',
-  "My agent told me hosting an AI talent show would be the future. Then she became an AI. Then she fired me.",
-  "If a contestant doesn't move you tonight, please consider: maybe YOU should move closer.",
-  'We tested these patterns rigorously. By "we" I mean a parser, and by "rigorously" I mean once.',
-  "What's a euclidean rhythm's favourite vegetable? Beets - three over eight.",
-  "I once tried to teach a kick drum to talk. All it could say was 'boom'. Devastating.",
-  "Backstage is chaos. Two contestants are arguing about whose snare is louder. The answer is: yes.",
-  'If you find tonight\'s variations confusing, just remember - so does Gemma.',
-  'I trained for years to host this show. Years. In dog years. I am, biologically, two.',
-  'The neural network warm-up is technically a kind of dance. A very slow dance. With matrices.',
-  'Quick reminder for the hi-hats: please pace yourselves. We have seven more matches tonight.',
-  "Tonight's show is brought to you by the letter `s` and the function `stack()`. Honestly that's most of Strudel.",
+  'The synth needs therapy. Also `.slow(2)`.',
+  "All contestants are original. By 'original' I mean born five seconds ago.",
+  'Applause encouraged. Booing also encouraged. We grade on volume.',
+  'My agent said AI was the future. Then she became AI. Then she fired me.',
+  "If a contestant doesn't move you, consider moving closer.",
+  "We tested every pattern. Once. By 'we' I mean a parser.",
+  "What's a euclidean rhythm's favourite vegetable? Beets. Three over eight.",
+  "I taught a kick drum to talk. All it said was 'boom'.",
+  'Backstage drama: two contestants arguing whose snare is louder. Yes.',
+  'If the variations confuse you, take heart. They confuse Gemma too.',
+  'I trained for years to host this. Years. In dog years.',
+  'The neural network warm-up is technically dancing. With matrices.',
+  'Hi-hats: pace yourselves. Seven more matches tonight.',
+  "Tonight's show: brought to you by `stack()` and the letter `s`.",
 ];
 
 export const PATIENCE_JOKES: readonly string[] = [
-  'They should be ready any minute now…!',
-  "Backstage tells me there's been an issue with contestant 1's left shoe. Bear with us.",
-  "Gemma is giving everyone last-minute notes. She's a perfectionist. We love that about her.",
-  'Update from wardrobe: the kick drum refuses to wear pants. Negotiations ongoing.',
-  'Contestant 3 is doing breathing exercises. Four-on-the-floor is intimidating up close.',
-  'Our hi-hats have unionised. As is their right. We support them.',
-  'The producer just asked me to "stall a bit". So… here we go.',
-  "I'd tell you another joke, but Gemma is judging my material in real time. Tough crowd.",
-  'Quick poll: who here believes in the inherent dignity of a snare drum? Show of hands.',
-  'I have been told there is a hold-up. The hold-up, I have been told, is musical in nature.',
+  'They should be ready any minute now.',
+  "Backstage: contestant 1's left shoe situation. Bear with us.",
+  'Gemma is giving last-minute notes. Perfectionist. We love her.',
+  'Wardrobe report: the kick drum refuses to wear pants.',
+  'Contestant 3 is doing breathing exercises. Four-on-the-floor intimidates.',
+  'The hi-hats have unionised. As is their right.',
+  'The producer told me to stall. So here we go.',
+  "I'd tell another joke but Gemma is judging me live. Tough crowd.",
+  'Quick poll: who believes in the dignity of a snare drum?',
+  "There is a hold-up. It is, I'm told, musical in nature.",
 ];
 
 export const REVEAL_JOKES: readonly string[] = [
-  'Without further ado…',
-  'Ladies, gentlemen, and pattern-matchers - your contestants!',
-  'Lights up, curtains apart - here we go!',
-  'They are ready. They are SO ready. Curtains, please!',
+  'Without further ado, the contestants!',
+  'Ladies, gentlemen, and pattern-matchers: your contestants!',
+  'Lights up. Curtains apart. Here we go.',
+  'They are ready. SO ready. Curtains, please.',
 ];
 
 export const PATIENCE_THRESHOLD_MS = 60_000;
