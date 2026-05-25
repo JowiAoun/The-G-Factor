@@ -1,6 +1,10 @@
-import type { CSSProperties, ReactNode } from 'react';
+import { lazy, Suspense, type CSSProperties, type ReactNode } from 'react';
 import { Audience } from './Audience';
 import { useAudioAmplitude } from './useAudioAmplitude';
+
+// Lazy-load so the audiomotion-analyzer payload (~30 kB) is fetched
+// only when a performance actually starts.
+const StageVisualizer = lazy(() => import('./StageVisualizer'));
 
 export type StagePhase = 'casting' | 'showing' | 'champion';
 export type CurtainState = 'open' | 'closed';
@@ -76,6 +80,12 @@ export function TalentStage({
       </div>
 
       <Audience cheering={!!spotlightActive} />
+
+      {spotlightActive && (
+        <Suspense fallback={null}>
+          <StageVisualizer active />
+        </Suspense>
+      )}
 
       <div className="stage-curtain left" aria-hidden="true" />
       <div className="stage-curtain right" aria-hidden="true" />

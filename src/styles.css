@@ -1377,6 +1377,24 @@ button.liked { background: #6b2a4a; border-color: #80303f; color: #ffd6e3; }
 .talent-stage.curtain-open .stage-curtain.left  { transform: translateX(-100%); }
 .talent-stage.curtain-open .stage-curtain.right { transform: translateX(100%); }
 
+/* Frequency-bar visualizer overlay - lives just above the audience
+   strip, behind the curtains. mix-blend mode lifts the colour off the
+   dark backdrop without losing the rest of the stage chrome. */
+.stage-visualizer {
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  bottom: 140px;
+  height: 80px;
+  z-index: 3;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 400ms ease;
+  mix-blend-mode: screen;
+}
+.stage-visualizer.is-active { opacity: 0.85; }
+.stage-visualizer canvas { width: 100% !important; height: 100% !important; }
+
 /* Stadium audience: dark head silhouettes in 3 receding rows along the
    bottom of the stage, with sparse phone-flashlight twinkles. The SVG
    fills the bottom 130px; foreground tier sits on top of curtains so
