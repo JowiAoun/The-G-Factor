@@ -40,10 +40,16 @@ function swVersion(): Plugin {
 //    unmounted (blank #root). We add `'unsafe-inline'` for dev only.
 //    Production stays strict so the deployed surface isn't relaxed.
 function buildCsp(mode: 'dev' | 'prod'): string {
+  // `blob:` in script-src is required by onnxruntime-web's WebGPU backend.
+  // ORT does `import('blob:...')` to load its proxy module at runtime; without
+  // `blob:` here that import is silently blocked and surfaces as "no available
+  // backend found. ERR: [webgpu] TypeError: Failed to fetch dynamically
+  // imported module". `worker-src blob:` alone is not enough - the import is
+  // classified as a script load, not a worker load.
   const scriptSrc =
     mode === 'dev'
-      ? "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval'"
-      : "script-src 'self' 'unsafe-eval' 'wasm-unsafe-eval'";
+      ? "script-src 'self' blob: 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval'"
+      : "script-src 'self' blob: 'unsafe-eval' 'wasm-unsafe-eval'";
   return [
     "default-src 'self'",
     scriptSrc,
