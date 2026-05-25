@@ -29,6 +29,7 @@ import { Studio } from './Studio';
 import { BackendChooserModal } from './BackendChooserModal';
 import { Footer } from './Footer';
 import { Leaderboard } from './Leaderboard';
+import { VenueMap } from './VenueMap';
 
 type ModelState = 'idle' | 'loading' | 'ready' | 'error';
 export type AppMode = 'remix' | 'talentshow' | 'leaderboard';
@@ -192,9 +193,18 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
     <div className="app">
       <header className="app-head">
         <div className="wordmark" aria-label="The G Factor">
-          <span className="wordmark-the">THE</span>
-          <span className="wordmark-g" aria-hidden="true">G</span>
-          <span className="wordmark-factor">FACTOR</span>
+          <img
+            className="wordmark-logo"
+            src="/assets/logo.png"
+            alt=""
+            width={88}
+            height={88}
+          />
+          <span className="wordmark-text">
+            <span className="wordmark-the">THE</span>
+            <span className="wordmark-g" aria-hidden="true">G</span>
+            <span className="wordmark-factor">FACTOR</span>
+          </span>
         </div>
         <div className="sub">
           Where Gemma learns your sound — live.{' '}
@@ -205,50 +215,9 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
             G = general intelligence × Gemma
           </span>
         </div>
-        <div className="mode-tabs" role="tablist">
-          <button
-            className={`mode-tab${mode === 'remix' ? ' active' : ''}`}
-            role="tab"
-            aria-selected={mode === 'remix'}
-            onClick={() => {
-              if (mode === 'remix') return;
-              setMode('remix');
-            }}
-          >
-            🎛 Remix Studio
-          </button>
-          <button
-            className={`mode-tab${mode === 'talentshow' ? ' active' : ''}`}
-            role="tab"
-            aria-selected={mode === 'talentshow'}
-            onClick={() => {
-              if (mode === 'talentshow') return;
-              setMode('talentshow');
-            }}
-          >
-            🎪 Talent Show
-          </button>
-          <button
-            className={`mode-tab${mode === 'leaderboard' ? ' active' : ''}`}
-            role="tab"
-            aria-selected={mode === 'leaderboard'}
-            onClick={() => {
-              if (mode === 'leaderboard') return;
-              setMode('leaderboard');
-            }}
-          >
-            🏆 Leaderboard
-          </button>
-          <button
-            className="header-settings-btn"
-            onClick={handleOpenSettings}
-            title="Switch model backend"
-            aria-label="Open backend settings"
-          >
-            <span className="header-settings-glyph" aria-hidden="true">⚙</span>
-          </button>
-        </div>
       </header>
+
+      <VenueMap mode={mode} onSelect={setMode} onOpenSettings={handleOpenSettings} />
 
       {currentMode !== 'remote' && (
         <div className="panel">

@@ -189,14 +189,27 @@ td.code .label { color: #9aa0a8; font-size: 0.78rem; margin-bottom: 4px; }
 /* —— The G Factor wordmark ——————————————————————————— */
 .wordmark {
   display: inline-flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: center;
-  gap: 0.16em;
+  gap: 18px;
   font-family: var(--font-marquee);
   line-height: 0.95;
   letter-spacing: 0.04em;
   user-select: none;
   filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.6));
+}
+.wordmark-logo {
+  height: clamp(56px, 9vw, 96px);
+  width: auto;
+  filter: drop-shadow(0 4px 16px rgba(255, 216, 107, 0.35))
+          drop-shadow(0 0 8px rgba(110, 14, 14, 0.55));
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.wordmark-text {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.16em;
 }
 .wordmark-the,
 .wordmark-factor {
@@ -407,32 +420,187 @@ button.liked { background: #6b2a4a; border-color: #80303f; color: #ffd6e3; }
 }
 .cache-info b { color: #d6dde6; font-weight: 700; }
 
-/* ── mode tabs ────────────────────────────────────────────── */
-.mode-tabs {
-  display: flex;
-  gap: 4px;
-  margin-top: 14px;
-  border-bottom: 1px solid #2a2d34;
-}
-.mode-tab {
-  background: transparent;
-  border: 1px solid transparent;
-  border-bottom: none;
-  border-radius: 8px 8px 0 0;
-  padding: 8px 16px;
-  color: #9aa0a8;
-  font-weight: 600;
-  font-size: 0.92rem;
-  cursor: pointer;
-  transition: background 80ms, color 80ms;
+/* ── venue map (proscenium-arch nav) ─────────────────────── */
+.venue-map {
   position: relative;
-  top: 1px;
+  margin: 4px auto 22px;
+  padding: 38px 14px 14px;
+  max-width: 980px;
+  z-index: 1;
 }
-.mode-tab:hover { background: #1a1c20; color: #d6dde6; }
-.mode-tab.active {
-  background: #181a1f;
-  border-color: #2a2d34;
-  color: #e8eaed;
+/* Arch — the gold-trimmed half-ellipse spanning the top of the nav. */
+.venue-arch {
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: min(900px, 96%);
+  height: 56px;
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+  background: var(--brass-rail);
+  box-shadow:
+    0 0 0 2px rgba(255, 216, 107, 0.35),
+    0 8px 18px rgba(0, 0, 0, 0.6),
+    inset 0 -4px 0 rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+}
+/* Red velvet swag drape hanging from the inside of the arch. */
+.venue-swag {
+  position: absolute;
+  top: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(870px, 94%);
+  height: 38px;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 16% 0%, var(--theatre-curtain) 0%, var(--theatre-curtain-dark) 70%, transparent 71%),
+    radial-gradient(ellipse at 50% 0%, var(--theatre-curtain) 0%, var(--theatre-curtain-dark) 70%, transparent 71%),
+    radial-gradient(ellipse at 84% 0%, var(--theatre-curtain) 0%, var(--theatre-curtain-dark) 70%, transparent 71%);
+  background-size: 36% 100%, 36% 100%, 36% 100%;
+  background-position: 0 0, 50% 0, 100% 0;
+  background-repeat: no-repeat;
+  filter: drop-shadow(0 6px 6px rgba(0, 0, 0, 0.55));
+}
+.venue-doors {
+  display: flex;
+  gap: 14px;
+  align-items: stretch;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+.venue-door {
+  position: relative;
+  flex: 1 1 220px;
+  max-width: 280px;
+  min-height: 132px;
+  padding: 22px 14px 14px;
+  border: 1px solid rgba(201, 176, 110, 0.45);
+  border-radius: 14px 14px 8px 8px;
+  background:
+    linear-gradient(180deg,
+      rgba(33, 2, 2, 0.85) 0%,
+      rgba(74, 8, 16, 0.85) 60%,
+      rgba(33, 2, 2, 0.9)  100%);
+  color: var(--ink-cream);
+  font: inherit;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+  overflow: hidden;
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+}
+.venue-door:hover:not(.is-here) {
+  transform: translateY(-2px);
+  border-color: var(--gold);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55), 0 0 12px rgba(255, 216, 107, 0.18);
+}
+.venue-door.is-here {
+  border-color: var(--gold-bright);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.6),
+    0 0 22px rgba(255, 216, 107, 0.45),
+    inset 0 -40px 60px rgba(255, 216, 107, 0.08);
+  transform: translateY(-2px);
+}
+/* Inner mini-arch outline at the top of each door. */
+.venue-door-arch {
+  position: absolute;
+  top: 6px; left: 50%;
+  transform: translateX(-50%);
+  width: 84%;
+  height: 16px;
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+  border: 1px solid rgba(201, 176, 110, 0.55);
+  border-bottom: none;
+  pointer-events: none;
+}
+.venue-door-bulbs {
+  position: absolute;
+  top: 2px; left: 0; right: 0;
+  height: 8px;
+  display: flex;
+  justify-content: space-around;
+  pointer-events: none;
+}
+.venue-bulb {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: rgba(201, 176, 110, 0.25);
+  transition: background 120ms;
+}
+.venue-door.is-here .venue-bulb {
+  background: var(--gold-bright);
+  box-shadow: 0 0 8px rgba(255, 216, 107, 0.9);
+  animation: venue-bulb-chase 1.2s ease-in-out infinite;
+}
+@keyframes venue-bulb-chase {
+  0%, 100% { opacity: 0.35; box-shadow: 0 0 3px rgba(255, 216, 107, 0.45); }
+  50%      { opacity: 1;    box-shadow: 0 0 10px rgba(255, 216, 107, 1); }
+}
+.venue-door-icon {
+  font-size: 1.7rem;
+  line-height: 1;
+  margin-top: 6px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
+}
+.venue-door-label {
+  font-family: var(--font-marquee);
+  font-size: 1.15rem;
+  letter-spacing: 0.04em;
+  color: var(--ink-cream);
+}
+.venue-door.is-here .venue-door-label {
+  color: var(--gold-bright);
+  text-shadow: 0 0 10px rgba(255, 216, 107, 0.55);
+}
+.venue-door-sub {
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  color: var(--ink-parchment);
+  text-transform: uppercase;
+  opacity: 0.78;
+}
+/* Backstage door — small unobtrusive settings entry. */
+.venue-stage-door {
+  flex: 0 0 auto;
+  align-self: stretch;
+  min-height: 132px;
+  padding: 14px 12px;
+  background: transparent;
+  border: 1px dashed rgba(201, 176, 110, 0.35);
+  border-radius: 8px;
+  color: var(--ink-parchment);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: color 120ms, border-color 120ms, background 120ms;
+}
+.venue-stage-door:hover {
+  color: var(--gold-bright);
+  border-color: var(--gold-bright);
+  background: rgba(74, 8, 16, 0.35);
+}
+.venue-stage-door span:first-child { font-size: 1.4rem; line-height: 1; }
+.venue-stage-door-label { font-family: var(--font-display); }
+@media (max-width: 640px) {
+  .venue-doors { gap: 8px; }
+  .venue-door { min-height: 100px; padding: 18px 8px 10px; }
+  .venue-door-icon { font-size: 1.3rem; }
+  .venue-door-label { font-size: 1rem; }
+  .venue-door-sub { font-size: 0.72rem; }
+  .venue-stage-door { min-height: 56px; flex-basis: 100%; flex-direction: row; }
 }
 
 /* ── talent show - bracket size toggle ────────────────────── */
