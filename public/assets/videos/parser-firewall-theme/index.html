@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Parser firewall - architecture diagram (themed)</title>
+  </head>
+  <body>
+    <div
+      id="parser-firewall-theme"
+      data-composition-id="parser-firewall-theme"
+      data-width="1600"
+      data-height="620"
+      data-start="0"
+      data-duration="4"
+      data-track-index="0"
+    >
+      <svg class="wires" width="1600" height="620" viewBox="0 0 1600 620" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="ah-gold" markerWidth="11" markerHeight="11" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,5 L0,10 Z" fill="#ffd86b" /></marker>
+          <marker id="ah-green" markerWidth="11" markerHeight="11" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,5 L0,10 Z" fill="#6ed98a" /></marker>
+          <marker id="ah-red" markerWidth="11" markerHeight="11" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,5 L0,10 Z" fill="#ff6a6a" /></marker>
+          <marker id="ah-amber" markerWidth="11" markerHeight="11" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,5 L0,10 Z" fill="#ff9a3c" /></marker>
+        </defs>
+
+        <polygon points="1180,166 1240,226 1180,286 1120,226" fill="#2a060a" stroke="#c9b06e" stroke-width="2" />
+
+        <path class="flow" d="M240,226 L294,226" stroke="#ffd86b" marker-end="url(#ah-gold)" />
+        <path class="flow" d="M500,226 L554,226" stroke="#ffd86b" marker-end="url(#ah-gold)" />
+        <path class="flow" d="M760,226 L814,226" stroke="#ffd86b" marker-end="url(#ah-gold)" />
+        <path class="flow" d="M1020,226 L1114,226" stroke="#ffd86b" marker-end="url(#ah-gold)" />
+
+        <path class="flow" d="M1240,226 C1320,226 1320,186 1394,186" stroke="#6ed98a" marker-end="url(#ah-green)" />
+        <path class="flow" d="M1180,286 L1183,404" stroke="#ff6a6a" marker-end="url(#ah-red)" />
+        <path class="flow" d="M1290,456 L1374,456" stroke="#ff6a6a" marker-end="url(#ah-red)" />
+        <path class="flow" d="M1080,456 C640,456 400,456 400,278" stroke="#ff9a3c" marker-end="url(#ah-amber)" />
+      </svg>
+
+      <div class="box" style="left:40px;   top:180px; border-left-color:#a08d68;"><div class="bt">Raw output</div><div class="bs">model JSON</div></div>
+      <div class="box" style="left:300px;  top:180px; border-left-color:#c9b06e;"><div class="bt">Parse JSON</div><div class="bs">zod schema</div></div>
+      <div class="box" style="left:560px;  top:180px; border-left-color:#c9b06e;"><div class="bt">Syntax check</div><div class="bs">acorn.parse</div></div>
+      <div class="box" style="left:820px;  top:180px; border-left-color:#ffd86b;"><div class="bt">Security walk</div><div class="bs">deny-list AST</div></div>
+
+      <div class="box" style="left:1400px; top:140px; background:#102a1c; border-left-color:#6ed98a;"><div class="bt" style="color:#9bedb6;">play()</div><div class="bs">Strudel runs</div></div>
+      <div class="box" style="left:1080px; top:410px; background:#2e1c08; border-left-color:#ff9a3c;"><div class="bt" style="color:#ffbe7a;">Retry + hint</div><div class="bs">up to 3 tries</div></div>
+      <div class="box" style="left:1380px; top:410px; background:#2e0c0c; border-left-color:#ff6a6a;"><div class="bt" style="color:#ff9b9b;">Surface error</div><div class="bs">after 3 fails</div></div>
+
+      <div class="dlabel">valid?</div>
+
+      <div class="note">rejects fetch &middot; eval &middot; localStorage &middot; .constructor &middot; import()</div>
+
+      <div class="elabel" style="left:1300px; top:158px; color:#6ed98a;">valid</div>
+      <div class="elabel" style="left:1196px; top:330px; color:#ff8f8f;">invalid</div>
+      <div class="elabel" style="left:1296px; top:430px; color:#ff8f8f;">after &times;3</div>
+      <div class="elabel" style="left:660px;  top:466px; color:#ff9a3c;">regenerate with hint</div>
+
+      <style>
+        @font-face {
+          font-family: 'Fraunces';
+          font-weight: 300 900; font-style: normal; font-display: swap;
+          src: url('fonts/fraunces-latin.woff2') format('woff2');
+        }
+        #parser-firewall-theme { position: absolute; inset: 0; background: #120307; overflow: hidden; }
+        #parser-firewall-theme * { box-sizing: border-box; }
+        .wires { position: absolute; left: 0; top: 0; z-index: 1; }
+        .flow { fill: none; stroke-width: 2.8; stroke-linecap: round; stroke-dasharray: 10 8; stroke-dashoffset: 0; }
+
+        .box {
+          position: absolute; z-index: 2; width: 200px; height: 92px;
+          background: #4a0810; border: 1.5px solid rgba(201, 176, 110, 0.42);
+          border-left: 5px solid #a08d68; border-radius: 12px; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
+          display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 8px; padding: 0 12px;
+        }
+        .bt { font-family: 'Fraunces', serif; font-weight: 600; font-size: 23px; color: #f6e9c8; }
+        .bs { font-family: 'JetBrains Mono', monospace; font-weight: 400; font-size: 13px; color: #cbb38a; text-align: center; }
+
+        .dlabel { position: absolute; z-index: 3; left: 1140px; top: 208px; width: 80px; text-align: center; font-family: 'Fraunces', serif; font-weight: 600; font-size: 20px; color: #f6e9c8; }
+        .note { position: absolute; z-index: 3; left: 540px; top: 300px; width: 520px; text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #c9b06e; }
+        .elabel { position: absolute; z-index: 3; font-family: 'JetBrains Mono', monospace; font-weight: 500; font-size: 15px; }
+      </style>
+
+      <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+      <script>
+        window.__timelines = window.__timelines || {};
+        const tl = gsap.timeline({ paused: true });
+        tl.to('.flow', { strokeDashoffset: -18, duration: 1, ease: 'none', repeat: 3 }, 0);
+        window.__timelines['parser-firewall-theme'] = tl;
+      </script>
+    </div>
+  </body>
+</html>

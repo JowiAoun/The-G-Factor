@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>One generation - architecture diagram (themed)</title>
+  </head>
+  <body>
+    <div
+      id="one-generation-theme"
+      data-composition-id="one-generation-theme"
+      data-width="1600"
+      data-height="560"
+      data-start="0"
+      data-duration="4"
+      data-track-index="0"
+    >
+      <svg class="wires" width="1600" height="560" viewBox="0 0 1600 560" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="ah-gold" markerWidth="11" markerHeight="11" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,5 L0,10 Z" fill="#ffd86b" /></marker>
+          <marker id="ah-amber" markerWidth="11" markerHeight="11" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,5 L0,10 Z" fill="#ff9a3c" /></marker>
+          <marker id="ah-rose" markerWidth="11" markerHeight="11" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,5 L0,10 Z" fill="#e58aab" /></marker>
+        </defs>
+
+        <path class="flow" d="M250,280 L308,280" stroke="#ffd86b" marker-end="url(#ah-gold)" />
+        <path class="flow" d="M514,280 L572,280" stroke="#ffd86b" marker-end="url(#ah-gold)" />
+        <path class="flow" d="M778,280 L836,280" stroke="#ffd86b" marker-end="url(#ah-gold)" />
+        <path class="flow" d="M1042,280 L1100,280" stroke="#ffd86b" marker-end="url(#ah-gold)" />
+        <path class="flow" d="M1306,280 L1364,280" stroke="#ffd86b" marker-end="url(#ah-gold)" />
+
+        <path class="flow" d="M1206,230 C1206,150 942,150 942,224" stroke="#ff9a3c" marker-end="url(#ah-amber)" />
+        <path class="flow" d="M546,402 C546,360 678,372 678,336" stroke="#e58aab" marker-end="url(#ah-rose)" />
+      </svg>
+
+      <div class="box" style="left:50px;   top:230px; border-left-color:#a08d68;"><div class="bt">Request</div><div class="bs">seed / chat turn</div></div>
+      <div class="box" style="left:314px;  top:230px; border-left-color:#e58aab;"><div class="bt">Retrieve taste</div><div class="bs">getTopKSimilar()</div></div>
+      <div class="box" style="left:578px;  top:230px; border-left-color:#c9b06e;"><div class="bt">Build prompt</div><div class="bs">priors + taste + axis</div></div>
+      <div class="box" style="left:842px;  top:230px; border-left-color:#ffd86b;"><div class="bt">Generate</div><div class="bs">Gemma E2B / 31B</div></div>
+      <div class="box" style="left:1106px; top:230px; border-left-color:#6ed98a;"><div class="bt">Validate</div><div class="bs">zod + acorn firewall</div></div>
+      <div class="box" style="left:1370px; top:230px; border-left-color:#ff9a3c;"><div class="bt">Play</div><div class="bs">Strudel &rarr; audio</div></div>
+
+      <div class="store" style="left:431px; top:406px;">
+        <div class="st">Taste memory</div><div class="ss">IndexedDB</div>
+      </div>
+
+      <div class="elabel" style="left:1028px; top:120px; color:#ff9a3c;">retry &times;3</div>
+      <div class="elabel" style="left:690px; top:360px; color:#e58aab;">top-3</div>
+
+      <style>
+        @font-face {
+          font-family: 'Fraunces';
+          font-weight: 300 900; font-style: normal; font-display: swap;
+          src: url('fonts/fraunces-latin.woff2') format('woff2');
+        }
+        #one-generation-theme { position: absolute; inset: 0; background: #120307; overflow: hidden; }
+        #one-generation-theme * { box-sizing: border-box; }
+        .wires { position: absolute; left: 0; top: 0; z-index: 1; }
+        .flow { fill: none; stroke-width: 2.8; stroke-linecap: round; stroke-dasharray: 10 8; stroke-dashoffset: 0; }
+        .box {
+          position: absolute; z-index: 2; width: 200px; height: 100px;
+          background: #4a0810; border: 1.5px solid rgba(201, 176, 110, 0.42);
+          border-left: 5px solid #a08d68; border-radius: 12px;
+          box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
+          display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 9px; padding: 0 14px;
+        }
+        .bt { font-family: 'Fraunces', serif; font-weight: 600; font-size: 24px; color: #f6e9c8; letter-spacing: 0.01em; }
+        .bs { font-family: 'JetBrains Mono', monospace; font-weight: 400; font-size: 13.5px; color: #cbb38a; text-align: center; }
+        .store {
+          position: absolute; z-index: 2; width: 230px; height: 96px;
+          background: #2a060a; border: 2px solid #e58aab; border-radius: 115px / 20px;
+          display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 5px; padding-top: 16px;
+        }
+        .store::before { content: ''; position: absolute; top: -2px; left: -2px; right: -2px; height: 22px; background: #3a0a14; border: 2px solid #e58aab; border-radius: 50%; }
+        .st { position: relative; z-index: 1; font-family: 'Fraunces', serif; font-weight: 600; font-size: 20px; color: #f3bcd2; }
+        .ss { position: relative; z-index: 1; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #df9fbb; }
+        .elabel { position: absolute; z-index: 3; font-family: 'JetBrains Mono', monospace; font-weight: 500; font-size: 15px; }
+      </style>
+
+      <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+      <script>
+        window.__timelines = window.__timelines || {};
+        const tl = gsap.timeline({ paused: true });
+        tl.to('.flow', { strokeDashoffset: -18, duration: 1, ease: 'none', repeat: 3 }, 0);
+        window.__timelines['one-generation-theme'] = tl;
+      </script>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Three-layer teaching stack - architecture diagram (themed)</title>
+  </head>
+  <body>
+    <div
+      id="three-layer-stack-theme"
+      data-composition-id="three-layer-stack-theme"
+      data-width="1600"
+      data-height="560"
+      data-start="0"
+      data-duration="4"
+      data-track-index="0"
+    >
+      <svg class="wires" width="1600" height="560" viewBox="0 0 1600 560" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="ah-gold" markerWidth="11" markerHeight="11" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,5 L0,10 Z" fill="#ffd86b" /></marker>
+          <marker id="ah-rose" markerWidth="11" markerHeight="11" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,5 L0,10 Z" fill="#e58aab" /></marker>
+          <marker id="ah-green" markerWidth="11" markerHeight="11" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,5 L0,10 Z" fill="#6ed98a" /></marker>
+          <marker id="ah-amber" markerWidth="11" markerHeight="11" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,5 L0,10 Z" fill="#ff9a3c" /></marker>
+        </defs>
+
+        <path class="flow" d="M380,180 C470,180 470,250 596,258" stroke="#ffd86b" marker-end="url(#ah-gold)" />
+        <path class="flow" d="M380,400 C470,400 470,322 596,314" stroke="#e58aab" marker-end="url(#ah-rose)" />
+        <path class="flow" d="M864,286 L1004,286" stroke="#ffd86b" marker-end="url(#ah-gold)" />
+        <path class="flow" d="M1314,286 L1374,286" stroke="#6ed98a" marker-end="url(#ah-green)" />
+        <path class="flow" d="M1160,215 C1160,135 740,135 740,209" stroke="#ff9a3c" marker-end="url(#ah-amber)" />
+      </svg>
+
+      <div class="layer" style="left:60px; top:110px; border-left-color:#ffd86b;">
+        <div class="badge" style="background:rgba(255,216,107,0.16); color:#ffd86b;">LAYER 1</div>
+        <div class="lt">Static priors</div>
+        <div class="ls">operators &middot; chains &middot; 10 idioms</div>
+        <div class="lnote" style="color:#e7c879;">always present</div>
+      </div>
+      <div class="layer" style="left:60px; top:330px; border-left-color:#e58aab;">
+        <div class="badge" style="background:rgba(229,138,171,0.18); color:#f3bcd2;">LAYER 2</div>
+        <div class="lt">Session taste</div>
+        <div class="ls">likes &rarr; IndexedDB &rarr; top-3</div>
+        <div class="lnote" style="color:#df9fbb;">learned live, in-session</div>
+      </div>
+
+      <div class="model" style="left:600px; top:216px;">
+        <div class="badge" style="background:rgba(255,216,107,0.18); color:#ffd86b;">MODEL</div>
+        <div class="lt" style="color:#ffe7a6;">Gemma</div>
+        <div class="ls" style="text-align:center;">E2B local / 31B remote</div>
+      </div>
+
+      <div class="layer" style="left:1010px; top:216px; border-left-color:#6ed98a;">
+        <div class="badge" style="background:rgba(110,217,138,0.16); color:#8fe7a8;">LAYER 3</div>
+        <div class="lt">Parser firewall</div>
+        <div class="ls">acorn + zod &middot; retry &times;3</div>
+        <div class="lnote" style="color:#8fe7a8;">invalid code never ships</div>
+      </div>
+
+      <div class="out" style="left:1374px; top:236px;">
+        <div class="ot">Valid Strudel</div>
+        <div class="os">reaches the UI</div>
+      </div>
+
+      <div class="elabel" style="left:444px; top:150px; color:#ffd86b;">priors</div>
+      <div class="elabel" style="left:404px; top:352px; color:#e58aab;">top-3</div>
+      <div class="elabel" style="left:892px; top:262px; color:#ffd86b;">generates</div>
+      <div class="elabel" style="left:930px; top:118px; color:#ff9a3c;">invalid &rarr; retry</div>
+
+      <style>
+        @font-face {
+          font-family: 'Fraunces';
+          font-weight: 300 900; font-style: normal; font-display: swap;
+          src: url('fonts/fraunces-latin.woff2') format('woff2');
+        }
+        #three-layer-stack-theme { position: absolute; inset: 0; background: #120307; overflow: hidden; }
+        #three-layer-stack-theme * { box-sizing: border-box; }
+        .wires { position: absolute; left: 0; top: 0; z-index: 1; }
+        .flow { fill: none; stroke-width: 2.8; stroke-linecap: round; stroke-dasharray: 10 8; stroke-dashoffset: 0; }
+
+        .layer, .model {
+          position: absolute; z-index: 2; background: #4a0810;
+          border: 1.5px solid rgba(201, 176, 110, 0.42); border-radius: 12px;
+          box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
+          display: flex; flex-direction: column; gap: 9px;
+        }
+        .layer { width: 320px; height: 140px; border-left: 5px solid #a08d68; justify-content: center; align-items: flex-start; padding: 0 24px; }
+        .model { width: 264px; height: 130px; border: 2px solid #ffd86b; justify-content: center; align-items: center; padding: 0 18px; }
+        .badge { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 12px; letter-spacing: 0.14em; padding: 3px 10px; border-radius: 6px; }
+        .lt { font-family: 'Fraunces', serif; font-weight: 600; font-size: 25px; color: #f6e9c8; }
+        .ls { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #cbb38a; line-height: 1.45; }
+        .lnote { font-family: 'JetBrains Mono', monospace; font-weight: 500; font-size: 12px; }
+
+        .out {
+          position: absolute; z-index: 2; width: 190px; height: 100px;
+          background: #102a1c; border: 2px solid #6ed98a; border-radius: 12px;
+          display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 6px;
+        }
+        .ot { font-family: 'Fraunces', serif; font-weight: 600; font-size: 22px; color: #9bedb6; }
+        .os { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #6ed98a; }
+
+        .elabel { position: absolute; z-index: 3; font-family: 'JetBrains Mono', monospace; font-weight: 500; font-size: 15px; }
+      </style>
+
+      <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+      <script>
+        window.__timelines = window.__timelines || {};
+        const tl = gsap.timeline({ paused: true });
+        tl.to('.flow', { strokeDashoffset: -18, duration: 1, ease: 'none', repeat: 3 }, 0);
+        window.__timelines['three-layer-stack-theme'] = tl;
+      </script>
+    </div>
+  </body>
+</html>
