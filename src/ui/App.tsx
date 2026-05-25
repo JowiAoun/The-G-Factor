@@ -244,7 +244,7 @@ export function App({ initialMode = 'talentshow' }: { initialMode?: AppMode } = 
       />
       <RouteCurtain targetKey={pendingMode ?? mode} onHalfway={commitPendingMode} />
 
-      {currentMode !== 'remote' && (
+      {currentMode !== 'remote' && mode !== 'leaderboard' && (
         <div className="panel">
           <h2>Model</h2>
           <div className="row">
