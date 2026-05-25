@@ -1347,6 +1347,12 @@ button.liked {
   color: #d6dde6;
   overflow-wrap: anywhere;
 }
+.setup-seed-reroll {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: 0.78rem;
+  padding: 4px 10px;
+}
 
 /* exemplar pill row (taste retrieval indicator) */
 .exemplar-pill-row {

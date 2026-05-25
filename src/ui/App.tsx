@@ -333,6 +333,7 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
           onChampionSaved={bumpTaste}
           onContinueInStudio={handleContinueInStudio}
           onShowFinished={handlePickFreshSeed}
+          onReroll={handlePickFreshSeed}
           onOpenSettings={handleOpenSettings}
         />
       )}

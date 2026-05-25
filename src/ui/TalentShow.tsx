@@ -48,6 +48,12 @@ type TalentShowProps = {
    * seed so the next setup phase starts in different musical territory.
    */
   onShowFinished?: () => void;
+  /**
+   * Re-pick the current setup-phase theme on demand (the 🎲 re-roll button).
+   * Same fresh-seed logic as `onShowFinished`, but user-triggered before a
+   * show starts rather than after one wraps.
+   */
+  onReroll?: () => void;
   /** Open the backend chooser modal - wired into the no-key toast CTA. */
   onOpenSettings?: () => void;
 };
@@ -59,6 +65,7 @@ function TalentShowInner({
   onChampionSaved,
   onContinueInStudio,
   onShowFinished,
+  onReroll,
   onOpenSettings,
 }: TalentShowProps) {
   const [bracketSize, setBracketSize] = useState<4 | 8>(4);
@@ -377,8 +384,18 @@ function TalentShowInner({
             in your taste memory.
           </p>
           <div className="setup-seed-row">
-            <span className="setup-seed-label">🎲 AI picked</span>
+            <span className="setup-seed-label">Today's theme</span>
             <code className="setup-seed-code">{seedCode.trim()}</code>
+            {onReroll && (
+              <button
+                className="muted setup-seed-reroll"
+                onClick={onReroll}
+                title="Pick a different theme"
+                aria-label="Re-roll the theme"
+              >
+                🎲 Re-roll
+              </button>
+            )}
           </div>
           <button
             className="primary"
