@@ -38,7 +38,7 @@ export function Audience({ cheering }: AudienceProps) {
     <svg
       className={`audience${cheering ? ' is-cheering' : ''}`}
       viewBox={`0 0 ${VIEWBOX_W} ${VIEWBOX_H}`}
-      preserveAspectRatio="xMidYMax slice"
+      preserveAspectRatio="none"
       aria-hidden="true"
     >
       <defs>
