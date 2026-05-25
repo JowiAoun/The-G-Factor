@@ -19,8 +19,8 @@ The name pulls triple duty, and each meaning maps onto something the app actuall
 - The **g factor** of psychometrics, one capacity stretched across many different tasks.
 - The **"Factor"** in *X-Factor*, because the app is literally a talent show where you judge contestants. 🎤
 
-<!-- HERO VIDEO: upload public/assets/videos/bundle-a/g-factor-bundle-a.mp4 to YouTube and paste the ID below as {% youtube ID %}, OR convert it to a GIF, drag it in, and use the ![]() form instead. -->
-{% youtube PASTE_YOUTUBE_ID %}
+<!-- HERO VIDEO (optional, but the asset is ready): the concept animation lives at public/assets/videos/bundle-a/g-factor-bundle-a.mp4. To use it, either upload it to YouTube and replace the commented line below with {% youtube YOUR_ID %}, OR convert it to a GIF, drag the GIF in, and use the ![]() image form. Left commented out so the post renders cleanly without it. -->
+<!-- {% youtube PASTE_YOUTUBE_ID %} -->
 
 That middle meaning is the one I keep coming back to. Lay the psychometric idea next to the app and it lines up almost suspiciously well:
 
@@ -124,11 +124,10 @@ The browser-ML reality: the first model download is large, WebGPU support is une
 
 The whole thing is live and runs entirely client-side:
 
-<!-- Live deploy: paste the Vercel URL here once deployed. -->
-**Live demo:** PASTE_DEPLOY_URL
+**Live demo:** https://the-g-factor.vercel.app/
 
-<!-- DEMO VIDEO: upload your screen-recording walkthrough to YouTube and paste the ID, or drop a GIF here. -->
-{% youtube PASTE_DEMO_VIDEO_ID %}
+<!-- DEMO VIDEO (optional): if you record a walkthrough, upload it to YouTube and replace the line below with {% youtube YOUR_ID %}. Left commented out so the post renders cleanly without it. -->
+<!-- {% youtube PASTE_DEMO_VIDEO_ID %} -->
 
 ```bash
 pnpm install
