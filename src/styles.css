@@ -685,13 +685,17 @@ button.liked {
   text-transform: uppercase;
   opacity: 0.78;
 }
-/* Backstage door: small unobtrusive settings entry. */
+/* Backstage door: small unobtrusive settings entry. Pinned to the
+   top-right of .venue-map so it sits OUTSIDE the three-door flex row -
+   that way Main Stage stays mathematically centred and the proscenium
+   arch reads symmetrically. */
 .venue-stage-door {
-  flex: 0 0 auto;
-  align-self: stretch;
-  min-height: 132px;
-  padding: 14px 12px;
-  background: transparent;
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  width: 92px;
+  padding: 8px 6px;
+  background: rgba(18, 4, 8, 0.55);
   border: 1px dashed rgba(201, 176, 110, 0.35);
   border-radius: 8px;
   color: var(--ink-parchment);
@@ -700,18 +704,19 @@ button.liked {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  font-size: 0.78rem;
+  gap: 2px;
+  font-size: 0.66rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  z-index: 4;
   transition: color 120ms, border-color 120ms, background 120ms;
 }
 .venue-stage-door:hover {
   color: var(--gold-bright);
   border-color: var(--gold-bright);
-  background: rgba(74, 8, 16, 0.35);
+  background: rgba(74, 8, 16, 0.6);
 }
-.venue-stage-door span:first-child { font-size: 1.4rem; line-height: 1; }
+.venue-stage-door span:first-child { font-size: 1.1rem; line-height: 1; }
 .venue-stage-door-label { font-family: var(--font-display); }
 
 /* ── stage lamp (hover-tracking spotlight over the nav) ────── */
@@ -833,7 +838,11 @@ button.liked {
     rgba(255, 216, 107, 0.05) 75%,
     transparent 90%);
   opacity: var(--lamp-active);
-  transition: transform 140ms ease-out, opacity 200ms ease-out, height 140ms ease-out;
+  /* Transform + height are driven by a JS rAF lerp in VenueMap.tsx so the
+     cone glides smoothly with the cursor; CSS transitions on those would
+     re-start every frame and produce visible rubber-band drag. Opacity
+     stays CSS-driven because it's a discrete enter/leave event. */
+  transition: opacity 200ms ease-out;
   mix-blend-mode: screen;
   pointer-events: none;
 }
@@ -844,7 +853,19 @@ button.liked {
   .venue-door-icon { font-size: 1.3rem; }
   .venue-door-label { font-size: 1rem; }
   .venue-door-sub { font-size: 0.72rem; }
-  .venue-stage-door { min-height: 56px; flex-basis: 100%; flex-direction: row; }
+  .venue-stage-door {
+    position: static;
+    top: auto;
+    right: auto;
+    width: auto;
+    min-height: 56px;
+    padding: 14px 12px;
+    margin: 8px auto 0;
+    flex-direction: row;
+    gap: 8px;
+    font-size: 0.78rem;
+  }
+  .venue-stage-door span:first-child { font-size: 1.4rem; }
   /* Cone math assumes a single-row nav; hide entirely on mobile where
      buttons wrap and there's no hover anyway. */
   .stage-lamp { display: none; }
