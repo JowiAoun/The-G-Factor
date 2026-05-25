@@ -126,7 +126,6 @@ function LeaderboardInner({ version }: Props) {
   const rosterRest = ranked.slice(3);
   const totalWins = ranked.reduce((sum, e) => sum + e.wins, 0);
   const championedCount = ranked.filter((e) => e.wins > 0).length;
-  const rookieCount = ranked.length - championedCount;
 
   return (
     <div className="panel leaderboard-panel">
@@ -163,12 +162,6 @@ function LeaderboardInner({ version }: Props) {
             />
           ))}
         </ul>
-        {rookieCount > 0 && (
-          <div className="roster-footnote">
-            {rookieCount} character{rookieCount === 1 ? '' : 's'} on the roster
-            haven&apos;t won yet - run more shows to fill the board.
-          </div>
-        )}
       </div>
     </div>
   );
