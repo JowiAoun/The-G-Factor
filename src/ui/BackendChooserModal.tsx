@@ -35,8 +35,11 @@ export function BackendChooserModal({ isFirstVisit, onClose }: Props) {
     if (isFirstVisit) return null;
     return hasMadeBackendChoice() ? getMode() : null;
   });
-  const [keyInput, setKeyInput] = useState('');
   const storedKey = useMemo(() => getStoredApiKey(), []);
+  // Pre-fill with the stored key so the password input shows dots when
+  // settings re-open - visual confirmation the key is saved, and so that
+  // hitting Save with no edit doesn't accidentally wipe it.
+  const [keyInput, setKeyInput] = useState(() => storedKey ?? '');
   const [throttle, setThrottle] = useState<number>(() => getThrottleMs());
 
   const firstFocusRef = useRef<HTMLButtonElement>(null);
@@ -54,25 +57,33 @@ export function BackendChooserModal({ isFirstVisit, onClose }: Props) {
     return () => window.removeEventListener('keydown', handler);
   }, [isFirstVisit, onClose]);
 
-  const showsKeyInput = selected === 'remote' && !storedKey;
-  const showsOverrideInput = selected === 'remote' && !!storedKey;
+  const showsKeyInput = selected === 'remote';
   const keyInputTrimmed = keyInput.trim();
+  const keyUnchanged = !!storedKey && keyInputTrimmed === storedKey;
   const keyInputValid =
-    keyInputTrimmed.length === 0 || looksLikeApiKey(keyInputTrimmed);
+    keyInputTrimmed.length === 0 ||
+    keyUnchanged ||
+    looksLikeApiKey(keyInputTrimmed);
 
   const canSave = (() => {
     if (selected === null) return false;
     if (selected === 'local') return true;
-    // Remote with a previously-saved key and no override typed → ok.
+    // Remote + saved key still in the field unchanged -> ok (no-op save).
+    if (keyUnchanged) return true;
+    // Remote + saved key + cleared field -> ok (keep the saved key).
     if (storedKey && keyInputTrimmed.length === 0) return true;
-    // Remote with a typed key → require it to look valid.
+    // Remote with a typed (new) key -> require it to look valid.
     if (keyInputTrimmed.length > 0) return looksLikeApiKey(keyInputTrimmed);
     return false;
   })();
 
   const handleSave = () => {
     if (!selected) return;
-    if (selected === 'remote' && keyInputTrimmed.length > 0) {
+    if (
+      selected === 'remote' &&
+      keyInputTrimmed.length > 0 &&
+      keyInputTrimmed !== storedKey
+    ) {
       setStoredApiKey(keyInputTrimmed);
     }
     if (!isFirstVisit) {
@@ -156,6 +167,11 @@ export function BackendChooserModal({ isFirstVisit, onClose }: Props) {
           <div className="backend-key-block">
             <label htmlFor="backend-key-input" className="backend-key-label">
               Your OpenRouter API key
+              {storedKey && (
+                <span className="backend-key-status-inline">
+                  {' '}✓ saved
+                </span>
+              )}
             </label>
             <input
               id="backend-key-input"
@@ -168,45 +184,28 @@ export function BackendChooserModal({ isFirstVisit, onClose }: Props) {
               spellCheck={false}
             />
             <div className="backend-key-note">
-              We call OpenRouter <em>directly from your browser</em> - your
-              key never goes to our servers. Each contestant generation is
-              a paid OpenRouter call against your balance, so we recommend
-              creating a fresh key for this demo with a low spending limit.{' '}
-              <a
-                href="https://openrouter.ai/keys"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Get a key →
-              </a>
+              {storedKey ? (
+                <>
+                  Your saved key is loaded above (shown as dots). Edit to
+                  replace it, or leave it as-is and hit Save to keep using it.
+                </>
+              ) : (
+                <>
+                  We call OpenRouter <em>directly from your browser</em> -
+                  your key never goes to our servers. Each contestant
+                  generation is a paid OpenRouter call against your balance,
+                  so we recommend creating a fresh key for this demo with a
+                  low spending limit.{' '}
+                  <a
+                    href="https://openrouter.ai/keys"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Get a key →
+                  </a>
+                </>
+              )}
             </div>
-            {keyInputTrimmed.length > 0 && !keyInputValid && (
-              <div className="backend-key-error">
-                That doesn't look like an OpenRouter key (should start with{' '}
-                <code>sk-or-</code>).
-              </div>
-            )}
-          </div>
-        )}
-
-        {showsOverrideInput && (
-          <div className="backend-key-block">
-            <div className="backend-key-status">
-              ✓ Using your saved OpenRouter key (stored in this browser).
-            </div>
-            <label htmlFor="backend-key-input" className="backend-key-label">
-              Paste a new key to replace it (optional)
-            </label>
-            <input
-              id="backend-key-input"
-              type="password"
-              className="backend-key-input"
-              placeholder="sk-or-v1-…"
-              value={keyInput}
-              onChange={(e) => setKeyInput(e.target.value)}
-              autoComplete="off"
-              spellCheck={false}
-            />
             {keyInputTrimmed.length > 0 && !keyInputValid && (
               <div className="backend-key-error">
                 That doesn't look like an OpenRouter key (should start with{' '}

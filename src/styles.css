@@ -2166,6 +2166,13 @@ button.liked { background: #6b2a4a; border-color: #80303f; color: #ffd6e3; }
   color: #6cd97a;
 }
 
+.backend-key-status-inline {
+  color: #6cd97a;
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+}
+
 .backend-key-status code {
   background: #2a2d34;
   border-radius: 4px;
