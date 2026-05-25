@@ -419,7 +419,7 @@ function TalentShowInner({
       )}
 
       {renderedPhase === 'champion' && champion && (
-        <div className="champion-scene-stage">
+        <div className="champion-scene">
           <Confetti />
           <TalentStage
             phase="champion"

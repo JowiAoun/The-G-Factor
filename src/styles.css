@@ -467,124 +467,15 @@ button.liked { background: #6b2a4a; border-color: #80303f; color: #ffd6e3; }
   filter: drop-shadow(0 4px 8px rgba(255, 216, 107, 0.6));
 }
 
-/* ── match ────────────────────────────────────────────────── */
-.match-panel { position: relative; overflow: hidden; }
-.match-label {
-  text-align: center;
-  font-size: 0.86rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #9aa0a8;
-  margin-bottom: 14px;
-}
-.match-row {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  gap: 16px;
-  align-items: center;
-}
-.match-row .contestant { max-width: 320px; margin: 0 auto; }
+/* ── match (waiting placeholder; the stage owns the live matchup look) ──── */
 .match-waiting { color: #9aa0a8; text-align: center; padding: 30px 0; }
 
-.vs-flash {
-  font-size: 2.2rem;
-  font-weight: 900;
-  font-style: italic;
-  background: linear-gradient(135deg, #ff6b9b 0%, #ffd86b 50%, #4f7cff 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 20px rgba(255, 107, 155, 0.4);
-  animation: vs-flash 900ms ease-out both;
-}
-
-/* ── bracket strip ────────────────────────────────────────── */
-.bracket-strip { padding: 14px 16px; }
-.bracket-rounds {
-  display: flex;
-  gap: 20px;
-  align-items: stretch;
-  overflow-x: auto;
-}
-.bracket-round {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  flex: 1;
-  min-width: 100px;
-}
-.bracket-round-label {
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: #9aa0a8;
-  text-align: center;
-}
-.bracket-round-matches {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  justify-content: space-around;
-  flex: 1;
-}
-.bracket-match {
-  display: flex;
-  gap: 6px;
-  background: #0e1014;
-  border: 1px solid #23262d;
-  border-radius: 8px;
-  padding: 6px;
-  justify-content: center;
-}
-.bracket-node {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  overflow: hidden;
-  border: 2px solid #2a2d34;
-  background: #1d1f25;
-  transition: opacity 200ms, border-color 200ms, transform 200ms;
-}
-.bracket-node.advanced { border-color: #4f7cff; }
-.bracket-node.eliminated { opacity: 0.3; filter: grayscale(0.8); }
-.bracket-node.champion-node {
-  border-color: #ffd86b;
-  transform: scale(1.15);
-  box-shadow: 0 0 16px rgba(255, 216, 107, 0.55);
-}
-.bracket-node.placeholder { border-style: dashed; opacity: 0.3; }
-.bracket-avatar { width: 100%; height: 100%; }
-.bracket-avatar svg { width: 100%; height: 100%; }
-.bracket-avatar.placeholder-dot {
-  background: #23262d;
-  border-radius: 50%;
-}
-
-/* ── champion scene ───────────────────────────────────────── */
+/* ── champion scene (positioning context for Confetti + actions row) ────── */
 .champion-scene {
   position: relative;
   text-align: center;
-  padding: 40px 20px 30px;
-  background: radial-gradient(ellipse at top, #1f1a2a 0%, #181a1f 60%);
+  padding: 24px 12px 30px;
   overflow: hidden;
-}
-.champion-spotlight {
-  position: relative;
-  display: inline-block;
-  padding: 30px;
-}
-.champion-spotlight::before {
-  content: '';
-  position: absolute;
-  inset: -20px;
-  background: radial-gradient(circle, rgba(255, 216, 107, 0.25) 0%, transparent 70%);
-  animation: spotlight-pulse 2.6s ease-in-out infinite;
-  pointer-events: none;
-}
-.champion-spotlight .contestant {
-  transform: scale(1.2);
-  border-color: #ffd86b;
-  background: #2a241a;
 }
 .champion-actions {
   display: flex;
@@ -1265,17 +1156,7 @@ button.liked { background: #6b2a4a; border-color: #80303f; color: #ffd6e3; }
   padding: 6px 12px;
 }
 
-/* ---------- Casting stage (Talent Show / X-Factor) ---------- */
-
-.casting-stage {
-  position: relative;
-  background: linear-gradient(180deg, #0a0d18 0%, #050608 60%, #03050a 100%);
-  border-radius: 16px;
-  overflow: hidden;
-  min-height: 460px;
-  padding: 28px 24px 36px;
-  isolation: isolate;
-}
+/* ---------- Shared stage layers (used by .talent-stage) ---------- */
 
 .stage-backdrop {
   position: absolute;
@@ -1305,7 +1186,7 @@ button.liked { background: #6b2a4a; border-color: #80303f; color: #ffd6e3; }
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 32%;
+  width: 50%;
   background:
     repeating-linear-gradient(90deg,
       rgba(0, 0, 0, 0.18) 0px,
@@ -1315,7 +1196,7 @@ button.liked { background: #6b2a4a; border-color: #80303f; color: #ffd6e3; }
     linear-gradient(90deg, #4a0808 0%, #8c1818 35%, #6a1010 65%, #3a0404 100%);
   box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.5);
   z-index: 2;
-  transition: transform 850ms cubic-bezier(0.35, 0.1, 0.25, 1);
+  transition: transform var(--curtain-swing-ms) cubic-bezier(0.35, 0.1, 0.25, 1);
 }
 
 .stage-curtain.left {
@@ -1326,14 +1207,6 @@ button.liked { background: #6b2a4a; border-color: #80303f; color: #ffd6e3; }
 .stage-curtain.right {
   right: 0;
   border-left: 2px solid #2a0303;
-}
-
-.casting-stage.is-revealing .stage-curtain.left {
-  transform: translateX(-100%);
-}
-
-.casting-stage.is-revealing .stage-curtain.right {
-  transform: translateX(100%);
 }
 
 .casting-host {
@@ -1347,7 +1220,7 @@ button.liked { background: #6b2a4a; border-color: #80303f; color: #ffd6e3; }
   transition: opacity 600ms ease;
 }
 
-.casting-stage.is-revealing .casting-host {
+.casting-host.is-bowing {
   opacity: 0.7;
 }
 
@@ -1457,17 +1330,15 @@ button.liked { background: #6b2a4a; border-color: #80303f; color: #ffd6e3; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .stage-curtain {
-    transition: opacity 400ms ease;
-  }
-  .casting-stage.is-revealing .stage-curtain {
-    transform: none;
-    opacity: 0;
-  }
-  .stage-spotlight,
-  .casting-host-avatar,
-  .casting-host-bubble {
-    animation: none;
+  /* Disable curtain transitions and all decorative animations within the
+     stage. The show still works as a static UI; we just drop the motion. */
+  .talent-stage .stage-curtain { transition: none !important; }
+  .talent-stage,
+  .talent-stage *,
+  .talent-stage ::before,
+  .talent-stage ::after,
+  .champion-scene * {
+    animation: none !important;
   }
 }
 
@@ -1505,14 +1376,8 @@ button.liked { background: #6b2a4a; border-color: #80303f; color: #ffd6e3; }
     inset 0 8px 30px rgba(255, 200, 100, 0.22);
 }
 
-/* Curtains inside a talent-stage cover the full opening (50% each)
-   so they can actually hide the swap. The existing 32%-each .casting-stage
-   curtains stay narrow until task 7 retires that selector. */
-.talent-stage .stage-curtain {
-  width: 50%;
-  transition: transform var(--curtain-swing-ms) cubic-bezier(0.35, 0.1, 0.25, 1);
-}
-
+/* Curtain choreography: parent toggles .curtain-open on the .talent-stage
+   to part the curtains. The shared .stage-curtain rule owns the transition. */
 .talent-stage.curtain-open .stage-curtain.left  { transform: translateX(-100%); }
 .talent-stage.curtain-open .stage-curtain.right { transform: translateX(100%); }
 
