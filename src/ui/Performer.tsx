@@ -3,6 +3,7 @@ import { renderAvatar, type MouthState } from '../talent/avatar';
 import type { Contestant } from '../talent/bracket';
 import type { ContestantViewState } from './Contestant';
 import { useAudioMouth } from './useAudioMouth';
+import { useAudioAmplitude } from './useAudioAmplitude';
 
 function mouthFor(state: ContestantViewState, talkFrame: 0 | 1, dnf: boolean): MouthState {
   if (dnf) return 'angry';
@@ -39,7 +40,12 @@ export function Performer({
   onChoose,
 }: PerformerProps) {
   const isDnf = contestant.status === 'dnf';
-  const audioFrame = useAudioMouth(state === 'playing');
+  const isPlaying = state === 'playing';
+  const audioFrame = useAudioMouth(isPlaying);
+  // Raw amplitude drives the gold aura ring around the playing performer
+  // - it brightens on every kick / snare hit. Subscribed only while
+  // playing so non-playing performers don't pay the rAF cost.
+  const amp = useAudioAmplitude(isPlaying);
   const mouth = mouthFor(state, audioFrame, isDnf);
   const svg = useMemo(
     () =>
@@ -56,14 +62,16 @@ export function Performer({
   if (isDnf) classes.push('is-dnf');
   if (state === 'playing') classes.push('is-playing');
 
-  const wrapStyle =
-    size != null
-      ? ({ ['--perf-size' as string]: `${size}px` } as React.CSSProperties)
-      : undefined;
+  const wrapStyle: React.CSSProperties = {};
+  if (size != null) wrapStyle['--perf-size' as string] = `${size}px`;
+  if (isPlaying) wrapStyle['--aura' as string] = amp.toFixed(2);
 
   return (
     <div className={classes.join(' ')}>
-      <div className="performer-avatar-wrap" style={wrapStyle}>
+      <div
+        className="performer-avatar-wrap"
+        style={Object.keys(wrapStyle).length ? wrapStyle : undefined}
+      >
         <div
           className="performer-avatar"
           dangerouslySetInnerHTML={{ __html: svg }}

@@ -17,7 +17,7 @@ export const GEMMA_AVATAR_SEED = 'gemma-the-host';
 /**
  * Pinned toon-head options so Gemma's appearance is curated rather than
  * seed-hashed: long wavy blonde hair (with front coverage so the crown
- * isn't bald), open eyes and lifted brows for presenter energy, warm-red
+ * isn't bald), open eyes and lifted brows for presenter energy, pink
  * open jacket.
  */
 export const GEMMA_AVATAR_OPTIONS: ToonHeadOptions = {
@@ -31,5 +31,5 @@ export const GEMMA_AVATAR_OPTIONS: ToonHeadOptions = {
   clothes: ['openJacket'],
   skinColor: ['f2d3b1'],
   hairColor: ['c8a165'],
-  clothesColor: ['b85c5c'],
+  clothesColor: ['e699b8'],
 };
