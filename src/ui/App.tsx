@@ -46,7 +46,7 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
   );
   const [cacheInfo, setCacheInfo] = useState<CacheInfo | null>(null);
 
-  // The Talent Show no longer asks the user to pick a seed — the AI auto-picks
+  // The Talent Show no longer asks the user to pick a seed - the AI auto-picks
   // from `SEED_GALLERY` on cold load and again after every show via the
   // `onShowFinished` callback. `lastPickedIdRef` keeps successive picks from
   // landing on the same seed twice in a row.
@@ -71,7 +71,7 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
   }, []);
   const currentMode = getMode();
   const storedApiKey = getStoredApiKey();
-  // `effectiveModelReady` short-circuits to true for remote-with-key —
+  // `effectiveModelReady` short-circuits to true for remote-with-key -
   // there's nothing to download, so Studio + TalentShow can act
   // immediately. Local path stays as today.
   const effectiveModelReady =
@@ -165,7 +165,7 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
 
   /**
    * Studio → Talent Show bridge: switch tabs with the current mix as the seed.
-   * One-shot — the next show after this one runs goes back to auto-pick via
+   * One-shot - the next show after this one runs goes back to auto-pick via
    * `onShowFinished`.
    */
   const handleBracketFromStudio = useCallback((mixCode: string) => {
@@ -270,7 +270,7 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
               {progressMsg ||
                 (modelState === 'idle'
                   ? savedProgress
-                    ? `previous attempt reached ${savedProgress.pct.toFixed(0)}% — completed shards are cached, resume skips them`
+                    ? `previous attempt reached ${savedProgress.pct.toFixed(0)}% - completed shards are cached, resume skips them`
                     : 'click to download (~1.5 GB, cached after)'
                   : '')}
             </span>
@@ -298,7 +298,7 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
               </>
             ) : (
               <>
-                🆕 no cached weights yet — first load downloads ~1.5 GB
+                🆕 no cached weights yet - first load downloads ~1.5 GB
                 {cacheInfo.totalOriginBytes != null &&
                   cacheInfo.totalOriginBytes > 1024 * 1024 && (
                     <>

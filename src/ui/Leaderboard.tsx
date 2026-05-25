@@ -116,7 +116,7 @@ function LeaderboardInner({ version }: Props) {
 
   const ranked = useMemo(() => rankRoster(likes, CHARACTERS), [likes]);
   const podium = useMemo<(RankedEntry | null)[]>(() => {
-    // Show wins only on the podium — empty placeholders for 0-win slots
+    // Show wins only on the podium - empty placeholders for 0-win slots
     // even if a rookie technically ranks third.
     return [0, 1, 2].map((i) => {
       const entry = ranked[i];
@@ -166,7 +166,7 @@ function LeaderboardInner({ version }: Props) {
         {rookieCount > 0 && (
           <div className="roster-footnote">
             {rookieCount} character{rookieCount === 1 ? '' : 's'} on the roster
-            haven&apos;t won yet — run more shows to fill the board.
+            haven&apos;t won yet - run more shows to fill the board.
           </div>
         )}
       </div>

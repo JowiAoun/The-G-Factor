@@ -12,8 +12,8 @@ type CastingStageProps = {
   contestantsReady: number;
   startedAt: number;
   /**
-   * Curtain position. `'open'` (default) — curtains parted, host visible.
-   * `'closed'` — curtains drawn together, hiding the host. The parent
+   * Curtain position. `'open'` (default) - curtains parted, host visible.
+   * `'closed'` - curtains drawn together, hiding the host. The parent
    * flips this to `'closed'` once generation completes so the curtain
    * dramatically falls before the showing-phase swap.
    */
@@ -21,7 +21,7 @@ type CastingStageProps = {
 };
 
 /**
- * Casting screen — Buzz the host stands on the stage telling jokes while
+ * Casting screen - Buzz the host stands on the stage telling jokes while
  * Gemma generates the contestants in the background. The shared `.talent-stage`
  * shell renders the proscenium, curtains, spotlight, floor, and footlights;
  * this component only contributes Buzz, his speech bubble, and the

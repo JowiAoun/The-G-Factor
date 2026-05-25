@@ -1,18 +1,18 @@
-// Service worker — offline support without the cache-first trap.
+// Service worker - offline support without the cache-first trap.
 //
 // Strategy:
 //   - HTML / navigation requests: network-first. If the network is
 //     reachable we always serve fresh, then update the cache as a side
 //     effect. Only when the network actually fails do we fall back to
 //     cache. This is what makes the SW resilient to "production bundle
-//     cached on the dev port" scenarios — a fresh dev/prod server will
+//     cached on the dev port" scenarios - a fresh dev/prod server will
 //     always win over stale cache.
 //   - Hashed assets under /assets/: cache-first. Content-hashed file
 //     names are immutable, so a cache hit is always correct and avoids
 //     re-downloading the JS/CSS/wasm chunks on every load.
 //   - Everything else (sw.js itself, /favicon, /sw.js?v=…): passes
 //     through to the browser default. We don't want to cache the SW
-//     script — the browser already manages its update lifecycle.
+//     script - the browser already manages its update lifecycle.
 //
 // The cache name carries a build-time-injected version string
 // (replaced by the `swVersion` Vite plugin in vite.config.ts). Each

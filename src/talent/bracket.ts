@@ -1,7 +1,7 @@
 /**
  * Single-elimination tournament bracket.
  *
- * Pure logic — no React, no DOM, no IndexedDB. The UI mounts a render of the
+ * Pure logic - no React, no DOM, no IndexedDB. The UI mounts a render of the
  * state and calls `chooseWinner` when the user picks a contestant; this
  * module returns the next state. Idempotent: resolving an already-decided
  * match returns the same state object.
@@ -29,7 +29,7 @@ export type Contestant = {
   explanation: string;
   /** Persistent character identity (name, tagline, pinned avatar options). */
   character: Character;
-  /** Generation outcome — DNFs auto-lose. */
+  /** Generation outcome - DNFs auto-lose. */
   status: ContestantStatus;
 };
 
@@ -125,7 +125,7 @@ export function createBracket(contestants: Contestant[]): BracketState {
     } else if (b.status === 'dnf' && a.status === 'valid') {
       state = chooseWinner(state, m.id, a.id);
     } else if (a.status === 'dnf' && b.status === 'dnf') {
-      // Both failed — pick `a` as the lesser-of-two and let it carry the DNF
+      // Both failed - pick `a` as the lesser-of-two and let it carry the DNF
       // status forward; the audience will see them lose the next match.
       state = chooseWinner(state, m.id, a.id);
     }

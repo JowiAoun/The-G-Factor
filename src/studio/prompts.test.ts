@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { buildTurnPrompt, HISTORY_DEPTH, type ChatTurn } from './prompts';
 
-describe('buildTurnPrompt — shape', () => {
+describe('buildTurnPrompt - shape', () => {
   it('emits one system + one user message when called with no history', () => {
     const { messages } = buildTurnPrompt('', [], 'hello');
     expect(messages).toHaveLength(2);
@@ -34,7 +34,7 @@ describe('buildTurnPrompt — shape', () => {
   });
 });
 
-describe('buildTurnPrompt — system content', () => {
+describe('buildTurnPrompt - system content', () => {
   it('inlines the current mix code', () => {
     const { messages } = buildTurnPrompt('s("bd*4")', [], 'add hats');
     expect(messages[0].content).toContain('s("bd*4")');
@@ -54,7 +54,7 @@ describe('buildTurnPrompt — system content', () => {
   });
 });
 
-describe('buildTurnPrompt — taste exemplars', () => {
+describe('buildTurnPrompt - taste exemplars', () => {
   it('omits the exemplar block when none are provided', () => {
     const { messages } = buildTurnPrompt('', [], 'hi');
     expect(messages[0].content).not.toMatch(/previously liked/i);
@@ -81,7 +81,7 @@ describe('buildTurnPrompt — taste exemplars', () => {
   });
 });
 
-describe('buildTurnPrompt — retry hint', () => {
+describe('buildTurnPrompt - retry hint', () => {
   it('appends the retry hint to the user message when provided', () => {
     const { messages } = buildTurnPrompt('', [], 'hi', 'invalid_strudel: bad token');
     const last = messages[messages.length - 1];

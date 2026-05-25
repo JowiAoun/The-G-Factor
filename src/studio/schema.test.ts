@@ -31,7 +31,7 @@ describe('safeParseTurn', () => {
   });
 
   it('reports bad_json on syntactically invalid JSON between braces', () => {
-    // extractJson grabs the first { through last } — give it both so we
+    // extractJson grabs the first { through last } - give it both so we
     // fall through to JSON.parse, then fail there.
     const r = safeParseTurn('{"new_mix_code": "s(", oops trailing junk}');
     expect(r.ok).toBe(false);

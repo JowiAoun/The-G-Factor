@@ -3,7 +3,7 @@
  *
  * Drums are bare `s("name")` so they slot into existing `stack(…)` /
  * `,`-separated layers naturally. Synths carry a default `c e g` triad
- * because a bare `s("sawtooth")` is silent without `note()` — the chip
+ * because a bare `s("sawtooth")` is silent without `note()` - the chip
  * needs to make actual sound on click-audition.
  *
  * Names map 1:1 to Strudel's default dirt-samples bank (prebaked in

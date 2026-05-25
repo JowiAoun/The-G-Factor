@@ -46,7 +46,7 @@ export function getStrudelAudioContext(): AudioContext | null {
  * grab a master gain, but we DO control the AudioNode prototype. By
  * wrapping `AudioNode.prototype.connect`, every existing-or-future node
  * that connects to `destination` ALSO gets connected to our analyser as a
- * parallel branch — a fan-out is free in WebAudio's signal model. The
+ * parallel branch - a fan-out is free in WebAudio's signal model. The
  * original `connect` is called first and its return value is preserved,
  * so existing audio routing is unchanged.
  *
@@ -83,7 +83,7 @@ function installAudioAnalyser(ctx: AudioContext): void {
       try {
         (original as ConnectFn).call(this, analyser);
       } catch {
-        // a source-less node, a wrong-channel-count node, etc — ignore;
+        // a source-less node, a wrong-channel-count node, etc - ignore;
         // the original connection already succeeded, audio still flows.
       }
     }
@@ -113,7 +113,7 @@ export function readAudioAmplitude(): number {
 // ── shared rAF dispatcher ────────────────────────────────────
 // Multiple components subscribe to amplitude (persona + every visible
 // contestant). One rAF loop reads the analyser once per frame and pushes
-// the value to all subscribers — that's cheaper than each component
+// the value to all subscribers - that's cheaper than each component
 // running its own loop, and keeps every mouth in lock-step.
 
 const amplitudeSubscribers = new Set<(amp: number) => void>();
@@ -149,14 +149,14 @@ export async function init(): Promise<void> {
     initialized = true;
     // Capture the AudioContext that superdough/strudel created so we can
     // hard-stop in-flight samples (suspend()) rather than relying on
-    // `hush()` alone, which only halts the *scheduler* — already-triggered
+    // `hush()` alone, which only halts the *scheduler* - already-triggered
     // sample sources keep playing through their natural decay.
     if (typeof mod.getAudioContext === 'function') {
       try {
         audioContext = mod.getAudioContext();
         if (audioContext) installAudioAnalyser(audioContext);
       } catch {
-        // ignore — fall back to scheduler-only stop
+        // ignore - fall back to scheduler-only stop
       }
     }
   })();
@@ -164,7 +164,7 @@ export async function init(): Promise<void> {
 }
 
 export async function play(code: string): Promise<void> {
-  // Parser firewall — refuse unsafe code BEFORE booting Strudel or touching
+  // Parser firewall - refuse unsafe code BEFORE booting Strudel or touching
   // the audio context. Catches both LLM-emitted prompt-injection attempts
   // (already filtered by the retry loop, but defence-in-depth) and code the
   // user typed or pasted directly into the editor.
@@ -185,7 +185,7 @@ export async function play(code: string): Promise<void> {
     try {
       await audioContext.resume();
     } catch {
-      // best effort — if resume fails the evaluate() call will surface it
+      // best effort - if resume fails the evaluate() call will surface it
     }
   }
   const g = globalThis as Globals;
@@ -204,7 +204,7 @@ export async function play(code: string): Promise<void> {
 
 /**
  * Stop the pattern AND any in-flight sample tails. `hush()` alone only
- * cancels the pattern scheduler — sample sources triggered just before the
+ * cancels the pattern scheduler - sample sources triggered just before the
  * call keep playing for their natural decay (a kick drum's body, a snare's
  * tail, an ambient pad's reverb wash). Suspending the AudioContext
  * additionally hard-mutes everything until the next `play()` resumes it.

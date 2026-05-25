@@ -3,7 +3,7 @@
  *
  * Powers the in-canvas Inspector panel: a quick read-out of which samples,
  * synths, notes, tempos, FX and stacking the current code is using. The
- * goal is "the app understood your code" — not full Strudel semantics. The
+ * goal is "the app understood your code" - not full Strudel semantics. The
  * regexes are tolerant: a chord-string with operators inside `s("…")` is
  * matched + the operators stripped to leave the base sample names; mini-
  * notation rests (`~`) and rest-only tokens are dropped.

@@ -31,7 +31,7 @@ describe('VARIATION_AXES catalogue', () => {
     // The whole point of the timbre rewrite: contestants in a bracket should
     // span the sonic space, not all default to sawtooth. If a future edit
     // collapses two axes onto the same family, that's fine, but collapsing
-    // most of them isn't — re-diversify before merging.
+    // most of them isn't - re-diversify before merging.
     const families = new Set(VARIATION_AXES.map((a) => a.timbre));
     expect(families.size).toBeGreaterThanOrEqual(6);
   });

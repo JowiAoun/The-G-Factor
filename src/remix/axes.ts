@@ -4,7 +4,7 @@ export type VariationAxis = {
   directive: string;
   techniques: string[];
   exemplar: string;
-  /** Timbre family the axis nudges Gemma toward — used both inside the prompt
+  /** Timbre family the axis nudges Gemma toward - used both inside the prompt
    * (via `timbreNote`) and by the orchestrator to forbid duplicate families
    * across slots in a bracket. */
   timbre: string;
@@ -18,13 +18,13 @@ export type VariationAxis = {
  * per seed) and the prompt builder injects the directive + favored techniques
  * + an axis-specific micro-exemplar so Gemma's output distribution is nudged
  * toward eight distinct neighborhoods instead of one. Axes are non-orthogonal
- * by design — the point isn't a clean taxonomy, it's eight different *first
+ * by design - the point isn't a clean taxonomy, it's eight different *first
  * thoughts* for "remix this".
  *
  * Each axis also commits to a distinct `timbre` family (drum-variant, pad,
  * percpitch, bass, keys, pluck, texture, lead). Since pickAxesForBracket()
  * returns up to 8 unique axes per seed, every contestant in a bracket lands
- * on a different timbre family — no more sawtooth-on-sawtooth-on-sawtooth.
+ * on a different timbre family - no more sawtooth-on-sawtooth-on-sawtooth.
  */
 export const VARIATION_AXES: VariationAxis[] = [
   {
@@ -35,7 +35,7 @@ export const VARIATION_AXES: VariationAxis[] = [
     techniques: ['(n,m) euclidean', 'comma stack', 'multi-line stack()', ':N sample variant'],
     timbre: 'drum-variant',
     timbreNote:
-      'Stay percussive — use the `:N` sample-index trick (`bd:2`, `hh:5`, `sd:3`) so each layer has a slightly different drum character.',
+      'Stay percussive - use the `:N` sample-index trick (`bd:2`, `hh:5`, `sd:3`) so each layer has a slightly different drum character.',
     exemplar: 'stack(s("bd:2(3,8)"), s("hh:5(5,8)"), s("sd:3(7,16)"))',
   },
   {
@@ -46,7 +46,7 @@ export const VARIATION_AXES: VariationAxis[] = [
     techniques: ['stack()', 'multiple s()/note()', 'per-layer .gain()', 'named samples'],
     timbre: 'pad',
     timbreNote:
-      'Make the pitched layer a pad — `s("pad").slow(N)` or a triangle/sine line with `.room()`. Avoid sawtooth here.',
+      'Make the pitched layer a pad - `s("pad").slow(N)` or a triangle/sine line with `.room()`. Avoid sawtooth here.',
     exemplar:
       'stack(\n  s("bd*2").gain(0.9),\n  s("hh*8").gain(0.4),\n  s("~ sd ~ sd").room(0.2),\n  s("pad").slow(4).gain(0.6)\n)',
   },
@@ -58,7 +58,7 @@ export const VARIATION_AXES: VariationAxis[] = [
     techniques: ['.every(n, fn)', '.sometimes(fn)', '.jux(rev)', 'pitched percussion'],
     timbre: 'percpitch',
     timbreNote:
-      'Reach for pitched percussion — `s("tabla")`, `s("tabla2")`, or `note(...).s("arpy")` — and let `.every`/`.sometimes` re-cut it.',
+      'Reach for pitched percussion - `s("tabla")`, `s("tabla2")`, or `note(...).s("arpy")` - and let `.every`/`.sometimes` re-cut it.',
     exemplar:
       'stack(s("bd sd"), s("tabla*4").every(4, x => x.fast(2)).sometimes(x => x.rev()).jux(rev))',
   },
@@ -66,11 +66,11 @@ export const VARIATION_AXES: VariationAxis[] = [
     id: 'timbral',
     label: 'Timbral',
     directive:
-      'Sculpt with `.lpf`, `.room`, `.delay`, and sample variants (`bd:3`) — the rhythm can stay simple if the tone is striking.',
+      'Sculpt with `.lpf`, `.room`, `.delay`, and sample variants (`bd:3`) - the rhythm can stay simple if the tone is striking.',
     techniques: ['.lpf', '.room', '.delay', ':N sample variant', 'filter modulation'],
     timbre: 'bass',
     timbreNote:
-      'Make a bass the centerpiece — `note(...).s("jvbass")` or `note(...).s("bass")` — and modulate `.lpf` with `sine.range(...)`.',
+      'Make a bass the centerpiece - `note(...).s("jvbass")` or `note(...).s("bass")` - and modulate `.lpf` with `sine.range(...)`.',
     exemplar:
       'note("c2 eb2 g2 c2").s("jvbass").lpf(sine.range(200, 1800).slow(8)).room(0.4)',
   },
@@ -94,7 +94,7 @@ export const VARIATION_AXES: VariationAxis[] = [
     techniques: ['.fast(n)', '.slow(n)', 'per-layer speed contrast', 'plucked melody'],
     timbre: 'pluck',
     timbreNote:
-      'Pair the speed contrast with a plucked melody — `note(...).s("pluck")` or `s("sitar")` — over half-time drums.',
+      'Pair the speed contrast with a plucked melody - `note(...).s("pluck")` or `s("sitar")` - over half-time drums.',
     exemplar:
       'stack(s("bd sd").slow(2), s("hh*8").fast(1.5), note("c4 e4 g4 b4").s("pluck"))',
   },
@@ -102,22 +102,22 @@ export const VARIATION_AXES: VariationAxis[] = [
     id: 'sparse',
     label: 'Sparse',
     directive:
-      'Strip down — long rests, slow cycles, only the essential elements. Aim for negative space.',
+      'Strip down - long rests, slow cycles, only the essential elements. Aim for negative space.',
     techniques: ['~ rest', '.slow', 'minimal layer count', 'texture samples'],
     timbre: 'texture',
     timbreNote:
-      'Reach for ambient texture samples — `s("wind")`, `s("space")`, or `s("noise").lpf(...)` — sitting under one sparse drum.',
+      'Reach for ambient texture samples - `s("wind")`, `s("space")`, or `s("noise").lpf(...)` - sitting under one sparse drum.',
     exemplar: 'stack(s("bd ~ ~ ~ ~ ~ sd ~").slow(2), s("wind").slow(8).room(0.8).gain(0.5))',
   },
   {
     id: 'dense',
     label: 'Dense',
     directive:
-      'Pile it on — fast subdivisions, busy fills, multiple percussion lines pressing into each other.',
+      'Pile it on - fast subdivisions, busy fills, multiple percussion lines pressing into each other.',
     techniques: ['*N repeat', 'stack()', 'high-rate hh*16', 'square-wave lead'],
     timbre: 'lead',
     timbreNote:
-      'Push a square-wave lead on top — `note(...).s("square").fast(2)` — so the busy drums sit beneath a melodic line.',
+      'Push a square-wave lead on top - `note(...).s("square").fast(2)` - so the busy drums sit beneath a melodic line.',
     exemplar:
       'stack(s("bd(5,8)"), s("hh*16").gain(0.45), s("cp(3,8)"), note("c4 eb4 g4 bb4").s("square").fast(2))',
   },

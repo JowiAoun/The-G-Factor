@@ -50,7 +50,7 @@ function TasteSidebarInner({ version, onCleared }: Props) {
 
   // Aggregate tournament wins by character. Legacy champions saved before
   // the character roster existed have no `champion_character_id` and are
-  // silently dropped — they still live in IndexedDB and feed similarity.
+  // silently dropped - they still live in IndexedDB and feed similarity.
   const roster = useMemo<RosterEntry[]>(() => {
     const byId = new Map<string, RosterEntry>();
     for (const like of likes) {
@@ -98,7 +98,7 @@ function TasteSidebarInner({ version, onCleared }: Props) {
       {!loading && roster.length === 0 ? (
         <div style={{ color: '#9aa0a8', fontSize: '0.88rem', marginTop: 6 }}>
           Run a talent show and crown a champion to fill this wall. Wins are
-          tracked per character — the {CHARACTERS.length}-strong roster grows
+          tracked per character - the {CHARACTERS.length}-strong roster grows
           a track record with you over time, and Gemma uses your champions as
           few-shot exemplars for future brackets.
         </div>

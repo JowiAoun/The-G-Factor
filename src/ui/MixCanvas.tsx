@@ -56,7 +56,7 @@ export function MixCanvas({
         onPlay={onPlay}
         onStop={onStop}
         onDropSnippet={onDropSnippet}
-        placeholder='// empty — ask Bleep, type a pattern, or drag a sound'
+        placeholder='// empty - ask Bleep, type a pattern, or drag a sound'
       />
       <div className="mix-canvas-controls" role="toolbar" aria-label="Mix controls">
         {playing ? (

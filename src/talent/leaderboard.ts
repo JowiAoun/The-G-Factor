@@ -1,7 +1,7 @@
 /**
  * Pure ranking logic for the Leaderboard view.
  *
- * No DOM, no IndexedDB — takes the array of persisted likes plus a roster
+ * No DOM, no IndexedDB - takes the array of persisted likes plus a roster
  * and returns the full roster sorted into competition order. UI lives in
  * src/ui/Leaderboard.tsx; this file is the only thing the test file needs.
  */
@@ -19,14 +19,14 @@ export type RankedEntry = {
 
 /**
  * Sort the full roster into competition order:
- * 1) wins desc — more championships ranks higher
- * 2) latestWinAt desc — recent winners outrank stale winners on a wins-tie
- * 3) character.name asc — stable alphabetical fallback (handles 0-win ties
+ * 1) wins desc - more championships ranks higher
+ * 2) latestWinAt desc - recent winners outrank stale winners on a wins-tie
+ * 3) character.name asc - stable alphabetical fallback (handles 0-win ties
  *    where there's no recency to compare on)
  *
  * Every character in `roster` appears in the result exactly once, even if
  * they have zero wins. Likes that reference an unknown character id (e.g.
- * a roster member that was removed) contribute nothing — they're skipped.
+ * a roster member that was removed) contribute nothing - they're skipped.
  */
 export function rankRoster(
   likes: Like[],
@@ -59,11 +59,11 @@ export function rankRoster(
 
   entries.sort((a, b) => {
     if (b.wins !== a.wins) return b.wins - a.wins;
-    // Both at 0 wins have null latestWinAt — fall through to alphabetical.
+    // Both at 0 wins have null latestWinAt - fall through to alphabetical.
     if (a.latestWinAt !== null && b.latestWinAt !== null) {
       if (b.latestWinAt !== a.latestWinAt) return b.latestWinAt - a.latestWinAt;
     } else if (a.latestWinAt !== b.latestWinAt) {
-      // One has wins, the other doesn't — non-null wins (shouldn't happen
+      // One has wins, the other doesn't - non-null wins (shouldn't happen
       // when wins are tied, but defends against bad input).
       return a.latestWinAt === null ? 1 : -1;
     }

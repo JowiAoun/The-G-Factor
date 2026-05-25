@@ -7,7 +7,7 @@
 /**
  * Character-bigram set, whitespace-stripped and lowercased.
  *
- * Strudel seeds share a lot of structural tokens — `s("..")`, `note("..")`,
+ * Strudel seeds share a lot of structural tokens - `s("..")`, `note("..")`,
  * euclidean rhythms like `(3,8)`, chain methods like `.slow(`. Bigrams give a
  * cheap, deterministic signal of structural overlap without needing
  * embeddings.

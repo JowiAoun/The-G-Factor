@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { play } from './engine';
 
 // Mock @strudel/web at module-load time. We never actually want a real
-// WebAudio context in unit tests — we just want to assert that play()
+// WebAudio context in unit tests - we just want to assert that play()
 // refuses unsafe code BEFORE it would hand off to Strudel, and that safe
 // code reaches the evaluate boundary.
 const initStrudel = vi.fn(async () => undefined);
@@ -29,7 +29,7 @@ afterEach(() => {
   delete (globalThis as unknown as { hush?: unknown }).hush;
 });
 
-describe('engine.play() — firewall', () => {
+describe('engine.play() - firewall', () => {
   it('refuses code that references banned globals', async () => {
     await expect(play('fetch("https://evil.example")')).rejects.toThrow(
       /Refused to play: disallowed reference: fetch/,

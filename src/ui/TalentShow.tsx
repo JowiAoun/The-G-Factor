@@ -43,7 +43,7 @@ type TalentShowProps = {
    * seed so the next setup phase starts in different musical territory.
    */
   onShowFinished?: () => void;
-  /** Open the backend chooser modal — wired into the no-key toast CTA. */
+  /** Open the backend chooser modal - wired into the no-key toast CTA. */
   onOpenSettings?: () => void;
 };
 
@@ -78,7 +78,7 @@ function TalentShowInner({
 
   const handleHoldShow = useCallback(async () => {
     if (phase === 'casting') return;
-    // Re-read the key at click time — backendVersion-driven re-renders keep
+    // Re-read the key at click time - backendVersion-driven re-renders keep
     // `modelReady` fresh, but we want a hard guarantee at the moment of
     // submit so a key cleared mid-session can't slip a bad request through.
     if (currentMode === 'remote' && !getStoredApiKey()) {
@@ -104,7 +104,7 @@ function TalentShowInner({
     castingStartedAt.current = performance.now();
     const runId = ++runIdRef.current;
 
-    // Deterministic per-seed roster pick — restarting the same bracket
+    // Deterministic per-seed roster pick - restarting the same bracket
     // shows the same faces in the same slots.
     const roster = pickCharactersForBracket(trimmed, bracketSize);
     const collected: Contestant[] = [];
@@ -307,7 +307,7 @@ function TalentShowInner({
           </div>
           <p style={{ color: '#9aa0a8', fontSize: '0.92rem', marginTop: 10 }}>
             Gemma picks a fresh seed and spins up {bracketSize} variations of it; each gets a face.
-            Pick one from every pair until a champion is crowned — and the champion gets a 🏆 entry
+            Pick one from every pair until a champion is crowned - and the champion gets a 🏆 entry
             in your taste memory.
           </p>
           <div className="setup-seed-row">
@@ -436,7 +436,7 @@ function TalentShowInner({
 }
 
 // Memoised so the rapid `setProgressPct` / `setProgressMsg` updates during
-// model download don't re-render the whole talent-show tree — the component
+// model download don't re-render the whole talent-show tree - the component
 // only depends on `modelReady` (one transition) and `seedCode` (rare while
 // downloading). Without this the main thread saturates on big downloads.
 export const TalentShow = memo(TalentShowInner);

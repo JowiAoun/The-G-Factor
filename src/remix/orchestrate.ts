@@ -13,7 +13,7 @@ export type RemixContext = {
  * Generate `count` contestants against the same seed and stream each result
  * via `onResult`.
  *
- * - **Local backend**: serial — the WebGPU adapter handles one inference at
+ * - **Local backend**: serial - the WebGPU adapter handles one inference at
  *   a time, so parallel calls would just queue on the GPU. Each generation
  *   sees the prior `transformation_label`s and is asked to avoid repeating
  *   them.

@@ -24,7 +24,7 @@ type Props = {
  * visit (blocking) and on demand via the ⚙ settings button (dismissable).
  *
  * The OpenRouter key, when remote is selected, is supplied by the user
- * here and only here — it is stored in `localStorage` per browser and
+ * here and only here - it is stored in `localStorage` per browser and
  * never lands in the deployed bundle. If a stored key already exists,
  * the input becomes an optional override field.
  */
@@ -128,7 +128,7 @@ export function BackendChooserModal({ isFirstVisit, onClose }: Props) {
             <div className="backend-card-subtitle">Gemma 4 E2B</div>
             <div className="backend-card-body">
               ~1.5 GB one-time download. Needs WebGPU. Runs entirely in your
-              browser — zero network calls during generation.
+              browser - zero network calls during generation.
             </div>
           </button>
           <button
@@ -146,7 +146,7 @@ export function BackendChooserModal({ isFirstVisit, onClose }: Props) {
             </div>
             <div className="backend-card-body">
               No download. Faster contestants. Calls OpenRouter directly from
-              your browser using your key — nothing routes through our
+              your browser using your key - nothing routes through our
               servers.
             </div>
           </button>
@@ -168,7 +168,7 @@ export function BackendChooserModal({ isFirstVisit, onClose }: Props) {
               spellCheck={false}
             />
             <div className="backend-key-note">
-              We call OpenRouter <em>directly from your browser</em> — your
+              We call OpenRouter <em>directly from your browser</em> - your
               key never goes to our servers. Each contestant generation is
               a paid OpenRouter call against your balance, so we recommend
               creating a fresh key for this demo with a low spending limit.{' '}

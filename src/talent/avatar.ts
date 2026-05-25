@@ -17,7 +17,7 @@ export const MOUTH_STATES: MouthState[] = [
   'angry',
 ];
 
-// Cache the rendered SVG strings — DiceBear's avatar generator does
+// Cache the rendered SVG strings - DiceBear's avatar generator does
 // non-trivial work (random walk over feature options seeded by the input),
 // and we re-render at 60 fps when the avatar is talking.
 const cache = new Map<string, string>();
@@ -48,7 +48,7 @@ export function renderAvatar(
     seed,
     ...(options ?? {}),
     // Mouth must come AFTER the spread so a character preset can't pin it
-    // — the runtime lip-sync owns this dimension.
+    // - the runtime lip-sync owns this dimension.
     mouth: [mouth],
   }).toString();
   cache.set(key, svg);

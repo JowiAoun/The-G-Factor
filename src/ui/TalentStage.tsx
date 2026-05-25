@@ -8,7 +8,7 @@ type TalentStageProps = {
   curtain: CurtainState;
   /** Title rendered in the lit-bulb marquee at the top of the stage. */
   marquee: string;
-  /** When true, footlights pulse faster and the spotlight brightens —
+  /** When true, footlights pulse faster and the spotlight brightens -
    *  used while a contestant's audio is playing. */
   spotlightActive?: boolean;
   /** On-stage content: host (casting), two Performers + VS (showing), one Performer (champion). */
@@ -18,7 +18,7 @@ type TalentStageProps = {
 /**
  * Generic theatrical shell shared by every Talent Show phase. The parent
  * drives the `curtain` state machine across phase transitions; this
- * component is otherwise dumb — it only describes the proscenium, the
+ * component is otherwise dumb - it only describes the proscenium, the
  * curtains, the lighting, and the floor.
  */
 export function TalentStage({
@@ -35,7 +35,7 @@ export function TalentStage({
     <div
       className={classes.join(' ')}
       role="region"
-      aria-label={`Talent stage — ${phase}`}
+      aria-label={`Talent stage - ${phase}`}
     >
       <div className="stage-backdrop" aria-hidden="true" />
       <div

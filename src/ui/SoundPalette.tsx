@@ -19,7 +19,7 @@ export function SoundPalette({ onAudition }: SoundPaletteProps) {
   ) => {
     const dt = event.dataTransfer;
     dt.effectAllowed = 'copy';
-    // Custom MIME for our own drop handler — survives only intra-app drags.
+    // Custom MIME for our own drop handler - survives only intra-app drags.
     dt.setData(STRUDEL_SNIPPET_MIME, chip.snippet);
     // Plain-text fallback so the snippet still drops cleanly on Safari mobile
     // or any host that doesn't preserve the custom MIME.
@@ -53,7 +53,7 @@ export function SoundPalette({ onAudition }: SoundPaletteProps) {
             className={`sound-chip ${chip.kind}${
               previewing === chip.name ? ' previewing' : ''
             }`}
-            title={`Drag into editor — or click to audition ${chip.snippet}`}
+            title={`Drag into editor - or click to audition ${chip.snippet}`}
             aria-label={`${chip.label} (${chip.kind}). Drag to insert ${chip.snippet} into the editor, or click to audition.`}
           >
             <span className="sound-chip-name">{chip.name}</span>

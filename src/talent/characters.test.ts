@@ -23,7 +23,7 @@ describe('CHARACTERS roster', () => {
   });
 
   it('long-rear-hair characters also pin a front hair style (no bald crown)', () => {
-    // rearHair only draws the back/sides flowing down — without a `hair`
+    // rearHair only draws the back/sides flowing down - without a `hair`
     // style covering the top of the head, the character renders bald on
     // top. Any new long-haired character must also pick a front style
     // (`sideComed` for full coverage or `bun` for a topknot).
@@ -39,7 +39,7 @@ describe('CHARACTERS roster', () => {
         c.avatarOptions.hair.length > 0;
       expect(
         hasFrontHair,
-        `${c.id} has long rear hair but no front hair — would render bald on top`,
+        `${c.id} has long rear hair but no front hair - would render bald on top`,
       ).toBe(true);
     }
   });
@@ -47,7 +47,7 @@ describe('CHARACTERS roster', () => {
   it('uses open-eye styles (happy/wide) for the majority of characters', () => {
     // `bow`, `humble`, and the left half of `wink` render as closed
     // curved lines without sclera or pupils. They're useful as occasional
-    // personality accents but should not dominate — too many makes the
+    // personality accents but should not dominate - too many makes the
     // whole roster look asleep.
     const CLOSED_EYES = new Set(['bow', 'humble', 'wink']);
     const closedCount = CHARACTERS.filter((c) =>

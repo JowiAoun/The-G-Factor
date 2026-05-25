@@ -7,7 +7,7 @@
  *
  * State lives in `localStorage` with the project's standard key convention
  * (`strudel-tutor.<domain>.<key>`). The OpenRouter API key is supplied
- * exclusively at runtime by the user via the chooser modal — there is no
+ * exclusively at runtime by the user via the chooser modal - there is no
  * build-time fallback, so the key never lands in the deployed bundle.
  *
  * A simple subscriber registry lets the App shell re-render when the
@@ -43,7 +43,7 @@ function safeSetItem(key: string, value: string): void {
   try {
     localStorage.setItem(key, value);
   } catch {
-    /* private mode / quota / etc. — swallow */
+    /* private mode / quota / etc. - swallow */
   }
 }
 
@@ -104,7 +104,7 @@ export const THROTTLE_DEFAULTS = {
 /**
  * Lightweight client-side sanity check. OpenRouter keys start with
  * `sk-or-` followed by a version segment and a long opaque body. The
- * regex stays lenient — runtime 401 catches any deeper mismatch.
+ * regex stays lenient - runtime 401 catches any deeper mismatch.
  */
 export function looksLikeApiKey(s: string): boolean {
   return /^sk-or-[A-Za-z0-9_-]{10,}$/.test(s.trim());

@@ -7,10 +7,10 @@ export type ChatTurn = {
   content: string;
 };
 
-const TURN_SCHEMA_RULE = `Always respond with STRICT JSON in this exact shape — no prose, no markdown fences, no explanations:
+const TURN_SCHEMA_RULE = `Always respond with STRICT JSON in this exact shape - no prose, no markdown fences, no explanations:
 
 {
-  "new_mix_code": "<the FULL new Strudel code after applying the user's request — never a diff, never partial, always the complete pattern>",
+  "new_mix_code": "<the FULL new Strudel code after applying the user's request - never a diff, never partial, always the complete pattern>",
   "assistant_message": "<one or two short sentences in character, no markdown>",
   "action_label": "<a 2-4 word tag like 'added kick', 'halved tempo', 'no-op'>"
 }
@@ -20,7 +20,7 @@ If the user's request can't be satisfied musically, return the previous mix verb
 /**
  * How many prior turns of chat history get echoed back into the model.
  *
- * Six was picked empirically — enough for Bleep to maintain a coherent
+ * Six was picked empirically - enough for Bleep to maintain a coherent
  * thread ("you just added hats, now I'm asking for snare"), short enough
  * to keep the prompt budget comfortable on Gemma 4 E2B.
  */
@@ -39,13 +39,13 @@ function formatStudioExemplars(exemplars: Exemplar[]): string {
         `${i + 1}) "${e.transformation_label}" → ${e.variation_code}`,
     )
     .join('\n');
-  return `\nThis user has previously liked these mixes — lean toward their style when it fits the request:\n${lines}\n`;
+  return `\nThis user has previously liked these mixes - lean toward their style when it fits the request:\n${lines}\n`;
 }
 
 function buildSystem(currentMix: string, exemplars: Exemplar[]): string {
   const mixBlock = currentMix.trim()
     ? `CURRENT MIX (always preserve unless the user asks to change it):\n${currentMix.trim()}`
-    : 'CURRENT MIX: <empty — there is no pattern yet>';
+    : 'CURRENT MIX: <empty - there is no pattern yet>';
   return [
     SYSTEM_PROMPT,
     '',

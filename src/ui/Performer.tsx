@@ -26,7 +26,7 @@ type PerformerProps = {
 /**
  * On-stage contestant: avatar + name placard + technique chip + ▶/⏹ + Choose.
  * Lives inside <TalentStage> (the `.talent-stage` shell). Code & explanation
- * are deliberately not rendered here — they belong below the stage in a
+ * are deliberately not rendered here - they belong below the stage in a
  * `.match-code-strip` so the performance area stays uncluttered.
  */
 export function Performer({

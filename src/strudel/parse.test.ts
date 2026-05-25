@@ -4,7 +4,7 @@ import { VARIATION_AXES } from '../remix/axes';
 
 // Phase 1 verification: parser firewall should ship valid Strudel through and
 // reject anything that isn't even syntactically a JS-with-mini-notation
-// expression. Only JS-AST-level errors are guaranteed to fail here — semantic
+// expression. Only JS-AST-level errors are guaranteed to fail here - semantic
 // errors (unknown ops, wrong arg counts) surface later in the Strudel
 // evaluator. This test pins the firewall's contract at that boundary.
 
@@ -34,7 +34,7 @@ const INVALID_SYNTAX: string[] = [
   'function () { s("bd")',         // incomplete function literal
 ];
 
-describe('parser firewall — valid', () => {
+describe('parser firewall - valid', () => {
   it.each(VALID)('accepts %j', async (code) => {
     const r = await parse(code);
     expect(
@@ -44,7 +44,7 @@ describe('parser firewall — valid', () => {
   });
 });
 
-describe('parser firewall — invalid syntax', () => {
+describe('parser firewall - invalid syntax', () => {
   it.each(INVALID_SYNTAX)('rejects %j with reason=syntax', async (code) => {
     const r = await parse(code);
     expect(r.valid, `expected invalid for: ${JSON.stringify(code)}`).toBe(false);
@@ -84,7 +84,7 @@ const UNSAFE: Array<[string, RegExp]> = [
   ['x["fetch"]("https://evil")', /disallowed property access: \["fetch"\]/],
 
   // Dynamic import. (`import.meta` would only parse in module mode and is
-  // a syntax error here — kept in the walker as defense if `sourceType`
+  // a syntax error here - kept in the walker as defense if `sourceType`
   // ever changes, but not testable today.)
   ['import("./evil.js")', /disallowed dynamic import/],
 
@@ -94,7 +94,7 @@ const UNSAFE: Array<[string, RegExp]> = [
   ['crypto.subtle', /disallowed reference: crypto/],
 ];
 
-describe('parser firewall — unsafe patterns', () => {
+describe('parser firewall - unsafe patterns', () => {
   it.each(UNSAFE)('rejects %j as unsafe', async (code, expectedError) => {
     const r = await parse(code);
     expect(r.valid, `expected unsafe for: ${code}`).toBe(false);
@@ -114,7 +114,7 @@ describe('parser firewall — unsafe patterns', () => {
 // Regression guard: the deny-list must not block any axis exemplar shipped to
 // the Talent Show. If a future exemplar names a banned identifier, this test
 // catches it before users do.
-describe('parser firewall — talent show axis exemplars stay valid', () => {
+describe('parser firewall - talent show axis exemplars stay valid', () => {
   it.each(VARIATION_AXES)('axis $id exemplar passes the firewall', async (axis) => {
     const r = await parse(axis.exemplar);
     const detail = r.valid

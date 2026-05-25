@@ -22,11 +22,11 @@ METHOD CHAINS (call on a pattern):
 .rev() reverse, .jux(fn) split L/R applying fn to right, .every(N, fn) apply fn every N cycles.
 
 NAMED SAMPLES you may use inside s("..."):
-- drums:    bd sd hh oh cp rim cb lt mt ht (add :N for variants — bd:2, hh:5, sd:3)
+- drums:    bd sd hh oh cp rim cb lt mt ht (add :N for variants - bd:2, hh:5, sd:3)
 - pitched:  piano pluck pad jvbass bass stab tabla tabla2 arpy sitar sax
 - texture:  wind space noise birds
 - raw osc:  sawtooth square triangle sine
-Spread your timbre choices — don't make every patch a sawtooth. Match the timbre to the musical intent (piano for chords, jvbass for basslines, pluck for melody, pad for atmosphere, sawtooth only for acid).
+Spread your timbre choices - don't make every patch a sawtooth. Match the timbre to the musical intent (piano for chords, jvbass for basslines, pluck for melody, pad for atmosphere, sawtooth only for acid).
 
 CANONICAL IDIOMS:
 1) Minimal kick:        s("bd*4")
@@ -59,7 +59,7 @@ function formatExemplars(exemplars: Exemplar[]): string {
         `${i + 1}) Seed: ${e.seed_code}\n   Variation: ${e.variation_code}\n   Style: ${e.transformation_label}`,
     )
     .join('\n');
-  return `\n\nThis user has previously liked these variations for similar seeds — match their style:\n${lines}\n`;
+  return `\n\nThis user has previously liked these variations for similar seeds - match their style:\n${lines}\n`;
 }
 
 export function buildRemixPrompt(
@@ -87,12 +87,12 @@ Output:`,
 }
 
 // Appended to SYSTEM_PROMPT only when the Talent Show is building a prompt.
-// Bleep (the Studio chat builder) never sees this — its voice should stay
+// Bleep (the Studio chat builder) never sees this - its voice should stay
 // surgical, not maximalist.
 export const TALENT_SHOW_SYSTEM_PROMPT_SUFFIX = `TALENT SHOW STAGE
-You are auditioning for a remix bracket. Each contestant explores a different musical territory. Compose a layered Strudel pattern — typically a \`stack(...)\` of 3 to 4 lines, or a single line with 3+ chained methods. Aim for ~5 to 12 lines of formatted code. The seed's identity should still be recognisable, but boldness wins.
+You are auditioning for a remix bracket. Each contestant explores a different musical territory. Compose a layered Strudel pattern - typically a \`stack(...)\` of 3 to 4 lines, or a single line with 3+ chained methods. Aim for ~5 to 12 lines of formatted code. The seed's identity should still be recognisable, but boldness wins.
 
-LAYERED COMPOSITION EXAMPLES (notice the timbre variety — piano, pluck, jvbass, pad; not all sawtooth):
+LAYERED COMPOSITION EXAMPLES (notice the timbre variety - piano, pluck, jvbass, pad; not all sawtooth):
 A) stack(
      s("bd(3,8)").gain(0.9),
      s("~ sd ~ sd").room(0.25),
@@ -155,7 +155,7 @@ export function buildTalentShowVariationPrompt(
 
 ${TALENT_SHOW_SYSTEM_PROMPT_SUFFIX}
 
-AXIS EXAMPLE — ${axis.id}:
+AXIS EXAMPLE - ${axis.id}:
 ${axis.exemplar}`;
 
   const user = `${FEWSHOT_REMIX}${taste}

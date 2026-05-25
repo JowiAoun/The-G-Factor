@@ -45,7 +45,7 @@ describe('SOUND_PALETTE', () => {
   it('synth snippets reference their sound and are audible without further input', () => {
     // Raw oscillators (sawtooth/square/triangle/sine) are silent without
     // `note(...)`. Named samples like `pad`, `stab`, `tabla` are pre-pitched
-    // recordings — `s("pad")` is audible on its own. The unifying invariant
+    // recordings - `s("pad")` is audible on its own. The unifying invariant
     // is that the snippet names the chip's sound; the pitch source is only
     // required for the raw-oscillator group.
     const RAW_OSCILLATORS = new Set(['sawtooth', 'square', 'triangle', 'sine']);

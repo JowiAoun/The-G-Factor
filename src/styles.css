@@ -4,7 +4,7 @@
   background: #0e0f12;
   color: #e8eaed;
 
-  /* Stage palette — used by .talent-stage and its inhabitants. */
+  /* Stage palette - used by .talent-stage and its inhabitants. */
   --stage-curtain-red:  #6e0e0e;
   --stage-curtain-dark: #3a0404;
   --stage-gold:         #c9b06e;
@@ -296,10 +296,10 @@ button.liked { background: #6b2a4a; border-color: #80303f; color: #ffd6e3; }
   color: #e8eaed;
 }
 
-/* ── talent show — bracket size toggle ────────────────────── */
+/* ── talent show - bracket size toggle ────────────────────── */
 .bracket-size-toggle { display: flex; gap: 6px; }
 
-/* ── talent show — contestants ────────────────────────────── */
+/* ── talent show - contestants ────────────────────────────── */
 .contestant-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -851,7 +851,7 @@ button.liked { background: #6b2a4a; border-color: #80303f; color: #ffd6e3; }
   align-items: center;
 }
 
-/* sound palette — the drag-/click-to-audition rail */
+/* sound palette - the drag-/click-to-audition rail */
 .sound-palette {
   display: flex;
   align-items: center;
@@ -1193,7 +1193,7 @@ button.liked { background: #6b2a4a; border-color: #80303f; color: #ffd6e3; }
   color: #d6dde6;
 }
 
-/* replay banner — fixed strip while a saved mix is auto-playing */
+/* replay banner - fixed strip while a saved mix is auto-playing */
 .replay-banner {
   position: fixed;
   left: 50%;
@@ -1471,7 +1471,7 @@ button.liked { background: #6b2a4a; border-color: #80303f; color: #ffd6e3; }
   }
 }
 
-/* ---------- Talent stage — unified theatrical shell ---------- */
+/* ---------- Talent stage - unified theatrical shell ---------- */
 /* Used across casting (host) → showing (performers) → champion (lone winner). */
 
 .talent-stage {
@@ -1516,7 +1516,7 @@ button.liked { background: #6b2a4a; border-color: #80303f; color: #ffd6e3; }
 .talent-stage.curtain-open .stage-curtain.left  { transform: translateX(-100%); }
 .talent-stage.curtain-open .stage-curtain.right { transform: translateX(100%); }
 
-/* Marquee playbill at the top — chasing-bulb effect. */
+/* Marquee playbill at the top - chasing-bulb effect. */
 .stage-marquee {
   position: relative;
   z-index: 5;
@@ -1558,7 +1558,7 @@ button.liked { background: #6b2a4a; border-color: #80303f; color: #ffd6e3; }
 .stage-marquee-bulb:nth-child(2) { animation-delay: 0.4s; }
 .stage-marquee-bulb:nth-child(3) { animation-delay: 0.8s; }
 
-/* Stage floor — subtle planks + shine sweep. */
+/* Stage floor - subtle planks + shine sweep. */
 .stage-floor {
   position: absolute;
   bottom: 0;
@@ -1627,7 +1627,7 @@ button.liked { background: #6b2a4a; border-color: #80303f; color: #ffd6e3; }
   filter: brightness(1.35);
 }
 
-/* Performers — contestants standing on the stage. */
+/* Performers - contestants standing on the stage. */
 .performer-row {
   position: relative;
   z-index: 4;
@@ -1784,7 +1784,7 @@ button.liked { background: #6b2a4a; border-color: #80303f; color: #ffd6e3; }
   animation: vs-arrive 900ms ease-out both;
 }
 
-/* Code strip — always-visible code/explanation BELOW the stage. */
+/* Code strip - always-visible code/explanation BELOW the stage. */
 .match-code-strip {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1828,7 +1828,7 @@ button.liked { background: #6b2a4a; border-color: #80303f; color: #ffd6e3; }
   line-height: 1.4;
 }
 
-/* Bracket marquee — thin always-visible strip above the stage. */
+/* Bracket marquee - thin always-visible strip above the stage. */
 .bracket-marquee {
   display: flex;
   align-items: center;
@@ -1967,7 +1967,7 @@ button.liked { background: #6b2a4a; border-color: #80303f; color: #ffd6e3; }
 
 .header-settings-glyph {
   /* Square 1em flex box so the rotation pivot sits at the glyph's
-     visual centre — otherwise the inline-block's tall-and-narrow font
+     visual centre - otherwise the inline-block's tall-and-narrow font
      box makes the gear visibly slide as it spins. */
   display: inline-flex;
   align-items: center;

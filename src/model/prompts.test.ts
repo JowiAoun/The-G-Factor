@@ -61,7 +61,7 @@ describe('buildTalentShowVariationPrompt', () => {
 
   it('injects the axis-specific exemplar into the system prompt', () => {
     const { system } = buildTalentShowVariationPrompt('s("bd*4")', { axis });
-    expect(system).toContain(`AXIS EXAMPLE — ${axis.id}`);
+    expect(system).toContain(`AXIS EXAMPLE - ${axis.id}`);
     expect(system).toContain(axis.exemplar);
   });
 

@@ -20,7 +20,7 @@ function mkContestants(n: number, opts: { dnf?: number[] } = {}): Contestant[] {
   }));
 }
 
-describe('bracket — 4 contestants', () => {
+describe('bracket - 4 contestants', () => {
   it('produces 3 matches in the right shape', () => {
     const s = createBracket(mkContestants(4));
     expect(s.matches.length).toBe(3);
@@ -70,7 +70,7 @@ describe('bracket — 4 contestants', () => {
   });
 });
 
-describe('bracket — 8 contestants', () => {
+describe('bracket - 8 contestants', () => {
   it('produces 7 matches across 3 rounds', () => {
     const s = createBracket(mkContestants(8));
     expect(s.matches.length).toBe(7);
@@ -92,7 +92,7 @@ describe('bracket — 8 contestants', () => {
   });
 });
 
-describe('bracket — DNF handling', () => {
+describe('bracket - DNF handling', () => {
   it('auto-advances the opponent when one contestant is DNF', () => {
     const s = createBracket(mkContestants(4, { dnf: [1] }));
     // c-1 was DNF in r1-m1 vs c-0 → c-0 should be pre-resolved.
@@ -110,7 +110,7 @@ describe('bracket — DNF handling', () => {
   });
 });
 
-describe('bracket — guards', () => {
+describe('bracket - guards', () => {
   it('throws on non-power-of-two sizes', () => {
     expect(() => createBracket(mkContestants(3))).toThrow();
     expect(() => createBracket(mkContestants(6))).toThrow();

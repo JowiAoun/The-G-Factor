@@ -25,7 +25,7 @@ export function useStreamedText(
     setRevealed('');
     setDone(false);
     // Splitting on `(\s+)` keeps the whitespace tokens in the array so we
-    // can re-join slices losslessly — no double-spaces, no lost newlines.
+    // can re-join slices losslessly - no double-spaces, no lost newlines.
     const tokens = content.split(/(\s+)/);
     let i = 0;
     let cancelled = false;

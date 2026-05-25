@@ -9,7 +9,7 @@
  *
  * The 20 are hand-picked to span hair styles, skin tones, hair colors,
  * clothing, and presentation. No avatar carries simultaneously long rear
- * hair AND a beard — the test in characters.test.ts enforces this.
+ * hair AND a beard - the test in characters.test.ts enforces this.
  */
 
 /**
@@ -71,7 +71,7 @@ function makeLcg(seed: number): () => number {
 /**
  * Long rear hair + front hair coverage on top.
  *
- * `rearHair` alone draws only the long flow behind the head — the top
+ * `rearHair` alone draws only the long flow behind the head - the top
  * of the skull is bald unless `hair` is also set. Every long-haired
  * character therefore picks a complementary front style (`sideComed`
  * for full top coverage, or `bun` for a topknot).

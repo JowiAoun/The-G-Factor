@@ -93,7 +93,7 @@ describe('rankRoster', () => {
   it('ignores likes that reference an unknown character id', () => {
     const stray: Like = mkChampion('ghost-character', 'Ghost', 5000);
     const ranked = rankRoster([stray], CHARACTERS);
-    // No real character earned a win — everyone is 0-win, fully alphabetical.
+    // No real character earned a win - everyone is 0-win, fully alphabetical.
     expect(ranked.every((r) => r.wins === 0)).toBe(true);
   });
 

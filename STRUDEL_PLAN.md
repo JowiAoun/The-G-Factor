@@ -1,9 +1,9 @@
-# Strudel Tutor — Hackathon Plan
+# Strudel Tutor - Hackathon Plan
 
 > **Status:** pending approval
 > **Target:** DEV Gemma 4 Challenge, Build track ([HACKATHON.md](HACKATHON.md))
 > **Deadline:** 2026-05-24 11:59 PM PDT (9 days from 2026-05-15)
-> **Predecessor plan:** [PLAN.md](PLAN.md) — Sigil heraldry idea, retained as the Day-1-gate fallback
+> **Predecessor plan:** [PLAN.md](PLAN.md) - Sigil heraldry idea, retained as the Day-1-gate fallback
 > **Builder:** solo, laptop CPU + browser only, no GPU, no backend
 
 ---
@@ -14,13 +14,13 @@ Build a browser-native **Strudel learning companion** powered by Gemma 4 2B runn
 
 1. User pastes or picks a starter Strudel pattern (e.g., `s("bd hh sd hh")`).
 2. Gemma 4 2B proposes **3 musically-coherent variations**, each with a one-line explanation of what changed and a play button.
-3. Strudel's own parser firewalls every output — invalid code never reaches the user.
-4. Liked variations are saved to a per-session **taste library**; future calls retrieve the top-3 most-similar prior likes as few-shot exemplars. The model effectively **learns the user's style** within the session — no fine-tuning, no GPU, no weights changing.
+3. Strudel's own parser firewalls every output - invalid code never reaches the user.
+4. Liked variations are saved to a per-session **taste library**; future calls retrieve the top-3 most-similar prior likes as few-shot exemplars. The model effectively **learns the user's style** within the session - no fine-tuning, no GPU, no weights changing.
 
 The framing is **"AI that learns your musical taste as you live-code,"** not "AI that writes you a song." This sidesteps the unwinnable "can a 2B model compose?" question and reframes Gemma as a creative collaborator whose suggestions get better the more you use it.
 
 ### Why this idea wins on landscape
-- **Audio is 0/110 in existing DEV submissions** (verified in [PLAN.md §Competitive Landscape](PLAN.md)) — strongest whitespace category.
+- **Audio is 0/110 in existing DEV submissions** (verified in [PLAN.md §Competitive Landscape](PLAN.md)) - strongest whitespace category.
 - **"AI learns your taste in-browser"** = unique angle vs every "AI generates X" submission.
 - **Strudel parser as hallucination firewall** = a technically credible answer to the "small models hallucinate" objection.
 - **Model-choice story is clean:** 2B is enough *because* retrieval + parser-firewall do the heavy lifting; running in-browser is a real product feature for live-coders who don't want to install anything.
@@ -32,7 +32,7 @@ The framing is **"AI that learns your musical taste as you live-code,"** not "AI
 
 This is the conceptual heart of the project and the lead of the DEV writeup. Three layers, none of them weights-changing:
 
-### Layer 1 — Static Priors (always present)
+### Layer 1 - Static Priors (always present)
 A ~600-token system prompt containing:
 - The 13 mini-notation operators with one-line semantics (`*`, `/`, `~`, `[]`, `<>`, `,`, `?`, `:`, `!`, `@`, `|`, `( )`, `-`).
 - The 12 most-used method chains (`.s`, `.note`, `.n`, `.gain`, `.room`, `.delay`, `.lpf`, `.fast`, `.slow`, `.rev`, `.jux`, `.every`).
@@ -40,15 +40,15 @@ A ~600-token system prompt containing:
 
 **Why:** Gives the model concrete syntax knowledge it almost certainly didn't see at training time (Strudel is post-cutoff for the 2B base model in many cases).
 
-### Layer 2 — Session-Acquired Taste (the "memory/learning" answer)
+### Layer 2 - Session-Acquired Taste (the "memory/learning" answer)
 On every "❤️" the user gives a variation:
 - Store `{seed_hash, variation_code, transformation_label, liked_at}` in IndexedDB.
 - On the next remix call, compute similarity between the new seed and all prior liked seeds (v1: n-gram overlap on the seed code; v2: MiniLM embeddings if v1 is obviously weak).
 - Top-3 most similar likes get injected into the prompt as few-shot exemplars: *"The user previously liked these variations for similar patterns: [...]"*.
 
-**Why:** This is the in-browser learning the user wanted. The model gets contextually better at predicting *this user's taste* over the session — without any fine-tuning, GPU time, or weights changing. Cold-start works (priors alone), warm-state shines.
+**Why:** This is the in-browser learning the user wanted. The model gets contextually better at predicting *this user's taste* over the session - without any fine-tuning, GPU time, or weights changing. Cold-start works (priors alone), warm-state shines.
 
-### Layer 3 — Parser Firewall (always-on)
+### Layer 3 - Parser Firewall (always-on)
 Every Gemma JSON output runs through `@strudel/core` parse before display:
 - Valid → ship to UI.
 - Invalid → silent retry (up to 3 attempts with a "previous attempt was invalid because: <error>" hint).
@@ -56,36 +56,36 @@ Every Gemma JSON output runs through `@strudel/core` parse before display:
 
 **Why:** Strudel's own parser is the ground truth. Hallucinations of nonexistent operators never reach the user. This is the technical credibility that makes 2B viable.
 
-> **Demo punchline (in the DEV post):** *"I didn't teach Gemma Strudel. I let Strudel teach Gemma — and let you teach Gemma your taste."*
+> **Demo punchline (in the DEV post):** *"I didn't teach Gemma Strudel. I let Strudel teach Gemma - and let you teach Gemma your taste."*
 
 ---
 
 ## 3. Phased Execution Plan
 
-### Phase 1 — Days 2–3 (May 16–17): Core Remix Loop
+### Phase 1 - Days 2–3 (May 16–17): Core Remix Loop
 
 - Zod schema for Gemma output: `{variation_code: string, transformation_label: string, explanation_one_line: string}`.
-- `src/strudel/parse.ts` — wraps `@strudel/core` parse, returns `{valid: boolean, error?: string}`.
-- `src/strudel/engine.ts` — `initStrudel()`, `evaluate()`, `hush()`, audio-context-on-first-click handling, async error capture.
-- `src/model/gemma.ts` — model loader (progress callback for UI), prompt-templated generation, JSON parse + zod validate + 3-retry-on-invalid-Strudel loop.
-- `src/model/prompts.ts` — the Layer-1 static priors (~600 tokens).
-- `src/remix/index.ts` — orchestrator: seed → 3 parallel Gemma calls → parse-firewall → dedupe → return up to 3 valid variations.
-- `src/ui/App.tsx` v1 — paste box, "Remix" button, 3 cards each with code + label + explanation + play button.
+- `src/strudel/parse.ts` - wraps `@strudel/core` parse, returns `{valid: boolean, error?: string}`.
+- `src/strudel/engine.ts` - `initStrudel()`, `evaluate()`, `hush()`, audio-context-on-first-click handling, async error capture.
+- `src/model/gemma.ts` - model loader (progress callback for UI), prompt-templated generation, JSON parse + zod validate + 3-retry-on-invalid-Strudel loop.
+- `src/model/prompts.ts` - the Layer-1 static priors (~600 tokens).
+- `src/remix/index.ts` - orchestrator: seed → 3 parallel Gemma calls → parse-firewall → dedupe → return up to 3 valid variations.
+- `src/ui/App.tsx` v1 - paste box, "Remix" button, 3 cards each with code + label + explanation + play button.
 - **Deliverable:** end-to-end. User pastes 1 pattern, clicks Remix, hears 3 playable variations within ≤10s on a mid-range laptop.
 
-### Phase 2 — Days 4–5 (May 18–19): Taste Memory
+### Phase 2 - Days 4–5 (May 18–19): Taste Memory
 
 - IndexedDB schema (via `idb`): table `likes` with `{id, seed_code, variation_code, transformation_label, liked_at}`.
-- `src/memory/taste.ts` — CRUD + similarity retrieval (`getTopKSimilar(seed, k=3)`).
+- `src/memory/taste.ts` - CRUD + similarity retrieval (`getTopKSimilar(seed, k=3)`).
 - v1 similarity: simple n-gram overlap on `seed_code`. Cheap, deterministic.
 - "❤️" button on each variation card; toast on save.
 - Few-shot exemplar injection: `src/remix/index.ts` calls `getTopKSimilar` and injects the result into the prompt as a clearly-labeled *"this user has previously liked:"* section.
 - Sidebar showing live taste count + 3 most recent likes; "Clear taste" button.
 - **Deliverable:** after the user likes 5+ variations that share a transformation pattern (e.g., euclidean rhythms, slow filter sweeps), the next 3 variations should include ≥1 that uses the learned transformation. Test this manually with a scripted-bias check on Day 5.
 
-### Phase 3 — Days 6–7 (May 20–21): Seed Gallery + Polish
+### Phase 3 - Days 6–7 (May 20–21): Seed Gallery + Polish
 
-- `src/seeds/gallery.ts` — 5–7 curated seed patterns, each with: pattern code, 1-line genre label, difficulty stars (1–3), preview ribbon.
+- `src/seeds/gallery.ts` - 5–7 curated seed patterns, each with: pattern code, 1-line genre label, difficulty stars (1–3), preview ribbon.
   - Suggested set: minimal kick, kick+hat, euclidean drums, ambient pad, polyrhythm stack, alternating melody, breakbeat.
 - Loading UX: model-download progress bar (~1.5GB quantized); show seed gallery cards as static playable previews *during* download so the user can do something while waiting.
 - Audio polish: gain ceiling to prevent clipping, fade-in/out on play/stop, hush stops within 1s.
@@ -93,7 +93,7 @@ Every Gemma JSON output runs through `@strudel/core` parse before display:
 - Subtle visual: animate the currently-playing pattern's code (highlight active step).
 - **Deliverable:** a stranger lands cold and reaches their first ❤️ in <90 seconds on a moderate-spec laptop after model download.
 
-### Phase 4 — Day 8 (May 22): Deploy + Demo Recording
+### Phase 4 - Day 8 (May 22): Deploy + Demo Recording
 
 - Deploy to Vercel with `vercel.json` setting `Cross-Origin-Opener-Policy: same-origin` and `Cross-Origin-Embedder-Policy: require-corp` (required for transformers.js + WebGPU).
 - Smoke-test the deployed URL on a second laptop (no dev cache).
@@ -101,15 +101,15 @@ Every Gemma JSON output runs through `@strudel/core` parse before display:
   1. Cold load (sped up): seed gallery appears, model downloads, page becomes interactive.
   2. Click seed → Remix → 3 cards appear → play card 2 → hear variation.
   3. Like 2–3 variations that share a transformation.
-  4. Click second seed → Remix → narrate: *"watch — it learned I like euclidean rhythms"* → play card showing the learned transformation.
+  4. Click second seed → Remix → narrate: *"watch - it learned I like euclidean rhythms"* → play card showing the learned transformation.
   5. End on a closing waveform.
 - Use OBS with system-audio capture; verify audio level on playback (not just OBS meter).
 - Capture 4–6 screenshots for the DEV post: cold load, mid-remix, taste-sidebar-with-likes, learned-variation-card.
 
-### Phase 5 — Day 9 (May 23): DEV Post + Submit
+### Phase 5 - Day 9 (May 23): DEV Post + Submit
 
 - ~500-word DEV post:
-  - **Lead (domain hook):** *"I built an AI that learns your musical taste while you live-code — running entirely in your browser, on a 2B model."*
+  - **Lead (domain hook):** *"I built an AI that learns your musical taste while you live-code - running entirely in your browser, on a 2B model."*
   - **The 3-layer pedagogy diagram** (priors → taste memory → parser firewall).
   - **Why 2B and not 4B** (paragraph 3-4): retrieval + parser-firewall + structured output let the smaller model carry the load; 4B was tested as fallback but unnecessary.
   - Embedded demo video.
@@ -118,7 +118,7 @@ Every Gemma JSON output runs through `@strudel/core` parse before display:
 
 ---
 
-## 4. Critical Files (greenfield — none exist yet)
+## 4. Critical Files (greenfield - none exist yet)
 
 | File | Purpose |
 |------|---------|
@@ -142,7 +142,7 @@ Every Gemma JSON output runs through `@strudel/core` parse before display:
 
 ## 5. Reusable Patterns / Libraries
 
-- `@strudel/web@1.0.3` — umbrella package, bundles transpiler + core + mini + webaudio. **Pin this version.**
+- `@strudel/web@1.0.3` - umbrella package, bundles transpiler + core + mini + webaudio. **Pin this version.**
 - `@strudel/core` parser exposed for the firewall layer.
 - `@huggingface/transformers` for Gemma 2B in WebGPU/WASM. Consult HF docs via context7 on Day 1.
 - `zod` for IR validation + retry-on-failure (same pattern from [PLAN.md](PLAN.md) Sigil approach).
@@ -182,11 +182,11 @@ Every Gemma JSON output runs through `@strudel/core` parse before display:
 ## 8. Verification Steps
 
 1. **Day 3:** smoke test 10 seeds × 3 variations = 30 outputs; manually verify all play without error.
-2. **Day 5:** taste-memory bias test — script 5 likes that share `bd(3,8)` euclidean structure, then run remix on a fresh seed, verify ≥1 of 3 variations includes a euclidean.
+2. **Day 5:** taste-memory bias test - script 5 likes that share `bd(3,8)` euclidean structure, then run remix on a fresh seed, verify ≥1 of 3 variations includes a euclidean.
 3. **Day 7:** fresh-browser-profile cold-start test, time first-like; must be <90s.
-4. **Day 8:** deploy verification — open Vercel URL on a clean second laptop, complete the end-to-end flow.
-5. **Day 8:** recording check — playback the demo video on a phone (typical DEV reader environment) with default volume, verify audio is clear.
-6. **Day 9:** DEV post checklist — domain hook lead, pedagogy diagram, model rationale, embedded video, repo URL, deploy URL, MIT license, screenshots.
+4. **Day 8:** deploy verification - open Vercel URL on a clean second laptop, complete the end-to-end flow.
+5. **Day 8:** recording check - playback the demo video on a phone (typical DEV reader environment) with default volume, verify audio is clear.
+6. **Day 9:** DEV post checklist - domain hook lead, pedagogy diagram, model rationale, embedded video, repo URL, deploy URL, MIT license, screenshots.
 
 ---
 
@@ -208,7 +208,7 @@ Every Gemma JSON output runs through `@strudel/core` parse before display:
 
 ## 10. Out of Scope (explicit)
 
-- User accounts / cloud sync (taste memory is per-browser-profile by design — this is a *feature*, not a limitation)
+- User accounts / cloud sync (taste memory is per-browser-profile by design - this is a *feature*, not a limitation)
 - Multi-track / song arrangement (one pattern at a time)
 - MIDI export
 - Mobile-first UI (responsive but desktop-optimized for demo)
@@ -223,7 +223,7 @@ Every Gemma JSON output runs through `@strudel/core` parse before display:
 If neither Gemma 2B nor 4B can produce musically interesting Strudel variations (≤5/15 outputs land):
 - Cleanly fall back to **Sigil** ([PLAN.md](PLAN.md)) on Day 2.
 - Telescope Sigil's 9-day schedule into 7: cut SVG library to 12 charges (vs ~30), drop the symbolism-explain pass.
-- This is **not failure** — it's a deliberate de-risked path with the same architectural skeleton (browser-native, transformers.js, zod-validated IR, structured output → renderer).
+- This is **not failure** - it's a deliberate de-risked path with the same architectural skeleton (browser-native, transformers.js, zod-validated IR, structured output → renderer).
 
 ---
 
@@ -234,7 +234,7 @@ This plan covers:
 - ✅ Phased schedule (Day 1 hard gate + 4 build phases + submission)
 - ✅ File-by-file scope
 - ✅ Acceptance criteria, risks, verification
-- ✅ Locked-in decisions (audience, model, hosting, etc.) — override any if disagreed
+- ✅ Locked-in decisions (audience, model, hosting, etc.) - override any if disagreed
 - ✅ Backup pivot plan to Sigil
 
 **Pending your approval before any code is written.**

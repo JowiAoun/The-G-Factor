@@ -38,16 +38,16 @@ async function ensureCacheEnv(): Promise<void> {
       mod.env.useFSCache = false;
       mod.env.allowRemoteModels = true;
       // We intentionally hit the HF hub for model weights, never the local
-      // filesystem — disabling this avoids a wasted probe and a 404 in the
+      // filesystem - disabling this avoids a wasted probe and a 404 in the
       // network tab on every load.
       mod.env.allowLocalModels = false;
     }
   } catch {
-    // best-effort — if the env shape changes, the defaults still cover us
+    // best-effort - if the env shape changes, the defaults still cover us
   }
 }
 
-// Loose internal types — transformers.js public types are accurate but verbose,
+// Loose internal types - transformers.js public types are accurate but verbose,
 // and the model.generate / processor signatures are stable across v3→v4.
 type Model = {
   generate: (args: Record<string, unknown>) => Promise<{
@@ -88,7 +88,7 @@ export function getDetectedDevice(): 'webgpu' | 'wasm' | null {
 }
 
 export async function loadModel(options: LoadOptions = {}): Promise<void> {
-  // Remote mode has nothing to download — the OpenRouter API is always
+  // Remote mode has nothing to download - the OpenRouter API is always
   // ready. Report it as such so callers' progress UI flips to the
   // ready state without spinning on a phantom download.
   if (getMode() === 'remote') {
@@ -158,7 +158,7 @@ export async function generate(
   // expecting it to be a string. Passing the multimodal `[{type, text}]`
   // array shape trips the Jinja parser with `Unknown ArrayValue filter:
   // trim` and every generation fails. For text-only generation (no
-  // images/audio) pass plain strings — the template branches into its
+  // images/audio) pass plain strings - the template branches into its
   // text-only path and the trim filter is happy.
   const wrapped = messages.map((m) => ({
     role: m.role,

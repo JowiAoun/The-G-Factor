@@ -44,7 +44,7 @@ export type SavedMix = {
   created_at: number;
   /**
    * Linear list of mix-code states the user passed through on the way to
-   * the final mix. Optional for backward compatibility — saves written
+   * the final mix. Optional for backward compatibility - saves written
    * before this field landed simply replay the chat history without
    * intermediate mix changes (the canvas jumps to the final code at the
    * end of the replay).
@@ -73,7 +73,7 @@ function writeKey(key: string, value: unknown): void {
   try {
     localStorage.setItem(key, JSON.stringify(value));
   } catch {
-    // Quota or storage-disabled (Safari private mode). Drop silently —
+    // Quota or storage-disabled (Safari private mode). Drop silently -
     // the UI keeps working from in-memory state.
   }
 }
@@ -204,7 +204,7 @@ export function seedStudioDraft(
   attributionLabel?: string,
 ): void {
   const greeting = attributionLabel
-    ? `Loaded "${attributionLabel}" onto the deck — what should we add or change?`
+    ? `Loaded "${attributionLabel}" onto the deck - what should we add or change?`
     : `Loaded a fresh mix onto the deck. What should we add or change?`;
   const draft: StudioDraft = {
     mix_code: mixCode,

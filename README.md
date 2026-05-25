@@ -1,6 +1,6 @@
-# Strudel Tutor — Gemma 4 Challenge
+# Strudel Tutor - Gemma 4 Challenge
 
-> AI that learns your musical taste as you live-code — running entirely in your browser on Gemma 4 E2B.
+> AI that learns your musical taste as you live-code - running entirely in your browser on Gemma 4 E2B.
 
 Built for the [DEV Gemma 4 Challenge](HACKATHON.md) (Build track). Two surfaces
 sit alongside each other: a chat-driven **Remix Studio** where you talk to a
@@ -28,10 +28,10 @@ First load downloads ~1.5 GB of Gemma 4 E2B (q4 ONNX); cached after.
 
 On first visit a modal asks where to run Gemma:
 
-- **Local** (default) — Gemma 4 E2B via `@huggingface/transformers` on
+- **Local** (default) - Gemma 4 E2B via `@huggingface/transformers` on
   WebGPU/WASM. ~1.5 GB one-time download, cached after, zero network
   calls during generation.
-- **Remote** — `google/gemma-4-31b-it:free` via OpenRouter. No download,
+- **Remote** - `google/gemma-4-31b-it:free` via OpenRouter. No download,
   faster contestants. The user supplies their own OpenRouter key in the
   modal; the key lives in `localStorage` for that browser only and is
   never bundled into the deployed site or proxied through any server.
@@ -39,12 +39,12 @@ On first visit a modal asks where to run Gemma:
 The choice persists in `localStorage` and can be flipped any time via
 the ⚙ button in the header.
 
-## 🎛 Remix Studio — chat with Bleep
+## 🎛 Remix Studio - chat with Bleep
 
 The Studio is conversational. Bleep is a cartoon producer (a DiceBear
 `toon-head` with a fixed seed so the face survives reloads). Type natural
-language — "start with a four-on-the-floor kick", "add open hats on the
-off-beats", "make the hats busier on every 4th cycle" — and Bleep replies
+language - "start with a four-on-the-floor kick", "add open hats on the
+off-beats", "make the hats busier on every 4th cycle" - and Bleep replies
 with a one- or two-sentence acknowledgement plus the full updated Strudel
 mix. Every reply is a strict JSON turn:
 
@@ -57,7 +57,7 @@ mix. Every reply is a strict JSON turn:
 ```
 
 Output goes through the same `acorn` parser firewall that the Talent Show
-uses — invalid Strudel triggers up to three retries with the failure
+uses - invalid Strudel triggers up to three retries with the failure
 reason passed back as a hint, then Bleep apologises and the mix stays put.
 
 **Auto-save:** the working mix + chat history + undo/redo stacks are
@@ -66,7 +66,7 @@ exactly where you stopped. **💾 Save as…** names the current mix and adds
 it to a sidebar library (capped at 30 entries, oldest evicted).
 
 **Editable canvas + sound palette:** Bleep isn't the only one who can
-write code. The canvas is a CodeMirror 6 editor — type directly, syntax
+write code. The canvas is a CodeMirror 6 editor - type directly, syntax
 colour and bracket matching included. Below it, a 12-chip **sound palette**
 (7 drums + 5 synths) sits ready to be dragged into the editor; chips
 also click-to-audition for ~600 ms so you can hear `piano` or `cp` before
@@ -79,7 +79,7 @@ Animations: Bleep's mouth swaps `smile ↔ agape` every 200 ms while
 generating, settles to `smile` at rest, flashes `laugh` after a successful
 Save as, and `sad` with a small shake when retries run out.
 
-## 🎪 Talent Show — pairwise taste capture
+## 🎪 Talent Show - pairwise taste capture
 
 Generate 4 (or 8) Strudel variations of the current seed, give each one a
 cartoon `toon-head` avatar with a hash-derived face, then run them through a
@@ -92,25 +92,25 @@ talking mouth swaps between `smile` and `agape` on a 150 ms cycle, winners
 laugh and jump with sparkles, losers fade with a sad mouth.
 
 **Axis-driven diversity.** Each contestant is pre-assigned a different
-*musical axis* — polyrhythm, polyphony, modulation, timbre, harmony, tempo,
-sparse, dense — and the prompt for that slot carries the axis directive
+*musical axis* - polyrhythm, polyphony, modulation, timbre, harmony, tempo,
+sparse, dense - and the prompt for that slot carries the axis directive
 plus a micro-exemplar tailored to it. The lineup is a deterministic
 seed-keyed Fisher-Yates over the 8 axes, so the same seed always casts the
 same axis cohort while a new seed gets a fresh draw. Outputs target
 layered `stack(...)` compositions (≈5-12 lines), so contestants sound
 substantial individually and meaningfully different from each other.
 
-## How it works — three layers
+## How it works - three layers
 
-1. **Static priors** (`src/model/prompts.ts`) — a ~600-token system prompt
+1. **Static priors** (`src/model/prompts.ts`) - a ~600-token system prompt
    teaching Gemma the 13 Strudel mini-notation operators, 12 chain methods, and
    8 canonical idioms.
-2. **Taste memory** (`src/memory/taste.ts`) — every ❤ and every 🏆 champion
+2. **Taste memory** (`src/memory/taste.ts`) - every ❤ and every 🏆 champion
    goes into IndexedDB; future remixes inject the top-3 most-similar liked
    variations as few-shot exemplars (character-bigram Jaccard similarity). The
    talent-show champions carry `avatar_seed` + `tournament` metadata so the
    sidebar can render their face.
-3. **Parser firewall** (`src/strudel/parse.ts`) — every JSON output is parsed
+3. **Parser firewall** (`src/strudel/parse.ts`) - every JSON output is parsed
    by `acorn` before display, then walked by `acorn-walk` to reject bare
    references to dangerous globals (`fetch`, `eval`, `localStorage`,
    `document`, etc.) and sandbox-escape primitives (`.constructor`,
@@ -124,7 +124,7 @@ fight Gemma" write path; both feed the same IndexedDB taste store.
 
 ## Security model
 
-The site is a static SPA — no server, no auth, no user PII beyond what the
+The site is a static SPA - no server, no auth, no user PII beyond what the
 user produces themselves. The two surfaces that matter:
 
 - **OpenRouter API key**: only ever lives in `localStorage` per browser, set
@@ -133,11 +133,11 @@ user produces themselves. The two surfaces that matter:
   `https://openrouter.ai/api/v1/chat/completions` over HTTPS.
 - **JS evaluation**: Strudel evaluates user-ish code in the same origin as
   the app, so a stolen API key would be game-over if hostile code ran. The
-  parser firewall (Layer 3 above) is the defense — an AST-walked deny-list
+  parser firewall (Layer 3 above) is the defense - an AST-walked deny-list
   of dangerous globals and member accesses. Defense in depth, not a sandbox;
   multi-step obfuscation could in principle bypass it, but no realistic
   Gemma output ever would. A proper isolation layer (iframe with the
-  `sandbox` attribute) is an explicit follow-up — out of scope for now
+  `sandbox` attribute) is an explicit follow-up - out of scope for now
   because it touches the entire audio pipeline.
 
 The deploy also ships a strict `Content-Security-Policy` (only
@@ -155,7 +155,7 @@ unsafe-eval can reach.
 
 ## Tech
 
-- **Model:** Gemma 4 E2B via [@huggingface/transformers v4](https://huggingface.co/docs/transformers.js) — `Gemma4ForConditionalGeneration` + `AutoProcessor`, q4f16 ONNX, WebGPU primary with WASM fallback
+- **Model:** Gemma 4 E2B via [@huggingface/transformers v4](https://huggingface.co/docs/transformers.js) - `Gemma4ForConditionalGeneration` + `AutoProcessor`, q4f16 ONNX, WebGPU primary with WASM fallback
 - **Live coding:** [@strudel/web](https://strudel.cc), `acorn` + `acorn-walk` for the parser firewall
 - **Validation:** [zod](https://zod.dev) on the JSON output shape, 3-retry loop on invalid Strudel
 - **Stack:** Vite · React 18 · TypeScript (strict) · IndexedDB (taste memory) · localStorage (studio drafts + saved mixes)
@@ -163,4 +163,4 @@ unsafe-eval can reach.
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT - see [LICENSE](LICENSE).

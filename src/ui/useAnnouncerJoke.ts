@@ -30,7 +30,7 @@ type Args = {
  * Implementation note: the effect deps are deliberately just
  * `[current, revealing]`. The patience predicate reads the latest
  * `contestantsReady` and `startedAt` through refs so a contestant
- * arriving mid-joke doesn't cancel the in-progress display timer —
+ * arriving mid-joke doesn't cancel the in-progress display timer -
  * the joke gets to finish its scheduled duration before the next
  * pick reads fresh state.
  */

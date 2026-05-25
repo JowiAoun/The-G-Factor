@@ -4,7 +4,7 @@
  *   - NORMAL_JOKES rotate while the bracket is generating.
  *   - PATIENCE_JOKES kick in if generation drags past
  *     `PATIENCE_THRESHOLD_MS` with fewer than `PATIENCE_MIN_CONTESTANTS`
- *     valid contestants — Buzz acknowledges the wait without blaming
+ *     valid contestants - Buzz acknowledges the wait without blaming
  *     the user's hardware.
  *   - REVEAL_JOKES are one-shot lines delivered as the curtains open.
  *
@@ -14,20 +14,20 @@
  */
 
 export const NORMAL_JOKES: readonly string[] = [
-  'Welcome to the Strudel Talent Show — where every contestant is a 2-billion-parameter understudy.',
+  'Welcome to the Strudel Talent Show - where every contestant is a 2-billion-parameter understudy.',
   "A polyrhythm walks into a bar. The bar is in 7. The kick lands on beat 5. Nobody knows where the downbeat is anymore.",
   'I asked Gemma why hi-hats are so busy. She said, "because they have a lot on their cycle."',
   "What did the stack say to the layer? You're on top.",
   "Did you hear about the synth that couldn't keep time? It needed therapy. And a `.slow(2)`.",
-  "Our contestants are all original — by which I mean none of them existed three seconds ago.",
+  "Our contestants are all original - by which I mean none of them existed three seconds ago.",
   'Reminder: applause is encouraged. Booing is also encouraged. We grade on volume.',
   "My agent told me hosting an AI talent show would be the future. Then she became an AI. Then she fired me.",
   "If a contestant doesn't move you tonight, please consider: maybe YOU should move closer.",
   'We tested these patterns rigorously. By "we" I mean a parser, and by "rigorously" I mean once.',
-  "What's a euclidean rhythm's favourite vegetable? Beets — three over eight.",
+  "What's a euclidean rhythm's favourite vegetable? Beets - three over eight.",
   "I once tried to teach a kick drum to talk. All it could say was 'boom'. Devastating.",
   "Backstage is chaos. Two contestants are arguing about whose snare is louder. The answer is: yes.",
-  'If you find tonight\'s variations confusing, just remember — so does Gemma.',
+  'If you find tonight\'s variations confusing, just remember - so does Gemma.',
   'I trained for years to host this show. Years. In dog years. I am, biologically, two.',
   'The neural network warm-up is technically a kind of dance. A very slow dance. With matrices.',
   'Quick reminder for the hi-hats: please pace yourselves. We have seven more matches tonight.',
@@ -49,8 +49,8 @@ export const PATIENCE_JOKES: readonly string[] = [
 
 export const REVEAL_JOKES: readonly string[] = [
   'Without further ado…',
-  'Ladies, gentlemen, and pattern-matchers — your contestants!',
-  'Lights up, curtains apart — here we go!',
+  'Ladies, gentlemen, and pattern-matchers - your contestants!',
+  'Lights up, curtains apart - here we go!',
   'They are ready. They are SO ready. Curtains, please!',
 ];
 
@@ -62,7 +62,7 @@ const MAX_DURATION_MS = 8500;
 const MS_PER_CHAR = 65;
 
 /**
- * How long a joke should stay on screen — scales with length so short
+ * How long a joke should stay on screen - scales with length so short
  * lines don't linger and long lines have time to read, clamped to a
  * sane window.
  */
@@ -73,7 +73,7 @@ export function durationForJoke(text: string): number {
 
 /**
  * Picks a random entry from `pool` that isn't already in `used`. When
- * every entry is used, resets the set so the pool can cycle again —
+ * every entry is used, resets the set so the pool can cycle again -
  * but never picks the immediately-previous joke twice in a row.
  *
  * Mutates `used` in place: callers can pass a single ref across many
@@ -88,7 +88,7 @@ export function pickFromPool(
 
   let available = pool.filter((j) => !used.has(j));
   if (available.length === 0) {
-    // Pool exhausted — reset, but exclude the last-shown joke so we
+    // Pool exhausted - reset, but exclude the last-shown joke so we
     // don't pick the same one twice back to back. Set iteration order
     // is insertion order in modern JS, so the last entry is the most
     // recent pick.

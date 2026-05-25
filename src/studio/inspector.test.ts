@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { decodeMix, hasAnyMetadata } from './inspector';
 
-describe('decodeMix — empty + degenerate', () => {
+describe('decodeMix - empty + degenerate', () => {
   it('returns isEmpty for empty strings and whitespace', () => {
     expect(decodeMix('').isEmpty).toBe(true);
     expect(decodeMix('   \n\t').isEmpty).toBe(true);
@@ -12,7 +12,7 @@ describe('decodeMix — empty + degenerate', () => {
   });
 });
 
-describe('decodeMix — samples', () => {
+describe('decodeMix - samples', () => {
   it('extracts simple sample names', () => {
     const meta = decodeMix('s("bd hh sd hh")');
     expect(meta.samples).toEqual(['bd', 'hh', 'sd']);
@@ -43,7 +43,7 @@ describe('decodeMix — samples', () => {
   });
 });
 
-describe('decodeMix — notes + synths', () => {
+describe('decodeMix - notes + synths', () => {
   it('extracts a note fragment and the synth that follows', () => {
     const meta = decodeMix('note("c eb g bb").s("sawtooth")');
     expect(meta.noteFragments).toEqual(['c eb g bb']);
@@ -56,7 +56,7 @@ describe('decodeMix — notes + synths', () => {
   });
 });
 
-describe('decodeMix — tempo + FX', () => {
+describe('decodeMix - tempo + FX', () => {
   it('captures slow / fast / cpm', () => {
     expect(decodeMix('s("bd*4").slow(2)').tempo).toEqual({ slow: 2 });
     expect(decodeMix('s("bd*4").fast(1.5)').tempo).toEqual({ fast: 1.5 });
@@ -80,7 +80,7 @@ describe('decodeMix — tempo + FX', () => {
   });
 });
 
-describe('decodeMix — layering', () => {
+describe('decodeMix - layering', () => {
   it('counts stack() invocations', () => {
     expect(decodeMix('stack(s("bd"), s("hh"))').layerCount).toBe(1);
     expect(decodeMix('stack(s("a"), stack(s("b"), s("c")))').layerCount).toBe(2);

@@ -35,7 +35,7 @@ type StudioProps = {
   modelReady: boolean;
   /**
    * Active backend mode. Lets the chat input stay enabled for remote-mode
-   * sessions even when no API key is set yet — submitting then surfaces a
+   * sessions even when no API key is set yet - submitting then surfaces a
    * toast instead of silently no-op'ing.
    */
   currentMode: BackendMode;
@@ -44,7 +44,7 @@ type StudioProps = {
   tasteVersion?: number;
   /** Hand the current mix off to the Talent Show as a bracket seed. */
   onBracketCurrent?: (mixCode: string) => void;
-  /** Open the backend chooser modal — wired into the no-key toast CTA. */
+  /** Open the backend chooser modal - wired into the no-key toast CTA. */
   onOpenSettings?: () => void;
 };
 
@@ -109,7 +109,7 @@ function StudioInner({
   // Auto-save on every state change that matters. localStorage writes are
   // synchronous but trivially cheap at this size; the four-dep effect fires
   // once per user action. Skipped during replay so the in-flight cinematic
-  // doesn't clobber the user's actual draft — once replay ends, the
+  // doesn't clobber the user's actual draft - once replay ends, the
   // `replaying` flag flips and the effect runs once with the final state.
   useEffect(() => {
     if (replaying) return;
@@ -162,7 +162,7 @@ function StudioInner({
   const handleSubmit = useCallback(
     async (text: string) => {
       if (generating) return;
-      // Fresh localStorage read at submit time — the user may have just
+      // Fresh localStorage read at submit time - the user may have just
       // closed the settings modal after pasting (or removing) a key.
       if (currentMode === 'remote' && !getStoredApiKey()) {
         showToast(
@@ -214,7 +214,7 @@ function StudioInner({
           setUsedExemplars(result.exemplarsUsed);
           setMood('idle');
         } else {
-          // Retries exhausted — keep the existing mix and apologise.
+          // Retries exhausted - keep the existing mix and apologise.
           const lastErr = result.attempts.at(-1)?.error;
           setHistory([
             ...nextHistory,
@@ -230,7 +230,7 @@ function StudioInner({
         }
       } catch (err) {
         if (err instanceof TurnCancelledError) {
-          // Cancelled — append a marker turn so the history is coherent.
+          // Cancelled - append a marker turn so the history is coherent.
           setHistory([
             ...nextHistory,
             {
@@ -281,11 +281,11 @@ function StudioInner({
 
   /**
    * Direct edits in the CodeMirror editor. Three paths:
-   *   1. External echo — parent set value, CM6 dispatched, onChange came
+   *   1. External echo - parent set value, CM6 dispatched, onChange came
    *      back with `next === mixCode`. No-op.
-   *   2. Drop completion — drop handler already pushed the pre-drop mix to
+   *   2. Drop completion - drop handler already pushed the pre-drop mix to
    *      undoStack. Skip the typing-debounce snapshot.
-   *   3. User typed — capture pre-typing mix on the first keystroke of a
+   *   3. User typed - capture pre-typing mix on the first keystroke of a
    *      burst, then push it to undoStack 1.5 s after typing settles.
    */
   const handleCodeChange = useCallback(
@@ -321,7 +321,7 @@ function StudioInner({
   );
 
   /**
-   * Fired by the CodeEditor BEFORE its dispatch — we record the pre-drop
+   * Fired by the CodeEditor BEFORE its dispatch - we record the pre-drop
    * mix on the undo stack and set a flag so the following onChange (from
    * the dispatched insertion) doesn't schedule a duplicate typing-debounce
    * undo entry.
@@ -508,7 +508,7 @@ function StudioInner({
         }
       }
 
-      // Final state — guarantees the canvas matches saved.mix_code even
+      // Final state - guarantees the canvas matches saved.mix_code even
       // when the snapshot/turn counts disagree (legacy saves, or a bug).
       if (!controller.signal.aborted) {
         setMixCode(saved.mix_code);
@@ -610,7 +610,7 @@ function StudioInner({
           aria-label="Chat with Bleep"
         >
           {history.map((t, i) => {
-            // Stream only the newest assistant turn — gives the typewriter
+            // Stream only the newest assistant turn - gives the typewriter
             // effect on Bleep's freshest reply without re-animating the
             // whole transcript on every render.
             const isLatestAssistant =

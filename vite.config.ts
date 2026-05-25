@@ -23,7 +23,7 @@ function swVersion(): Plugin {
 }
 
 // Security headers shared between dev (Vite) and prod (Vercel). Keep this
-// in sync with `vercel.json` — the README's Security model section calls
+// in sync with `vercel.json` - the README's Security model section calls
 // the duplication out explicitly. Notes on each directive live in
 // `~/.claude/plans/work-on-the-next-noble-grove.md`.
 //
@@ -34,7 +34,7 @@ function swVersion(): Plugin {
 // gated by an AST deny-list rather than left wide open.
 //
 // `script-src` policy differs between dev and prod:
-//  - Prod: no `'unsafe-inline'` — we ship zero inline <script> blocks.
+//  - Prod: no `'unsafe-inline'` - we ship zero inline <script> blocks.
 //  - Dev: Vite injects the React-Refresh preamble as an inline script
 //    in index.html; blocking it kills HMR and leaves the React tree
 //    unmounted (blank #root). We add `'unsafe-inline'` for dev only.
@@ -74,14 +74,14 @@ const permissionsPolicy = [
   'midi=()',
   'serial=()',
   // `bluetooth=()` was rejected by Chrome as an unrecognized feature
-  // and only added console noise — dropped.
+  // and only added console noise - dropped.
 ].join(', ');
 
 const securityHeaders = {
-  // COOP/COEP — required for transformers.js + WebGPU + SharedArrayBuffer.
+  // COOP/COEP - required for transformers.js + WebGPU + SharedArrayBuffer.
   'Cross-Origin-Opener-Policy': 'same-origin',
   'Cross-Origin-Embedder-Policy': 'require-corp',
-  // CSP — primary defense against script injection and unintended network use.
+  // CSP - primary defense against script injection and unintended network use.
   'Content-Security-Policy': buildCsp('dev'),
   // Clickjacking defense (CSP `frame-ancestors` is the modern equivalent;
   // X-Frame-Options is kept for older-browser coverage).
@@ -109,7 +109,7 @@ export default defineConfig({
       output: {
         // Only split the *eager* vendor deps. `@strudel/*` is imported
         // dynamically from `src/strudel/engine.ts` so Vite auto-creates a
-        // separate chunk for it AND — crucially — does not generate a
+        // separate chunk for it AND - crucially - does not generate a
         // `<link rel="modulepreload">` for that chunk in index.html. Listing
         // it under manualChunks would force-preload it on initial page
         // load (the chunk is ~770 kB / ~250 kB gzip; the user only pays

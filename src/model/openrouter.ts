@@ -51,7 +51,7 @@ export async function generateRemote(
         headers: {
           Authorization: `Bearer ${apiKey.trim()}`,
           'Content-Type': 'application/json',
-          // OpenRouter ranking attribution — optional but encouraged.
+          // OpenRouter ranking attribution - optional but encouraged.
           'HTTP-Referer':
             typeof window !== 'undefined'
               ? window.location.origin

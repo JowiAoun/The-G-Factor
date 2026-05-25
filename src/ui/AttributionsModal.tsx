@@ -6,7 +6,7 @@ type Props = { onClose: () => void };
  * Open-attribution modal. Currently scoped to the one credit that is
  * legally required (the DiceBear ToonHead avatar style under CC BY 4.0).
  * Other dependencies' licences live in `package.json` and the dist
- * tarballs of those packages — they're MIT/Apache/BSD-style and don't
+ * tarballs of those packages - they're MIT/Apache/BSD-style and don't
  * require a per-page credit.
  */
 export function AttributionsModal({ onClose }: Props) {
@@ -60,7 +60,7 @@ export function AttributionsModal({ onClose }: Props) {
             style.
           </p>
           <p className="attr-license">
-            <strong>ToonHead by Johan Melin</strong> — licensed under{' '}
+            <strong>ToonHead by Johan Melin</strong> - licensed under{' '}
             <a
               href="https://creativecommons.org/licenses/by/4.0/"
               target="_blank"

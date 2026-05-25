@@ -40,7 +40,7 @@ function Thumb({
   return (
     <div
       className={classes.join(' ')}
-      title={`${contestant.character.name} — ${contestant.label}`}
+      title={`${contestant.character.name} - ${contestant.label}`}
       dangerouslySetInnerHTML={{
         __html: renderAvatar(
           contestant.character.id,

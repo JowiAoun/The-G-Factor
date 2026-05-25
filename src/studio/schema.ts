@@ -19,7 +19,7 @@ export type TurnParseResult =
 /**
  * Strip markdown fences and zod-validate one chat-turn JSON response.
  *
- * Mirrors `safeParseVariation` in `src/remix/schema.ts` — same fence-eating
+ * Mirrors `safeParseVariation` in `src/remix/schema.ts` - same fence-eating
  * tolerance for LLM output, same discriminated-union return shape so the
  * orchestrator can decide between retry and surface-the-failure.
  */

@@ -13,7 +13,7 @@ import {
   type StudioDraft,
 } from './storage';
 
-// Minimal in-memory localStorage shim — vitest's node env doesn't ship one.
+// Minimal in-memory localStorage shim - vitest's node env doesn't ship one.
 class MemStorage implements Storage {
   private store = new Map<string, string>();
   get length() {
@@ -146,7 +146,7 @@ describe('saved-mix library', () => {
     }
     const list = listSavedMixes();
     expect(list).toHaveLength(MAX_SAVED_MIXES);
-    // The earliest entries are gone — the first save with i=0 should not exist.
+    // The earliest entries are gone - the first save with i=0 should not exist.
     expect(list.find((m) => m.name === 'mix-0')).toBeUndefined();
     // The newest entry survives.
     expect(list[0].name).toBe(`mix-${MAX_SAVED_MIXES + 4}`);

@@ -37,7 +37,7 @@ export function ContestantCard({
   compact?: boolean;
 }) {
   const isDnf = contestant.status === 'dnf';
-  // Live amplitude tap — mouth opens on actual kicks / hits instead of a
+  // Live amplitude tap - mouth opens on actual kicks / hits instead of a
   // fixed 150 ms timer, so the lip-sync feels musically reactive.
   const audioFrame = useAudioMouth(state === 'playing');
   const mouth = mouthFor(state, audioFrame, isDnf);

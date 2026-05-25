@@ -8,7 +8,7 @@ import { subscribeAmplitude } from '../strudel/engine';
  * mapping it to mouth poses gives a genuine lip-sync feel rather than a
  * fixed time-cycle.
  *
- * Stays at 0 when `active` is false — every component that uses this
+ * Stays at 0 when `active` is false - every component that uses this
  * pattern (persona, contestants) only wants audio reactivity while their
  * audio is actually playing.
  */

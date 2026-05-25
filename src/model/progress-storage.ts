@@ -2,11 +2,11 @@
  * Persistent hint for "how far the last model-load attempt got".
  *
  * The actual model weights are cached per-file by `transformers.js` via the
- * browser's Cache Storage API — any ONNX shard that fully downloaded before
+ * browser's Cache Storage API - any ONNX shard that fully downloaded before
  * a refresh stays in cache, and the next call to `from_pretrained` reads it
  * directly with no network. What this module persists is a small UX hint
  * (last progress %, model id, timestamp) so the Load button can say
- * "Resume — last attempt reached 62%" instead of looking like a fresh start.
+ * "Resume - last attempt reached 62%" instead of looking like a fresh start.
  *
  * Stored in `localStorage` under a single key. Cleared when status hits
  * `ready` (full load completed).
@@ -35,7 +35,7 @@ export function loadSavedProgress(): SavedProgress | null {
     ) {
       return null;
     }
-    // Drop very old hints — if the user hasn't loaded the model in a week,
+    // Drop very old hints - if the user hasn't loaded the model in a week,
     // odds are the browser quota has evicted the partial cache anyway.
     if (Date.now() - parsed.ts > MAX_AGE_MS) {
       clearSavedProgress();
@@ -55,7 +55,7 @@ export function saveProgress(pct: number, modelId: string): void {
       JSON.stringify({ pct, ts: Date.now(), modelId } satisfies SavedProgress),
     );
   } catch {
-    // Quota or storage-disabled — best-effort, ignore.
+    // Quota or storage-disabled - best-effort, ignore.
   }
 }
 

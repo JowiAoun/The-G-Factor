@@ -7,7 +7,7 @@ export type ParseResult =
 
 /**
  * Identifiers that, when referenced bare in a Strudel snippet, signal an
- * attempt to reach beyond the Strudel sandbox — network, storage, DOM,
+ * attempt to reach beyond the Strudel sandbox - network, storage, DOM,
  * workers, dynamic eval, timing primitives. Legitimate Strudel idioms
  * never touch any of these.
  */
@@ -51,7 +51,7 @@ export const BANNED_IDENTIFIERS: ReadonlySet<string> = new Set([
   // dynamic eval
   'eval',
   'Function',
-  // timing — user Strudel idioms don't need these
+  // timing - user Strudel idioms don't need these
   'setTimeout',
   'setInterval',
   'setImmediate',
@@ -63,7 +63,7 @@ export const BANNED_IDENTIFIERS: ReadonlySet<string> = new Set([
 ]);
 
 /**
- * Property names that are dangerous to read off any object — primarily
+ * Property names that are dangerous to read off any object - primarily
  * sandbox-escape routes (`(0).constructor.constructor('evil')()`) and
  * DOM-injection sinks. Augmented with every banned identifier so things
  * like `window.fetch` or `({})['localStorage']` are caught too.
@@ -93,7 +93,7 @@ export const BANNED_MEMBER_NAMES: ReadonlySet<string> = new Set([
  *   2. A single-pass AST walker rejects code that *would* parse but
  *      references dangerous globals (fetch, localStorage, eval), reads
  *      sandbox-escape properties (.constructor, .__proto__), or uses
- *      `import()` / `import.meta`. This is a deny-list defense — not a
+ *      `import()` / `import.meta`. This is a deny-list defense - not a
  *      full sandbox (iframe with the `sandbox` attribute would be that)
  *      but a meaningful hurdle against prompt-injection exfiltration and
  *      casually hostile copy-pasted mixes.

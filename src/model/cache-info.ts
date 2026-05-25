@@ -4,7 +4,7 @@
  * transformers.js writes each ONNX/tokenizer/config file into the browser's
  * Cache Storage API under a `transformers-cache` (or similar) bucket. When a
  * model file is requested again, the library matches against this cache and
- * serves the bytes without going to the network — that's why a refresh after
+ * serves the bytes without going to the network - that's why a refresh after
  * a complete download should be instant.
  *
  * If the cache *isn't* working (Devtools "Disable cache" checked, incognito,
@@ -48,7 +48,7 @@ export async function getCacheInfo(): Promise<CacheInfo> {
       totalOriginBytes = est.usage ?? null;
       quotaBytes = est.quota ?? null;
     } catch {
-      // ignore — some browsers gate this behind permissions
+      // ignore - some browsers gate this behind permissions
     }
   }
 
@@ -75,7 +75,7 @@ export async function getCacheInfo(): Promise<CacheInfo> {
                 const n = Number(len);
                 if (!Number.isNaN(n)) modelBytes += n;
               }
-              // Skip blob fallback — reading 1.5 GB of cached blobs into
+              // Skip blob fallback - reading 1.5 GB of cached blobs into
               // memory just to measure size would be a disaster.
             } catch {
               // ignore single-entry errors

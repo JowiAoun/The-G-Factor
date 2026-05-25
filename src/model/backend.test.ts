@@ -13,7 +13,7 @@ import {
   subscribeBackendChange,
 } from './backend';
 
-// Minimal in-memory localStorage shim — vitest's node env doesn't ship one.
+// Minimal in-memory localStorage shim - vitest's node env doesn't ship one.
 class MemStorage implements Storage {
   private store = new Map<string, string>();
   get length() {

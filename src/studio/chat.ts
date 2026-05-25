@@ -49,7 +49,7 @@ export class TurnCancelledError extends Error {
  * If `signal` is set and gets aborted, throws `TurnCancelledError` at the
  * next checkpoint (before each generate, before each validation step, and
  * between retries). The in-flight `model.generate()` itself can't be
- * cancelled mid-token on WebGPU — its result is just discarded once it
+ * cancelled mid-token on WebGPU - its result is just discarded once it
  * settles, which keeps the UI responsive while the orphan completes in
  * the background. On final failure the caller keeps the existing mix and
  * surfaces a persona apology.

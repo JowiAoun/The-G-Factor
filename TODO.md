@@ -1,4 +1,4 @@
-# Strudel Tutor — Progress Tracker
+# Strudel Tutor - Progress Tracker
 
 > **Plan:** [STRUDEL_PLAN.md](STRUDEL_PLAN.md) · **Fallback:** [PLAN.md](PLAN.md) (Sigil) · **Spec:** [HACKATHON.md](HACKATHON.md)
 > **Deadline:** 2026-05-24 11:59 PM PDT
@@ -17,18 +17,18 @@
 | `[~]` | In progress |
 | `[x]` | Done |
 | `[-]` | Skipped / deferred |
-| 🚦 | HARD GATE — phase cannot complete until checked |
+| 🚦 | HARD GATE - phase cannot complete until checked |
 
 ---
 
-## Phase 1 — Days 2–3 (May 16–17) · Core Remix Loop
+## Phase 1 - Days 2–3 (May 16–17) · Core Remix Loop
 
 > Get user → 3 playable variations working end-to-end. No memory yet.
 
 ### Schema + parser firewall
 - [x] `src/strudel/parse.ts`: wraps `@strudel/transpiler` parse → `{valid: boolean, error?: string}`
-- [-] Unit test: 10 known-good Strudel patterns _(deferred — parser exercised on every remix call)_
-- [-] Unit test: 10 known-bad patterns _(deferred — same as above)_
+- [-] Unit test: 10 known-good Strudel patterns _(deferred - parser exercised on every remix call)_
+- [-] Unit test: 10 known-bad patterns _(deferred - same as above)_
 - [x] Zod schema in `src/remix/schema.ts`: `{variation_code, transformation_label, explanation_one_line}`
 
 ### Strudel engine wrapper
@@ -42,7 +42,7 @@
 
 ### Remix orchestrator
 - [x] `src/remix/orchestrate.ts`: seed → 3 sequential Gemma calls → parse-firewall → stream results to UI (parallel calls would serialise on the single WebGPU adapter, kept linear)
-- [-] Per-call timeout — deferred; retries are bounded, and the user can hit Stop on the engine
+- [-] Per-call timeout - deferred; retries are bounded, and the user can hit Stop on the engine
 
 ### UI v1
 - [x] `src/ui/App.tsx`: paste box + "Remix" button + 3 variation cards + seed gallery
@@ -51,26 +51,26 @@
 - [x] Basic responsive layout (CSS grid with `auto-fit` minmax)
 
 ### ✅ Phase 1 VERIFICATION
-- [-] Parser unit tests — deferred (live exercise on every call instead)
+- [-] Parser unit tests - deferred (live exercise on every call instead)
 - [ ] Smoke test: 10 different seeds × 3 = **30 outputs**, all play without error _(user verification with `Remix` button)_
 - [ ] Wall-clock time to 3 variations ≤ 10s on mid-range laptop _(user verification)_
 - [ ] Across 30 outputs, **0** invalid Strudel snippets reach the UI _(parser firewall in place; user verification confirms the count)_
 
 ---
 
-## Phase 2 — Days 4–5 (May 18–19) · Taste Memory
+## Phase 2 - Days 4–5 (May 18–19) · Taste Memory
 
 > The "model learning" layer. Likes become few-shot exemplars in future calls.
 
 ### Storage layer
-- [x] `src/memory/taste.ts`: IndexedDB (rolled own thin wrapper — `idb` dep dropped)
+- [x] `src/memory/taste.ts`: IndexedDB (rolled own thin wrapper - `idb` dep dropped)
 - [x] Schema: `likes` object store `{id, seed_code, variation_code, transformation_label, explanation_one_line, liked_at}`
 - [x] CRUD: `addLike()`, `deleteLike()`, `clearLikes()`, `getAllLikes()`
 
 ### Similarity retrieval (v1)
 - [x] `getTopKSimilar(seed, k=3)`: character-bigram Jaccard overlap on `seed_code`
-- [-] Unit test — deferred (algorithm is small + deterministic; user can validate via dev console)
-- [-] v2 MiniLM embeddings — out of scope until v1 proves broken in user testing
+- [-] Unit test - deferred (algorithm is small + deterministic; user can validate via dev console)
+- [-] v2 MiniLM embeddings - out of scope until v1 proves broken in user testing
 
 ### Orchestrator integration
 - [x] `src/remix/orchestrate.ts` calls `getTopKSimilar` before each generate call
@@ -79,7 +79,7 @@
 
 ### UI integration
 - [x] ❤️ button on each variation card (`src/ui/VariationCard.tsx`)
-- [-] Toast notification on save — used the persistent ♥ Liked button state instead (less noisy)
+- [-] Toast notification on save - used the persistent ♥ Liked button state instead (less noisy)
 - [x] `src/ui/TasteSidebar.tsx`: live count + recent likes + "Clear taste" button
 
 ### ✅ Phase 2 VERIFICATION
@@ -91,12 +91,12 @@
 
 ---
 
-## Phase 3 — Days 6–7 (May 20–21) · Seed Gallery + Polish
+## Phase 3 - Days 6–7 (May 20–21) · Seed Gallery + Polish
 
 > Cold-start UX. A stranger should reach their first ❤️ in <90s.
 
 ### Seed gallery
-- [x] `src/seeds/gallery.ts`: 7 curated seeds — minimal kick, kick+hat, melodic loop, euclidean polyrhythm, ambient pad, breakbeat, drum stack
+- [x] `src/seeds/gallery.ts`: 7 curated seeds - minimal kick, kick+hat, melodic loop, euclidean polyrhythm, ambient pad, breakbeat, drum stack
 - [x] Each seed has: pattern code, 1-line genre label, difficulty stars (1–3)
 - [x] Click seed → loads it into paste box (highlights when seed is unchanged)
 
@@ -106,8 +106,8 @@
 - [x] "Ready to remix" state transition is visually distinct (button label flips, progress bar fills)
 
 ### Audio polish
-- [-] Gain ceiling — relying on Strudel defaults; user can clamp via `.gain(x)` if needed
-- [-] Fade-in/out — Strudel handles cycle boundaries internally
+- [-] Gain ceiling - relying on Strudel defaults; user can clamp via `.gain(x)` if needed
+- [-] Fade-in/out - Strudel handles cycle boundaries internally
 - [ ] `hush()` completes within 1s _(user verification)_
 
 ### Keyboard shortcuts
@@ -117,7 +117,7 @@
 - [x] Shortcut hints visible in UI corner (`.shortcut-bar`)
 
 ### Visual polish
-- [-] Step animation — Strudel's REPL component owns step highlighting; the standalone `evaluate` path doesn't expose it. Skipped for scope; could be added by switching to the `@strudel/repl` component in a follow-up
+- [-] Step animation - Strudel's REPL component owns step highlighting; the standalone `evaluate` path doesn't expose it. Skipped for scope; could be added by switching to the `@strudel/repl` component in a follow-up
 - [x] App favicon + page title (inline-SVG favicon, descriptive title)
 
 ### ✅ Phase 3 VERIFICATION
@@ -126,11 +126,11 @@
 - [ ] `hush()` stops within 1s in 5 successive trials _(user)_
 - [x] All keyboard shortcuts wired correctly (verified via code review)
 - [x] Seed gallery is interactive before model finishes loading
-- [-] Step animation tracks playback — see "Visual polish" deferral above
+- [-] Step animation tracks playback - see "Visual polish" deferral above
 
 ---
 
-## Phase 4 — Day 8 (May 22) · Deploy + Demo Recording
+## Phase 4 - Day 8 (May 22) · Deploy + Demo Recording
 
 > Ship to a public URL and capture the demo video.
 
@@ -141,16 +141,16 @@
 - [ ] Smoke test deployed URL on a **second device** (clean cache)
 
 ### Demo recording setup
-- [ ] OBS configured with system-audio capture (not just OBS meter — verify on playback)
-- [ ] Test recording on Day 7 (not Day 8) — leaves buffer to fix audio issues
+- [ ] OBS configured with system-audio capture (not just OBS meter - verify on playback)
+- [ ] Test recording on Day 7 (not Day 8) - leaves buffer to fix audio issues
 - [ ] Browser zoomed for legible code in 1080p capture
 
 ### Demo video (60–90s)
-- [ ] Take 1 — script:
+- [ ] Take 1 - script:
   1. Cold load (sped up): seed gallery appears, model downloads, page becomes interactive
   2. Click seed → Remix → 3 cards appear → play card 2 → audible variation
   3. Like 2–3 variations sharing a transformation
-  4. Click second seed → Remix → narrate "watch — it learned my taste" → play learned card
+  4. Click second seed → Remix → narrate "watch - it learned my taste" → play learned card
   5. Closing waveform
 - [ ] Take 2 (insurance)
 - [ ] Take 3 (insurance)
@@ -171,7 +171,7 @@
 
 ---
 
-## Phase 5 — Day 9 (May 23) · DEV Post + Submit
+## Phase 5 - Day 9 (May 23) · DEV Post + Submit
 
 > Write the story, link the artifacts, submit before the cutoff.
 
@@ -183,7 +183,7 @@
 - [ ] Embedded demo video
 - [ ] Repo URL + deploy URL + MIT license link
 - [ ] 4+ screenshots embedded with captions
-- [ ] **Talking point**: the casting-stage humor (Buzz the host filling the model's ~100-200 s generation latency with rotating jokes + a patience-mode pool after 60 s) is a UX detail worth surfacing — it turns a forced wait into part of the show and is the kind of warmth that makes a 2B-model demo feel like *a product*, not a benchmark
+- [ ] **Talking point**: the casting-stage humor (Buzz the host filling the model's ~100-200 s generation latency with rotating jokes + a patience-mode pool after 60 s) is a UX detail worth surfacing - it turns a forced wait into part of the show and is the kind of warmth that makes a 2B-model demo feel like *a product*, not a benchmark
 
 ### Submission
 - [ ] Repo is public on GitHub
@@ -201,7 +201,7 @@
 
 ---
 
-## Phase 6 — Talent Show (X Factor)
+## Phase 6 - Talent Show (X Factor)
 
 > Added after Phases 1-3 shipped. Pairwise A/B bracket lets the user crown a
 > champion among Gemma-generated variations, raising the taste signal from
@@ -209,8 +209,8 @@
 > `~/.claude/plans/work-on-the-next-noble-grove.md`.
 
 ### Bracket + avatar (pure logic)
-- [x] `src/talent/bracket.ts` — single-elimination state machine, DNF auto-byes
-- [x] `src/talent/avatar.ts` — FNV-1a `hashSeed`, `renderAvatar(seed, mouth)` memoised
+- [x] `src/talent/bracket.ts` - single-elimination state machine, DNF auto-byes
+- [x] `src/talent/avatar.ts` - FNV-1a `hashSeed`, `renderAvatar(seed, mouth)` memoised
 - [x] Unit tests: 10 bracket cases + 8 avatar cases
 
 ### Storage
@@ -219,13 +219,13 @@
 - [x] `addTournamentWin` helper
 
 ### UI
-- [x] `src/ui/Contestant.tsx` — card with idle/playing/winner/loser/champion view states
-- [x] `src/ui/Match.tsx` — pair of contestants with VS flash
-- [x] `src/ui/BracketView.tsx` — slim progress strip
-- [x] `src/ui/Confetti.tsx` — DOM-CSS confetti for champion
-- [x] `src/ui/TalentShow.tsx` — top-level orchestrator (setup → casting → showing → champion)
-- [x] `src/ui/App.tsx` — tab row in header; `?talentshow` URL sync
-- [x] `src/ui/TasteSidebar.tsx` — avatar thumb + `🏆 ×N` badge for tournament likes
+- [x] `src/ui/Contestant.tsx` - card with idle/playing/winner/loser/champion view states
+- [x] `src/ui/Match.tsx` - pair of contestants with VS flash
+- [x] `src/ui/BracketView.tsx` - slim progress strip
+- [x] `src/ui/Confetti.tsx` - DOM-CSS confetti for champion
+- [x] `src/ui/TalentShow.tsx` - top-level orchestrator (setup → casting → showing → champion)
+- [x] `src/ui/App.tsx` - tab row in header; `?talentshow` URL sync
+- [x] `src/ui/TasteSidebar.tsx` - avatar thumb + `🏆 ×N` badge for tournament likes
 
 ### Animation catalog
 - [x] Bob, jump, fade-loss, sparkle, slide-in (left/right/up), VS flash, crown-bounce, champion-sway, spotlight-pulse, confetti-fall
@@ -246,7 +246,7 @@
 
 ---
 
-## Phase 7 — Conversational Studio
+## Phase 7 - Conversational Studio
 
 > Replaces the one-shot 3-variations Remix tab with a chat-driven studio: the
 > user talks to a cartoon producer toon (Bleep) that edits the working Strudel
@@ -254,21 +254,21 @@
 > `~/.claude/plans/work-on-the-next-noble-grove.md`.
 
 ### Pure logic
-- [x] `src/studio/persona.ts` — Bleep singleton + system-prompt fragment + canned strings
-- [x] `src/studio/schema.ts` — zod TurnSchema (new_mix_code, assistant_message, action_label) + safeParseTurn
-- [x] `src/studio/prompts.ts` — buildTurnPrompt with last-6-turns trimming + Strudel cheat sheet + JSON rule
-- [x] `src/studio/chat.ts` — composeTurn wraps generate() with 3-retry on bad JSON or invalid Strudel
-- [x] `src/studio/storage.ts` — draft + named-library localStorage with 30-entry cap and corruption tolerance
+- [x] `src/studio/persona.ts` - Bleep singleton + system-prompt fragment + canned strings
+- [x] `src/studio/schema.ts` - zod TurnSchema (new_mix_code, assistant_message, action_label) + safeParseTurn
+- [x] `src/studio/prompts.ts` - buildTurnPrompt with last-6-turns trimming + Strudel cheat sheet + JSON rule
+- [x] `src/studio/chat.ts` - composeTurn wraps generate() with 3-retry on bad JSON or invalid Strudel
+- [x] `src/studio/storage.ts` - draft + named-library localStorage with 30-entry cap and corruption tolerance
 - [x] Unit tests: 7 schema cases + 15 storage cases
 
 ### UI
 - [x] `src/ui/useTalkCycle.ts` extracted from Contestant.tsx (shared mouth-swap hook)
-- [x] `src/ui/Persona.tsx` — Bleep avatar with idle/thinking/saved/apology moods
-- [x] `src/ui/ChatBubble.tsx` — role-styled bubble with mini avatar + action-label chip
-- [x] `src/ui/ChatInput.tsx` — monospace single-line input, blinking caret, Enter submits
-- [x] `src/ui/MixCanvas.tsx` — Strudel code preview + ▶/⏹/↶/↷/💾/🗑 controls
-- [x] `src/ui/SavedMixes.tsx` — sidebar list with click-to-load and confirm-delete
-- [x] `src/ui/Studio.tsx` — orchestrator: composeTurn glue, auto-save on every turn, undo/redo stacks
+- [x] `src/ui/Persona.tsx` - Bleep avatar with idle/thinking/saved/apology moods
+- [x] `src/ui/ChatBubble.tsx` - role-styled bubble with mini avatar + action-label chip
+- [x] `src/ui/ChatInput.tsx` - monospace single-line input, blinking caret, Enter submits
+- [x] `src/ui/MixCanvas.tsx` - Strudel code preview + ▶/⏹/↶/↷/💾/🗑 controls
+- [x] `src/ui/SavedMixes.tsx` - sidebar list with click-to-load and confirm-delete
+- [x] `src/ui/Studio.tsx` - orchestrator: composeTurn glue, auto-save on every turn, undo/redo stacks
 
 ### App rewire
 - [x] App.tsx body in remix mode swapped to `<Studio />`
@@ -299,7 +299,7 @@
 
 ---
 
-## Phase 8 — Casting Stage (X-Factor)
+## Phase 8 - Casting Stage (X-Factor)
 
 > Replaces the shimmer-row casting screen with an animated theatre stage:
 > Buzz (a DiceBear toon-head host) tells rotating jokes during the
@@ -309,14 +309,14 @@
 > `~/.claude/plans/work-on-the-next-noble-grove.md`.
 
 ### Pure logic
-- [x] `src/talent/jokes.ts` — `NORMAL_JOKES` (18), `PATIENCE_JOKES` (10), `REVEAL_JOKES` (4) + `pickFromPool` + `durationForJoke` + `PATIENCE_THRESHOLD_MS` + `PATIENCE_MIN_CONTESTANTS`
-- [x] `src/talent/jokes.test.ts` — catalogue integrity (counts, uniqueness, length bounds, exclusion semantics, duration clamping)
+- [x] `src/talent/jokes.ts` - `NORMAL_JOKES` (18), `PATIENCE_JOKES` (10), `REVEAL_JOKES` (4) + `pickFromPool` + `durationForJoke` + `PATIENCE_THRESHOLD_MS` + `PATIENCE_MIN_CONTESTANTS`
+- [x] `src/talent/jokes.test.ts` - catalogue integrity (counts, uniqueness, length bounds, exclusion semantics, duration clamping)
 
 ### UI
-- [x] `src/ui/useAnnouncerJoke.ts` — length-aware rotation hook with patience-mode predicate and one-shot reveal line
-- [x] `src/ui/CastingStage.tsx` — backdrop + spotlight + two red curtains + Buzz avatar + speech bubble + progress dots + reveal-class wiring
-- [x] `src/ui/TalentShow.tsx` — `revealing` state + `castingStartedAt` ref + 1500 ms reveal timer between bracket creation and `phase='showing'`
-- [x] `src/styles.css` — casting-stage palette, `host-bob`, `bubble-pop`, `stage-spotlight-pulse` keyframes, `prefers-reduced-motion` guard that swaps the curtain slide for an opacity fade
+- [x] `src/ui/useAnnouncerJoke.ts` - length-aware rotation hook with patience-mode predicate and one-shot reveal line
+- [x] `src/ui/CastingStage.tsx` - backdrop + spotlight + two red curtains + Buzz avatar + speech bubble + progress dots + reveal-class wiring
+- [x] `src/ui/TalentShow.tsx` - `revealing` state + `castingStartedAt` ref + 1500 ms reveal timer between bracket creation and `phase='showing'`
+- [x] `src/styles.css` - casting-stage palette, `host-bob`, `bubble-pop`, `stage-spotlight-pulse` keyframes, `prefers-reduced-motion` guard that swaps the curtain slide for an opacity fade
 
 ### Verification (user)
 - [ ] Cold smoke: load `/?talentshow`, pick a seed, hold a 4-bracket → Buzz appears, jokes rotate every 4-7 s, mouth animates while a joke is on screen
@@ -333,7 +333,7 @@
 
 ---
 
-## Phase 9 — OpenRouter Backend
+## Phase 9 - OpenRouter Backend
 
 > Adds an optional cloud backend via OpenRouter's `:free` tier of
 > `google/gemma-4-31b-it:free` alongside the existing local Gemma 4 E2B
@@ -342,15 +342,15 @@
 > `~/.claude/plans/work-on-the-next-noble-grove.md`.
 
 ### Pure logic
-- [x] `src/model/backend.ts` — mode/key state, localStorage round-trip, subscriber registry, `looksLikeApiKey` validator, `REMOTE_MODEL_ID` constant. Key is user-supplied at runtime via the modal — no build-time env fallback, so the key never lands in the deployed bundle.
-- [x] `src/model/backend.test.ts` — tests covering round-trip, validation, subscribers, throwing-localStorage paths
-- [x] `src/model/openrouter.ts` — `generateRemote` calling OpenRouter's `/api/v1/chat/completions` with bearer auth, mapping `maxNewTokens`/`temperature`/`topP`, surfacing 401/429 with actionable messages
-- [x] `src/model/gemma.ts` — dispatcher: `generate()` and `loadModel()` short-circuit to the remote path when `getMode()==='remote'`; local path otherwise byte-identical
+- [x] `src/model/backend.ts` - mode/key state, localStorage round-trip, subscriber registry, `looksLikeApiKey` validator, `REMOTE_MODEL_ID` constant. Key is user-supplied at runtime via the modal - no build-time env fallback, so the key never lands in the deployed bundle.
+- [x] `src/model/backend.test.ts` - tests covering round-trip, validation, subscribers, throwing-localStorage paths
+- [x] `src/model/openrouter.ts` - `generateRemote` calling OpenRouter's `/api/v1/chat/completions` with bearer auth, mapping `maxNewTokens`/`temperature`/`topP`, surfacing 401/429 with actionable messages
+- [x] `src/model/gemma.ts` - dispatcher: `generate()` and `loadModel()` short-circuit to the remote path when `getMode()==='remote'`; local path otherwise byte-identical
 
 ### UI
-- [x] `src/ui/BackendChooserModal.tsx` — two-card chooser (Local / Remote) with API-key input (or override input if a key is already stored), save/cancel, ESC + backdrop close in settings mode
-- [x] `src/ui/App.tsx` — first-visit `useEffect` opens the modal; ⚙ button in the header reopens it dismissably; subscribes to backend changes; Model panel hidden when mode is remote (replaced with a "Using OpenRouter" indicator); `effectiveModelReady` short-circuits true for remote-with-key
-- [x] `src/styles.css` — `.backend-modal-backdrop` / `.backend-modal` / `.backend-card` / `.backend-key-*` / `.header-settings-btn` / `.remote-mode-indicator` with reduced-motion guard
+- [x] `src/ui/BackendChooserModal.tsx` - two-card chooser (Local / Remote) with API-key input (or override input if a key is already stored), save/cancel, ESC + backdrop close in settings mode
+- [x] `src/ui/App.tsx` - first-visit `useEffect` opens the modal; ⚙ button in the header reopens it dismissably; subscribes to backend changes; Model panel hidden when mode is remote (replaced with a "Using OpenRouter" indicator); `effectiveModelReady` short-circuits true for remote-with-key
+- [x] `src/styles.css` - `.backend-modal-backdrop` / `.backend-modal` / `.backend-card` / `.backend-key-*` / `.header-settings-btn` / `.remote-mode-indicator` with reduced-motion guard
 
 ### Verification (user)
 - [ ] Cold load: modal appears, choose Local, reload → modal does not reappear
@@ -370,11 +370,11 @@
 - [-] Server-side proxy to hide the API key (out of scope for a static demo)
 
 ### Writeup hook
-- [ ] DEVPOST / README: surface the dual-backend wiring as a "judges can run it both ways" detail — same prompts, same parser firewall, same axis directives across both backends
+- [ ] DEVPOST / README: surface the dual-backend wiring as a "judges can run it both ways" detail - same prompts, same parser firewall, same axis directives across both backends
 
 ---
 
-## Phase 10 — Security hardening
+## Phase 10 - Security hardening
 
 > Tightens the security posture around the *evaluation* surface (Strudel
 > runs user-supplied JS) and the *transport* surface (HTTP headers) so the
@@ -382,19 +382,19 @@
 > `~/.claude/plans/work-on-the-next-noble-grove.md`.
 
 ### Pure logic
-- [x] `package.json` — add `acorn-walk` dep (matches existing `acorn` major)
-- [x] `src/strudel/parse.ts` — extend ParseResult with `reason: 'syntax' \| 'unsafe'`. AST walker rejects bare references to dangerous globals (`fetch`, `eval`, `localStorage`, `document`, …), sandbox-escape member access (`.constructor`, `.__proto__`, …), dynamic `import()`, and bracket-notation equivalents. Banned sets exported for tests.
-- [x] `src/strudel/parse.test.ts` — 19 unsafe-pattern rejections + axis-exemplar regression guard + reclassified syntax cases. 49 total parse tests.
-- [x] `src/strudel/engine.ts` — `play()` runs `parse()` before booting Strudel or touching the audio context; throws `Refused to play: …` for unsafe code.
-- [x] `src/strudel/engine.test.ts` — 5 tests asserting `play()` refuses unsafe code before reaching the mocked Strudel boundary.
-- [x] `src/remix/generate.ts` and `src/studio/chat.ts` — surface `firewall.reason` in retry hints so Gemma knows whether to fix syntax vs. drop a banned reference.
+- [x] `package.json` - add `acorn-walk` dep (matches existing `acorn` major)
+- [x] `src/strudel/parse.ts` - extend ParseResult with `reason: 'syntax' \| 'unsafe'`. AST walker rejects bare references to dangerous globals (`fetch`, `eval`, `localStorage`, `document`, …), sandbox-escape member access (`.constructor`, `.__proto__`, …), dynamic `import()`, and bracket-notation equivalents. Banned sets exported for tests.
+- [x] `src/strudel/parse.test.ts` - 19 unsafe-pattern rejections + axis-exemplar regression guard + reclassified syntax cases. 49 total parse tests.
+- [x] `src/strudel/engine.ts` - `play()` runs `parse()` before booting Strudel or touching the audio context; throws `Refused to play: …` for unsafe code.
+- [x] `src/strudel/engine.test.ts` - 5 tests asserting `play()` refuses unsafe code before reaching the mocked Strudel boundary.
+- [x] `src/remix/generate.ts` and `src/studio/chat.ts` - surface `firewall.reason` in retry hints so Gemma knows whether to fix syntax vs. drop a banned reference.
 
 ### Headers
-- [x] `vite.config.ts` — `securityHeaders` block (CSP + X-Frame-Options + X-Content-Type-Options + Referrer-Policy + Permissions-Policy + existing COOP/COEP) applied to dev + preview servers.
-- [x] `vercel.json` — mirrors the same headers for production. CSP scoped to `'self'` + OpenRouter + Hugging Face; `frame-ancestors 'none'`; `worker-src 'self' blob:`; `media-src 'self' blob: data:`.
+- [x] `vite.config.ts` - `securityHeaders` block (CSP + X-Frame-Options + X-Content-Type-Options + Referrer-Policy + Permissions-Policy + existing COOP/COEP) applied to dev + preview servers.
+- [x] `vercel.json` - mirrors the same headers for production. CSP scoped to `'self'` + OpenRouter + Hugging Face; `frame-ancestors 'none'`; `worker-src 'self' blob:`; `media-src 'self' blob: data:`.
 
 ### Verification (user)
-- [ ] Cold load with CSP enforcing — DevTools Console shows no violations
+- [ ] Cold load with CSP enforcing - DevTools Console shows no violations
 - [ ] Paste `fetch("https://example.com")` into the Studio editor → "Refused to play: disallowed reference: fetch" surfaces in the engine-error UI
 - [ ] Paste `(0).constructor.constructor("alert(1)")()` → "Refused to play: disallowed property access: .constructor", no alert fires
 - [ ] Paste a legitimate Strudel pattern (`s("bd*4").jux(rev)`) → plays normally
@@ -420,7 +420,7 @@ If Phase 0's hard gate fails (≤5/15 interesting on both 2B and 4B):
    - Cut SVG library: 12 charges (vs ~30)
    - Drop symbolism-explain pass
    - Keep the rest of Sigil's plan intact
-4. Reuse all Phase 0 scaffolding (Vite, React, transformers.js setup) — only the domain code changes.
+4. Reuse all Phase 0 scaffolding (Vite, React, transformers.js setup) - only the domain code changes.
 
 
 

@@ -308,7 +308,7 @@ export const SEED_GALLERY: GallerySeed[] = [
 
 /**
  * Random pick from the library. Optional `excludeId` lets callers avoid
- * a back-to-back repeat — the auto-pick path uses this so successive shows
+ * a back-to-back repeat - the auto-pick path uses this so successive shows
  * don't land on the same seed.
  */
 export function pickRandomSeed(excludeId?: string | null): GallerySeed {
