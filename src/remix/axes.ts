@@ -82,7 +82,7 @@ export const VARIATION_AXES: VariationAxis[] = [
     techniques: ['note()', '<...> alternation', '.slow on the pitch line', 'keys'],
     timbre: 'keys',
     timbreNote:
-      'Make the pitched layer a piano: `note("<…>").s("piano")`. Save sawtooth for acid-genre seeds only.',
+      'Make the pitched layer a piano: `note("<…>").s("piano")`. Skip raw sawtooth here - piano carries the harmony.',
     exemplar:
       'stack(\n  s("bd*2"),\n  note("<c3 eb3 g3 bb3>*2").s("piano").slow(2).room(0.4)\n)',
   },
@@ -103,23 +103,23 @@ export const VARIATION_AXES: VariationAxis[] = [
     label: 'Sparse',
     directive:
       'Strip down - long rests, slow cycles, only the essential elements. Aim for negative space.',
-    techniques: ['~ rest', '.slow', 'minimal layer count', 'texture samples'],
+    techniques: ['~ rest', '.slow', 'minimal layer count', 'atmospheric pad/arpy'],
     timbre: 'texture',
     timbreNote:
-      'Reach for ambient texture samples - `s("wind")`, `s("space")`, or `s("noise").lpf(...)` - sitting under one sparse drum.',
-    exemplar: 'stack(s("bd ~ ~ ~ ~ ~ sd ~").slow(2), s("wind").slow(8).room(0.8).gain(0.5))',
+      'Reach for atmospheric sampled pads - `s("pad").slow(N).room(N)` or `s("arpy").slow(N).gain(0.5)` - sitting under one sparse drum.',
+    exemplar: 'stack(s("bd ~ ~ ~ ~ ~ sd ~").slow(2), s("pad").slow(8).room(0.5).gain(0.5))',
   },
   {
     id: 'dense',
     label: 'Dense',
     directive:
       'Pile it on - fast subdivisions, busy fills, multiple percussion lines pressing into each other.',
-    techniques: ['*N repeat', 'stack()', 'high-rate hh*16', 'square-wave lead'],
+    techniques: ['*N repeat', 'stack()', 'high-rate hh*16', 'filtered triangle lead'],
     timbre: 'lead',
     timbreNote:
-      'Push a square-wave lead on top - `note(...).s("square").fast(2)` - so the busy drums sit beneath a melodic line.',
+      'Push a triangle-wave lead on top, softened with a low-pass filter and reduced gain - `note(...).s("triangle").lpf(1800).gain(0.6).fast(2)` - so the busy drums sit beneath a melodic line without buzz.',
     exemplar:
-      'stack(s("bd(5,8)"), s("hh*16").gain(0.45), s("cp(3,8)"), note("c4 eb4 g4 bb4").s("square").fast(2))',
+      'stack(s("bd(5,8)"), s("hh*16").gain(0.45), s("cp(3,8)"), note("c4 eb4 g4 bb4").s("triangle").lpf(1800).gain(0.6).fast(2))',
   },
 ];
 

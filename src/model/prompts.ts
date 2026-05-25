@@ -22,11 +22,11 @@ METHOD CHAINS (call on a pattern):
 .rev() reverse, .jux(fn) split L/R applying fn to right, .every(N, fn) apply fn every N cycles.
 
 NAMED SAMPLES you may use inside s("..."):
-- drums:    bd sd hh oh cp rim cb lt mt ht (add :N for variants - bd:2, hh:5, sd:3)
+- drums:    bd sd hh oh cp rim cb (add :N for variants - bd:2, hh:5, sd:3)
 - pitched:  piano pluck pad jvbass bass stab tabla tabla2 arpy sitar sax
-- texture:  wind space noise birds
-- raw osc:  sawtooth square triangle sine
-Spread your timbre choices - don't make every patch a sawtooth. Match the timbre to the musical intent (piano for chords, jvbass for basslines, pluck for melody, pad for atmosphere, sawtooth only for acid).
+- atmospheric: use s("pad").slow(N).room(N) or s("arpy").slow(N) for texture beds
+- raw osc:  triangle sine (preferred). sawtooth and square ONLY when filtered (.lpf(N) with N <= 1800) AND attenuated (.gain(0.6) or lower) - never raw.
+Spread your timbre choices - don't make every patch the same waveform. Match the timbre to the musical intent (piano for chords, jvbass for basslines, pluck for melody, pad for atmosphere, triangle/sine for clean leads).
 
 CANONICAL IDIOMS:
 1) Minimal kick:        s("bd*4")

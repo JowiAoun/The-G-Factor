@@ -36,20 +36,6 @@ export const SEED_GALLERY: GallerySeed[] = [
     genre: 'techno',
     difficulty: 2,
   },
-  {
-    id: 'industrial',
-    label: 'Industrial pulse',
-    code: 's("bd*2, ~ lt ~ lt").lpf(400).room(0.4)',
-    genre: 'industrial',
-    difficulty: 2,
-  },
-  {
-    id: 'acid-line',
-    label: 'Acid bass line',
-    code: 'note("c2 c2 eb2 c2 g2 c2 eb2 g2").s("sawtooth").lpf(800).fast(2)',
-    genre: 'acid',
-    difficulty: 3,
-  },
 
   // House / Deep House / Disco / Garage
   {
@@ -162,13 +148,6 @@ export const SEED_GALLERY: GallerySeed[] = [
     code: 'note("c4 e4 g4 b4 g4 e4").s("triangle").fast(2)',
     genre: 'arp',
     difficulty: 2,
-  },
-  {
-    id: 'bass-walk',
-    label: 'Bass walk',
-    code: 'note("c2 e2 g2 a2").s("square").lpf(600)',
-    genre: 'bass',
-    difficulty: 1,
   },
   {
     id: 'chord-stab',
