@@ -16,7 +16,12 @@ const VENUES: Venue[] = [
 ];
 
 const HALL_OF_FAME_IDX = VENUES.length - 1;
-const LAMP_LENS_Y = 47; // matches `.stage-lamp-lens` vertical placement in styles.css (21px rod + 26px body)
+// Depth of the lamp lens measured from the lamp's OWN top edge: 21px rod
+// + 26px body. The lens y in venue-map coords equals lampTopY + this.
+const LAMP_INTERNAL_LENS_Y = 47;
+// Small buffer so the rod's top sits just inside the arch fill, not exactly
+// on its edge (avoids a 1px disconnect at the tapered far edges).
+const ARCH_TOP_BUFFER_PX = 2;
 // Soft cap on cone rotation; covers wide buttons without going horizontal.
 const CONE_MAX_TILT_DEG = 55;
 const CURSOR_LERP_DAMPING = 0.30;
@@ -51,6 +56,9 @@ export function VenueMap({ mode, onSelect, onOpenSettings }: VenueMapProps) {
   const targetRef = useRef({ cursorX: 0, cursorY: 0 });
   const currentRef = useRef({ cursorX: 0, cursorY: 0 });
   const lampXRef = useRef<number>(0);
+  // Lamp's top y in venue-map coords. Adjusted per lamp x so the rod
+  // always stays inside the arch (the half-ellipse tapers at the edges).
+  const lampTopYRef = useRef<number>(0);
   const rafIdRef = useRef<number | null>(null);
   const reducedMotionRef = useRef<boolean>(false);
 
@@ -70,8 +78,9 @@ export function VenueMap({ mode, onSelect, onOpenSettings }: VenueMapProps) {
   const writeConeVars = useCallback(() => {
     const nav = navRef.current;
     if (!nav) return;
+    const lensY = lampTopYRef.current + LAMP_INTERNAL_LENS_Y;
     const dx = currentRef.current.cursorX - lampXRef.current;
-    const dy = Math.max(20, currentRef.current.cursorY - LAMP_LENS_Y);
+    const dy = Math.max(20, currentRef.current.cursorY - lensY);
     // Negated: CSS rotate(+deg) is CW, and CW from straight-down in screen
     // coords (y-axis points down) moves the cone bottom to the LEFT. We
     // want bottom toward cursor, so flip the sign.
@@ -105,6 +114,32 @@ export function VenueMap({ mode, onSelect, onOpenSettings }: VenueMapProps) {
     if (!nav) return;
     lampXRef.current = px;
     nav.style.setProperty('--lamp-x', `${px}px`);
+    // Compute arch-aware top offset: at far-left/right lamp positions the
+    // arch's half-ellipse top edge has tapered downward, so anchoring the
+    // rod at top:0 would leave it sticking up into empty sky outside the
+    // arch. Measure the arch's actual rect (handles the `min(1100px, 96%)`
+    // responsive width) and derive its top y at the lamp's current x.
+    const arch = nav.querySelector('.venue-arch') as HTMLElement | null;
+    if (!arch) return;
+    const navRect = nav.getBoundingClientRect();
+    const archRect = arch.getBoundingClientRect();
+    const archCenterX = archRect.left + archRect.width / 2 - navRect.left;
+    const archHalfWidth = archRect.width / 2;
+    const archHeight = archRect.height;
+    const relX = px - archCenterX;
+    let topY: number;
+    if (Math.abs(relX) >= archHalfWidth) {
+      // Lamp is past the arch's x-range entirely - hang from its flat bottom.
+      topY = archHeight;
+    } else {
+      // Half-ellipse: y = h - sqrt(h^2 * (1 - (x/halfW)^2))
+      const archTopAtX =
+        archHeight -
+        Math.sqrt(archHeight ** 2 * (1 - (relX / archHalfWidth) ** 2));
+      topY = Math.max(0, archTopAtX + ARCH_TOP_BUFFER_PX);
+    }
+    lampTopYRef.current = topY;
+    nav.style.setProperty('--lamp-top-y', `${topY}px`);
   }, []);
 
   const handleEnter = (idx: number) => (e: React.MouseEvent<HTMLDivElement>) => {
