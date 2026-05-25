@@ -69,11 +69,15 @@ function makeLcg(seed: number): () => number {
 }
 
 /**
- * Long rear hair + bun-up front lock (no front hair flop).
- * Used for several feminine-presenting characters.
+ * Long rear hair + front hair coverage on top.
+ *
+ * `rearHair` alone draws only the long flow behind the head — the top
+ * of the skull is bald unless `hair` is also set. Every long-haired
+ * character therefore picks a complementary front style (`sideComed`
+ * for full top coverage, or `bun` for a topknot).
  */
 const longHairBase = {
-  hairProbability: 0,
+  hairProbability: 100,
   rearHairProbability: 100,
   beardProbability: 0,
 } as const;
@@ -100,8 +104,9 @@ export const CHARACTERS: Character[] = [
     avatarOptions: {
       ...longHairBase,
       rearHair: ['longStraight'],
-      eyes: ['humble'],
-      eyebrows: ['neutral'],
+      hair: ['sideComed'],
+      eyes: ['happy'],
+      eyebrows: ['happy'],
       clothes: ['dress'],
       skinColor: ['c68863'],
       hairColor: ['1a1a1a'],
@@ -146,6 +151,7 @@ export const CHARACTERS: Character[] = [
     avatarOptions: {
       ...longHairBase,
       rearHair: ['longWavy'],
+      hair: ['sideComed'],
       eyes: ['bow'],
       eyebrows: ['happy'],
       clothes: ['shirt'],
@@ -161,8 +167,8 @@ export const CHARACTERS: Character[] = [
     avatarOptions: {
       ...shortNoBeard,
       hair: ['sideComed'],
-      eyes: ['humble'],
-      eyebrows: ['neutral'],
+      eyes: ['wide'],
+      eyebrows: ['raised'],
       clothes: ['openJacket'],
       skinColor: ['f2d3b1'],
       hairColor: ['6f4e37'],
@@ -176,6 +182,7 @@ export const CHARACTERS: Character[] = [
     avatarOptions: {
       ...longHairBase,
       rearHair: ['longStraight'],
+      hair: ['bun'],
       eyes: ['wink'],
       eyebrows: ['raised'],
       clothes: ['dress'],
@@ -192,8 +199,8 @@ export const CHARACTERS: Character[] = [
       ...shortWithBeard,
       hair: ['spiky'],
       beard: ['chin'],
-      eyes: ['humble'],
-      eyebrows: ['neutral'],
+      eyes: ['happy'],
+      eyebrows: ['happy'],
       clothes: ['tShirt'],
       skinColor: ['f2d3b1'],
       hairColor: ['1a1a1a'],
@@ -207,6 +214,7 @@ export const CHARACTERS: Character[] = [
     avatarOptions: {
       ...longHairBase,
       rearHair: ['shoulderHigh'],
+      hair: ['sideComed'],
       eyes: ['happy'],
       eyebrows: ['happy'],
       clothes: ['turtleNeck'],
@@ -238,7 +246,8 @@ export const CHARACTERS: Character[] = [
     avatarOptions: {
       ...longHairBase,
       rearHair: ['neckHigh'],
-      eyes: ['humble'],
+      hair: ['sideComed'],
+      eyes: ['wide'],
       eyebrows: ['neutral'],
       clothes: ['openJacket'],
       skinColor: ['f2d3b1'],
@@ -269,6 +278,7 @@ export const CHARACTERS: Character[] = [
     avatarOptions: {
       ...longHairBase,
       rearHair: ['longWavy'],
+      hair: ['sideComed'],
       eyes: ['happy'],
       eyebrows: ['happy'],
       clothes: ['dress'],
@@ -300,7 +310,7 @@ export const CHARACTERS: Character[] = [
     avatarOptions: {
       ...shortNoBeard,
       hair: ['bun'],
-      eyes: ['humble'],
+      eyes: ['wide'],
       eyebrows: ['neutral'],
       clothes: ['turtleNeck'],
       skinColor: ['f2d3b1'],
@@ -330,7 +340,8 @@ export const CHARACTERS: Character[] = [
     avatarOptions: {
       ...longHairBase,
       rearHair: ['longStraight'],
-      eyes: ['wink'],
+      hair: ['sideComed'],
+      eyes: ['happy'],
       eyebrows: ['happy'],
       clothes: ['shirt'],
       skinColor: ['8d5524'],
@@ -361,8 +372,9 @@ export const CHARACTERS: Character[] = [
     avatarOptions: {
       ...longHairBase,
       rearHair: ['shoulderHigh'],
-      eyes: ['humble'],
-      eyebrows: ['neutral'],
+      hair: ['bun'],
+      eyes: ['happy'],
+      eyebrows: ['happy'],
       clothes: ['dress'],
       skinColor: ['e2a378'],
       hairColor: ['1a1a1a'],
@@ -392,8 +404,9 @@ export const CHARACTERS: Character[] = [
     avatarOptions: {
       ...longHairBase,
       rearHair: ['longStraight'],
-      eyes: ['bow'],
-      eyebrows: ['neutral'],
+      hair: ['sideComed'],
+      eyes: ['happy'],
+      eyebrows: ['happy'],
       clothes: ['turtleNeck'],
       skinColor: ['f2d3b1'],
       hairColor: ['c8a165'],
