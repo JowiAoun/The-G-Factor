@@ -47,7 +47,7 @@ export function Persona({
   const audioFrame = useAudioMouth(playing && mood !== 'thinking');
   const mouth = mouthFor(mood, playing, thinkFrame, audioFrame);
   const svg = useMemo(
-    () => renderAvatar(PERSONA.avatarSeed, mouth),
+    () => renderAvatar(PERSONA.avatarSeed, mouth, PERSONA.avatarOptions),
     [mouth],
   );
   const moodDescription =
