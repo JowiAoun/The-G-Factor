@@ -4,17 +4,28 @@ import { App, type AppMode } from './ui/App';
 import './styles.css';
 
 const params = new URLSearchParams(window.location.search);
-const initialMode: AppMode = params.has('leaderboard')
-  ? 'leaderboard'
-  : params.has('talentshow')
-    ? 'talentshow'
-    : 'remix';
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <App initialMode={initialMode} />
-  </React.StrictMode>,
-);
+// Dev-only sound/seed audition page at ?audit=1. The DEV constant is
+// statically replaced with `false` in production builds, so the entire
+// branch (including the dynamic import) is dead code and the dev/
+// chunk is never emitted.
+if (import.meta.env.DEV && params.has('audit')) {
+  import('./dev/SoundAuditPage').then(({ mountAudit }) => {
+    mountAudit(document.getElementById('root')!);
+  });
+} else {
+  const initialMode: AppMode = params.has('leaderboard')
+    ? 'leaderboard'
+    : params.has('talentshow')
+      ? 'talentshow'
+      : 'remix';
+
+  ReactDOM.createRoot(document.getElementById('root')!).render(
+    <React.StrictMode>
+      <App initialMode={initialMode} />
+    </React.StrictMode>,
+  );
+}
 
 // Offline support, prod-only. The worker uses network-first for HTML so
 // a stale prod bundle can't strand a user on the wrong content (the
