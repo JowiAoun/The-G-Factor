@@ -16,7 +16,11 @@ const VENUES: Venue[] = [
 ];
 
 const LAMP_LENS_Y = 68; // matches `.stage-lamp-lens` vertical placement in styles.css
-const CONE_MAX_TILT_DEG = 22;
+// Soft cap on cone rotation. 55deg covers cursors at the far edges of a
+// wide button comfortably; anything more becomes a near-horizontal beam.
+// The previous 22deg cap was too tight - the cone bottom landed nowhere
+// near the cursor at button edges, reading as "flipped/off-target".
+const CONE_MAX_TILT_DEG = 55;
 const CURSOR_LERP_DAMPING = 0.30;
 const LERP_STOP_THRESHOLD = 0.3;
 
@@ -188,16 +192,21 @@ export function VenueMap({ mode, onSelect, onOpenSettings }: VenueMapProps) {
     return () => ro.disconnect();
   }, [hoveredIdx, setLampX, writeConeVars]);
 
-  // Toggle --lamp-active (drives cone fade + lens glow + dim overlay).
+  // Toggle --lamp-active on the document element so the body::after audience
+  // dim picks it up alongside the nav-scoped cone fade and lens glow (CSS
+  // var inheritance carries it down into .venue-map).
   useEffect(() => {
-    const nav = navRef.current;
-    if (!nav) return;
-    nav.style.setProperty('--lamp-active', hoveredIdx == null ? '0' : '1');
+    document.documentElement.style.setProperty(
+      '--lamp-active',
+      hoveredIdx == null ? '0' : '1',
+    );
   }, [hoveredIdx]);
 
-  // Cancel any in-flight rAF on unmount.
+  // Cancel any in-flight rAF on unmount, and reset --lamp-active so the dim
+  // doesn't stay stuck on after route changes that unmount the nav.
   useEffect(() => () => {
     if (rafIdRef.current != null) cancelAnimationFrame(rafIdRef.current);
+    document.documentElement.style.removeProperty('--lamp-active');
   }, []);
 
   return (
@@ -208,7 +217,6 @@ export function VenueMap({ mode, onSelect, onOpenSettings }: VenueMapProps) {
       aria-label="Venue"
     >
       <div className="venue-arch" aria-hidden="true" />
-      <div className="venue-swag" aria-hidden="true" />
       <StageLamp active={hoveredIdx !== null} />
       <div className="venue-doors">
         {VENUES.map((v, i) => {

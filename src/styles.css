@@ -58,6 +58,11 @@
   --rule-gold:        1px solid rgba(201, 176, 110, 0.35);
   --rule-gold-strong: 2px solid rgba(255, 216, 107, 0.85);
   --curtain-wipe-ms:  700ms;
+
+  /* Page-wide dim driver. JS toggles 0/1 from VenueMap when a nav button
+     is hovered/focused; body::after reads it for the audience dim, and
+     .venue-map descendants inherit it for cone opacity and lens glow. */
+  --lamp-active: 0;
 }
 * { box-sizing: border-box; }
 body {
@@ -81,6 +86,21 @@ body::before {
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='800' viewBox='0 0 180 800'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='0'><stop offset='0' stop-color='%23000'/><stop offset='0.5' stop-color='%23fff' stop-opacity='0.55'/><stop offset='1' stop-color='%23000'/></linearGradient></defs><rect width='180' height='800' fill='url(%23g)'/></svg>");
   background-repeat: repeat;
   background-size: 180px 800px;
+}
+/* Audience dim: full-viewport shadow that fades in when a nav button is
+   hovered. The nav (.venue-map at z 35) sits above this, so the buttons
+   and lamp stay bright while the rest of the page darkens. Cone uses
+   mix-blend-mode: screen, so it visibly lifts the dim where it overlaps -
+   the spotlight reaches into the audience. */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.40);
+  opacity: var(--lamp-active, 0);
+  transition: opacity 220ms ease-out;
+  pointer-events: none;
+  z-index: 30;
 }
 button {
   font: inherit;
@@ -545,7 +565,9 @@ button.liked {
   position: relative;
   margin: 4px auto 22px;
   padding: 38px 14px 14px;
-  z-index: 1;
+  /* Above the body::after audience dim (z 30); below the route curtain
+     (z 80) and modals (z 100). */
+  z-index: 35;
 }
 /* Arch: the gold-trimmed half-ellipse spanning the top of the nav. */
 .venue-arch {
@@ -561,24 +583,6 @@ button.liked {
     0 8px 18px rgba(0, 0, 0, 0.6),
     inset 0 -4px 0 rgba(0, 0, 0, 0.35);
   pointer-events: none;
-}
-/* Red velvet swag drape hanging from the inside of the arch. */
-.venue-swag {
-  position: absolute;
-  top: 28px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: min(1070px, 94%);
-  height: 38px;
-  pointer-events: none;
-  background:
-    radial-gradient(ellipse at 16% 0%, var(--theatre-curtain) 0%, var(--theatre-curtain-dark) 70%, transparent 71%),
-    radial-gradient(ellipse at 50% 0%, var(--theatre-curtain) 0%, var(--theatre-curtain-dark) 70%, transparent 71%),
-    radial-gradient(ellipse at 84% 0%, var(--theatre-curtain) 0%, var(--theatre-curtain-dark) 70%, transparent 71%);
-  background-size: 36% 100%, 36% 100%, 36% 100%;
-  background-position: 0 0, 50% 0, 100% 0;
-  background-repeat: no-repeat;
-  filter: drop-shadow(0 6px 6px rgba(0, 0, 0, 0.55));
 }
 .venue-doors {
   display: flex;
@@ -614,7 +618,11 @@ button.liked {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
 }
 .venue-door:hover:not(.is-here) {
-  transform: translateY(-2px);
+  /* Intentionally no transform: translate here. Lifting the button on
+     hover changes its hit-test rect, so hovering near the bottom edge
+     pulls the cursor into the gap below and causes an infinite
+     hover-on / hover-off oscillation. Border + box-shadow give all the
+     visual feedback we need without moving the bounding box. */
   border-color: var(--gold);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55), 0 0 12px rgba(255, 216, 107, 0.18);
 }
@@ -728,32 +736,10 @@ button.liked {
    The 68px lens depth here MUST match LAMP_LENS_Y in VenueMap.tsx. */
 .venue-map {
   --lamp-x: 50%;
-  --lamp-active: 0;
   --cone-rotation: 0deg;
   --cone-length: 0px;
   overflow: visible;
   isolation: isolate;
-}
-/* Soft dim over the nav background (NOT over the buttons themselves -
-   buttons have their own z-stacking). Lifts when --lamp-active is 1. */
-.venue-doors {
-  position: relative;
-}
-.venue-doors::before {
-  content: '';
-  position: absolute;
-  inset: -10px -8px;
-  background: rgba(8, 2, 4, 0.42);
-  border-radius: 14px;
-  opacity: var(--lamp-active);
-  transition: opacity 220ms ease-out;
-  pointer-events: none;
-  z-index: 0;
-}
-.venue-door,
-.venue-stage-door {
-  position: relative;
-  z-index: 1;
 }
 .stage-lamp {
   position: absolute;
@@ -832,11 +818,13 @@ button.liked {
   transform: translateX(-50%) rotate(var(--cone-rotation));
   transform-origin: 50% 0%;
   clip-path: polygon(42% 0%, 58% 0%, 100% 100%, 0% 100%);
-  background: radial-gradient(ellipse at 50% 0%,
-    rgba(255, 220, 140, 0.55) 0%,
-    rgba(255, 216, 107, 0.22) 45%,
-    rgba(255, 216, 107, 0.05) 75%,
-    transparent 90%);
+  /* Hot spot at the cursor end of the cone (50% 100%) - "light puddle
+     where the spotlight lands" rather than "bright at the source". */
+  background: radial-gradient(ellipse at 50% 100%,
+    rgba(255, 220, 140, 0.65) 0%,
+    rgba(255, 216, 107, 0.30) 35%,
+    rgba(255, 216, 107, 0.08) 70%,
+    transparent 95%);
   opacity: var(--lamp-active);
   /* Transform + height are driven by a JS rAF lerp in VenueMap.tsx so the
      cone glides smoothly with the cursor; CSS transitions on those would
@@ -867,15 +855,16 @@ button.liked {
   }
   .venue-stage-door span:first-child { font-size: 1.4rem; }
   /* Cone math assumes a single-row nav; hide entirely on mobile where
-     buttons wrap and there's no hover anyway. */
+     buttons wrap and there's no hover anyway. Page-wide dim also off
+     so the mobile layout never strands in a dimmed state. */
   .stage-lamp { display: none; }
-  .venue-doors::before { display: none; }
+  body::after { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   .stage-lamp,
   .stage-lamp-cone,
   .stage-lamp-lens,
-  .venue-doors::before { transition: none; }
+  body::after { transition: none; }
 }
 
 /* ── talent show - bracket size toggle ────────────────────── */
