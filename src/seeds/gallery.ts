@@ -174,8 +174,8 @@ export const SEED_GALLERY: GallerySeed[] = [
   // Ambient / Pad / Dub
   {
     id: 'ambient',
-    label: 'Ambient pad',
-    code: 's("pad").slow(4).room(0.5)',
+    label: 'Ambient bed',
+    code: 'note("c3 eb3 g3 bb3").s("sine").slow(4).room(0.6)',
     genre: 'ambient',
     difficulty: 2,
   },

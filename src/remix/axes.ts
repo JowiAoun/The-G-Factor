@@ -21,10 +21,10 @@ export type VariationAxis = {
  * by design - the point isn't a clean taxonomy, it's eight different *first
  * thoughts* for "remix this".
  *
- * Each axis also commits to a distinct `timbre` family (drum-variant, pad,
- * percpitch, bass, keys, pluck, texture, lead). Since pickAxesForBracket()
- * returns up to 8 unique axes per seed, every contestant in a bracket lands
- * on a different timbre family - no more sawtooth-on-sawtooth-on-sawtooth.
+ * Each axis also commits to a distinct `timbre` family (drum-variant,
+ * sustained, percpitch, bass, keys, pluck, texture, lead). Since
+ * pickAxesForBracket() returns up to 8 unique axes per seed, every
+ * contestant in a bracket lands on a different timbre family.
  */
 export const VARIATION_AXES: VariationAxis[] = [
   {
@@ -43,24 +43,24 @@ export const VARIATION_AXES: VariationAxis[] = [
     label: 'Polyphonic',
     directive:
       'Build a 3- or 4-layer `stack(...)` where each layer has a different timbre and density.',
-    techniques: ['stack()', 'multiple s()/note()', 'per-layer .gain()', 'named samples'],
-    timbre: 'pad',
+    techniques: ['stack()', 'multiple s()/note()', 'per-layer .gain()', 'sustained chord bed'],
+    timbre: 'sustained',
     timbreNote:
-      'Make the pitched layer a pad - `s("pad").slow(N)` or a triangle/sine line with `.room()`. Avoid sawtooth here.',
+      'Make the pitched layer a sustained chord bed - `note("<c3 eb3 g3 bb3>").s("sine").slow(N).room(0.5)` - so it floats under the percussion.',
     exemplar:
-      'stack(\n  s("bd*2").gain(0.9),\n  s("hh*8").gain(0.4),\n  s("~ sd ~ sd").room(0.2),\n  s("pad").slow(4).gain(0.6)\n)',
+      'stack(\n  s("bd*2").gain(0.9),\n  s("hh*8").gain(0.4),\n  s("~ sd ~ sd").room(0.2),\n  note("<c3 eb3 g3 bb3>").s("sine").slow(4).room(0.5).gain(0.6)\n)',
   },
   {
     id: 'modulated',
     label: 'Modulated',
     directive:
       'Use `.every(n, x => …)`, `.sometimes(…)`, or `.jux(rev)` so the pattern audibly evolves cycle to cycle.',
-    techniques: ['.every(n, fn)', '.sometimes(fn)', '.jux(rev)', 'pitched percussion'],
+    techniques: ['.every(n, fn)', '.sometimes(fn)', '.jux(rev)', 'melodic arpy/sitar'],
     timbre: 'percpitch',
     timbreNote:
-      'Reach for pitched percussion - `s("tabla")`, `s("tabla2")`, or `note(...).s("arpy")` - and let `.every`/`.sometimes` re-cut it.',
+      'Reach for soft melodic loops - `note(...).s("arpy")` or `note(...).s("sitar")` - and let `.every`/`.sometimes` re-cut them.',
     exemplar:
-      'stack(s("bd sd"), s("tabla*4").every(4, x => x.fast(2)).sometimes(x => x.rev()).jux(rev))',
+      'stack(s("bd sd"), note("c e g c5").s("arpy").every(4, x => x.fast(2)).sometimes(x => x.rev()).jux(rev))',
   },
   {
     id: 'timbral',
@@ -103,11 +103,11 @@ export const VARIATION_AXES: VariationAxis[] = [
     label: 'Sparse',
     directive:
       'Strip down - long rests, slow cycles, only the essential elements. Aim for negative space.',
-    techniques: ['~ rest', '.slow', 'minimal layer count', 'atmospheric pad/arpy'],
+    techniques: ['~ rest', '.slow', 'minimal layer count', 'atmospheric arpy/sine'],
     timbre: 'texture',
     timbreNote:
-      'Reach for atmospheric sampled pads - `s("pad").slow(N).room(N)` or `s("arpy").slow(N).gain(0.5)` - sitting under one sparse drum.',
-    exemplar: 'stack(s("bd ~ ~ ~ ~ ~ sd ~").slow(2), s("pad").slow(8).room(0.5).gain(0.5))',
+      'Reach for atmospheric sampled textures - `s("arpy").slow(N).gain(0.5)` or `note("c3").s("sine").slow(N).room(N)` - sitting under one sparse drum.',
+    exemplar: 'stack(s("bd ~ ~ ~ ~ ~ sd ~").slow(2), s("arpy").slow(8).room(0.5).gain(0.5))',
   },
   {
     id: 'dense',

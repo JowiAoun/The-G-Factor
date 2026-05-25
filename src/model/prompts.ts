@@ -23,10 +23,10 @@ METHOD CHAINS (call on a pattern):
 
 NAMED SAMPLES you may use inside s("..."):
 - drums:    bd sd hh oh cp rim cb (add :N for variants - bd:2, hh:5, sd:3)
-- pitched:  piano pluck pad jvbass bass stab tabla tabla2 arpy sitar sax
-- atmospheric: use s("pad").slow(N).room(N) or s("arpy").slow(N) for texture beds
-- raw osc:  triangle sine (preferred). sawtooth and square ONLY when filtered (.lpf(N) with N <= 1800) AND attenuated (.gain(0.6) or lower) - never raw.
-Spread your timbre choices - don't make every patch the same waveform. Match the timbre to the musical intent (piano for chords, jvbass for basslines, pluck for melody, pad for atmosphere, triangle/sine for clean leads).
+- pitched:  piano pluck jvbass bass arpy sitar sax
+- atmospheric: chain s("arpy").slow(N).room(N) or note("<c3 eb3 g3>").s("sine").slow(N).room(N) for chord beds
+- raw osc:  triangle sine (the only allowed raw oscillators)
+DO NOT use sawtooth, square, pad, stab, or tabla - those samples are banned from this app. Spread your timbre choices and match the timbre to the musical intent (piano for chords, jvbass for basslines, pluck for melody, arpy/sine for atmosphere, triangle for clean leads).
 
 CANONICAL IDIOMS:
 1) Minimal kick:        s("bd*4")
@@ -36,7 +36,7 @@ CANONICAL IDIOMS:
 5) Piano chords:        note("<c eb g bb>").s("piano").slow(4).room(0.4)
 6) Plucked melody:      note("<c e g b>").s("pluck")
 7) Bass line:           note("c2 eb2 g2 c2").s("jvbass").lpf(700)
-8) Pad texture:         s("pad").slow(8).room(0.6)
+8) Atmospheric bed:     s("arpy").slow(8).room(0.6).gain(0.5)
 9) Drum stack:          stack(s("bd*2"), s("~ sd"), s("hh*8"))
 10) Sometimes-variation: s("bd sd").every(4, x => x.fast(2))
 
@@ -92,7 +92,7 @@ Output:`,
 export const TALENT_SHOW_SYSTEM_PROMPT_SUFFIX = `TALENT SHOW STAGE
 You are auditioning for a remix bracket. Each contestant explores a different musical territory. Compose a layered Strudel pattern - typically a \`stack(...)\` of 3 to 4 lines, or a single line with 3+ chained methods. Aim for ~5 to 12 lines of formatted code. The seed's identity should still be recognisable, but boldness wins.
 
-LAYERED COMPOSITION EXAMPLES (notice the timbre variety - piano, pluck, jvbass, pad; not all sawtooth):
+LAYERED COMPOSITION EXAMPLES (notice the timbre variety - piano, pluck, jvbass, arpy; never sawtooth/square/pad/stab/tabla):
 A) stack(
      s("bd(3,8)").gain(0.9),
      s("~ sd ~ sd").room(0.25),
@@ -108,7 +108,7 @@ C) stack(
 D) stack(
      s("bd*4").gain(0.9),
      note("c2 eb2 g2 c2").s("jvbass").lpf(800),
-     s("pad").slow(8).gain(0.5).room(0.6)
+     s("arpy").slow(8).gain(0.5).room(0.6)
    )`;
 
 export type TalentShowPromptOpts = {
