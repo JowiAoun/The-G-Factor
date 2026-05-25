@@ -538,11 +538,13 @@ button.liked {
 .cache-info b { color: var(--gold-bright); font-weight: 700; }
 
 /* ── venue map (proscenium-arch nav) ─────────────────────── */
+/* Width matches .app's inner content width so the nav and the
+   panels below share the same left/right edges (no jarring jump
+   between Main Stage, Rehearsal Room, and Hall of Fame). */
 .venue-map {
   position: relative;
   margin: 4px auto 22px;
   padding: 38px 14px 14px;
-  max-width: 980px;
   z-index: 1;
 }
 /* Arch: the gold-trimmed half-ellipse spanning the top of the nav. */
@@ -550,7 +552,7 @@ button.liked {
   position: absolute;
   top: 0; left: 50%;
   transform: translateX(-50%);
-  width: min(900px, 96%);
+  width: min(1100px, 96%);
   height: 56px;
   border-radius: 50% 50% 0 0 / 100% 100% 0 0;
   background: var(--brass-rail);
@@ -566,7 +568,7 @@ button.liked {
   top: 28px;
   left: 50%;
   transform: translateX(-50%);
-  width: min(870px, 94%);
+  width: min(1070px, 94%);
   height: 38px;
   pointer-events: none;
   background:
@@ -588,8 +590,8 @@ button.liked {
 }
 .venue-door {
   position: relative;
-  flex: 1 1 220px;
-  max-width: 280px;
+  flex: 1 1 260px;
+  max-width: 340px;
   min-height: 132px;
   padding: 22px 14px 14px;
   border: 1px solid rgba(201, 176, 110, 0.45);
@@ -3443,6 +3445,100 @@ button.liked {
    only override inside the themed studio. */
 .rehearsal-room .persona-name  { color: var(--ink-cream); }
 .rehearsal-room .persona-blurb { color: var(--ink-parchment); }
+
+/* ---- Rehearsal Room: full theatre theme on inner panels ---- */
+/* Persona card: switch the dark grey to burgundy with a gold rule. */
+.rehearsal-room .persona-card {
+  background: linear-gradient(180deg, var(--theatre-burgundy) 0%, var(--theatre-burgundy-soft) 100%);
+  border: 1px solid rgba(201, 176, 110, 0.35);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Mix canvas: deep velvet body + gold trim. Keep the inner CodeMirror
+   editor dark for code legibility (separate concern). */
+.rehearsal-room .mix-canvas {
+  background: linear-gradient(180deg, var(--theatre-burgundy) 0%, var(--theatre-burgundy-soft) 100%);
+  border: 1px solid rgba(201, 176, 110, 0.35);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+.rehearsal-room .mix-canvas-label { color: var(--gold-bright); }
+.rehearsal-room .mix-canvas-hint  { color: var(--ink-parchment); opacity: 0.85; }
+.rehearsal-room .mix-playing-pulse {
+  background: var(--gold-bright);
+  box-shadow: 0 0 8px var(--gold-bright);
+}
+.rehearsal-room .mix-code-editor {
+  border-color: rgba(201, 176, 110, 0.25);
+}
+.rehearsal-room .mix-code-editor .cm-editor.cm-focused {
+  outline-color: var(--gold-bright);
+}
+
+/* Sound palette: same burgundy + gold trim as the rest. Keep the
+   colored chip spectrum (it's a categorical legend) but warm the
+   surrounding panel. */
+.rehearsal-room .sound-palette {
+  background: var(--theatre-burgundy-soft);
+  border: 1px solid rgba(201, 176, 110, 0.3);
+}
+.rehearsal-room .sound-palette-label { color: var(--gold-bright); }
+.rehearsal-room .sound-chip {
+  background: var(--theatre-curtain-deeper);
+  border: 1px solid rgba(201, 176, 110, 0.25);
+  color: var(--ink-cream);
+}
+.rehearsal-room .sound-chip:hover {
+  border-color: var(--gold-bright);
+  background: var(--theatre-burgundy);
+}
+.rehearsal-room .sound-chip-label { color: var(--ink-muted); }
+.rehearsal-room .sound-chip.previewing {
+  border-color: var(--gold-bright);
+  box-shadow: 0 0 0 2px rgba(255, 216, 107, 0.4),
+    inset 0 -2px 0 0 currentColor;
+}
+
+/* Mix inspector: warm parchment text. */
+.rehearsal-room .mix-inspector-rows dt { color: var(--ink-muted); }
+.rehearsal-room .mix-inspector-rows dd { color: var(--ink-cream); }
+
+/* Chat bubbles: assistant is parchment-on-burgundy, user is a brighter
+   gold-rimmed burgundy. The mini-avatar gets a gold ring. */
+.rehearsal-room .chat-bubble.user .chat-bubble-body {
+  background: linear-gradient(135deg, var(--theatre-burgundy) 0%, var(--theatre-curtain) 100%);
+  border-color: var(--gold-bright);
+  color: var(--ink-cream);
+}
+.rehearsal-room .chat-bubble.assistant .chat-bubble-body {
+  background: var(--theatre-burgundy-soft);
+  border-color: rgba(201, 176, 110, 0.35);
+  color: var(--ink-cream);
+}
+.rehearsal-room .chat-bubble-body {
+  background: var(--theatre-burgundy-soft);
+  border: 1px solid rgba(201, 176, 110, 0.35);
+}
+.rehearsal-room .chat-bubble .mini-avatar {
+  border: 2px solid var(--gold-bright);
+  background: var(--theatre-burgundy-soft);
+}
+.rehearsal-room .action-chip {
+  background: rgba(74, 8, 16, 0.7);
+  border: 1px solid var(--gold-bright);
+  color: var(--gold-bright);
+}
+.rehearsal-room .stream-caret {
+  background: var(--gold-bright);
+}
+
+/* Setup-seed line + exemplar pill: warm the parchment label, gold the
+   pill, brass the code chip. */
+.rehearsal-room .setup-seed-label { color: var(--gold-bright); }
+.rehearsal-room .setup-seed-code {
+  background: var(--theatre-curtain-deeper);
+  border-color: rgba(201, 176, 110, 0.3);
+  color: var(--ink-cream);
+}
 
 /* ---- route-curtain (venue wipe) ---- */
 .route-curtain-layer {
