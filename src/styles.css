@@ -1,14 +1,21 @@
-@import url('https://fonts.googleapis.com/css2?family=Limelight&family=Bebas+Neue&family=Cinzel:wght@500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..900&family=Inter:wght@400;500;600;700;800&display=swap');
 
 :root {
   color-scheme: dark;
   color: #e8eaed;
 
   /* ── typography stacks ─────────────────────────────────────── */
-  --font-body:    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-body:    'Inter', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-mono:    ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  --font-display: 'Bebas Neue', 'Oswald', Impact, sans-serif;          /* tab labels, headers */
-  --font-marquee: 'Limelight', 'Cinzel', Georgia, serif;               /* wordmark, marquee */
+  /* Inter for everything UI: tabs, headers, scoreboards, body. Same family
+     as body so the type feels coherent; weight/letter-spacing carries the
+     "labelly" feel without a separate condensed face. */
+  --font-display: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  /* Fraunces variable for headlines: modern high-contrast serif with an
+     optical-size axis that gets dramatic at large display sizes, stays
+     readable at small ones. Falls back to Playfair Display if Fraunces
+     doesn't load, then Georgia. */
+  --font-marquee: 'Fraunces', 'Playfair Display', Georgia, serif;
 
   font-family: var(--font-body);
 
