@@ -3,8 +3,8 @@ import { parse } from '../strudel/parse';
 import { SOUND_PALETTE } from './sounds';
 
 describe('SOUND_PALETTE', () => {
-  it('exposes exactly 12 curated chips', () => {
-    expect(SOUND_PALETTE).toHaveLength(12);
+  it('exposes exactly 18 curated chips', () => {
+    expect(SOUND_PALETTE).toHaveLength(18);
   });
 
   it('has no duplicate names', () => {
@@ -12,11 +12,11 @@ describe('SOUND_PALETTE', () => {
     expect(new Set(names).size).toBe(names.length);
   });
 
-  it('mixes 7 drums and 5 synths', () => {
+  it('mixes 10 drums and 8 synths', () => {
     const drums = SOUND_PALETTE.filter((c) => c.kind === 'drum');
     const synths = SOUND_PALETTE.filter((c) => c.kind === 'synth');
-    expect(drums).toHaveLength(7);
-    expect(synths).toHaveLength(5);
+    expect(drums).toHaveLength(10);
+    expect(synths).toHaveLength(8);
   });
 
   it('every chip carries a non-empty label and snippet', () => {
@@ -36,9 +36,16 @@ describe('SOUND_PALETTE', () => {
     }
   });
 
-  it('drum snippets are bare s("name") calls', () => {
+  it('drum snippets play the sample 4x per cycle for audible audition', () => {
+    // `*4` makes every chip reliably audible AND matches the canonical
+    // "four on the floor" idiom from the system prompt. The `:N` suffix
+    // is allowed - `oh` and `rim` need a non-default sample variant
+    // because the index-0 file in those folders is silent/empty in the
+    // loaded dirt-samples bundle.
     for (const chip of SOUND_PALETTE.filter((c) => c.kind === 'drum')) {
-      expect(chip.snippet).toBe(`s("${chip.name}")`);
+      expect(chip.snippet, `${chip.name} snippet`).toMatch(
+        new RegExp(`^s\\("${chip.name}(?::\\d+)?\\*4"\\)$`),
+      );
     }
   });
 

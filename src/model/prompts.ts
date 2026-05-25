@@ -22,7 +22,7 @@ METHOD CHAINS (call on a pattern):
 .rev() reverse, .jux(fn) split L/R applying fn to right, .every(N, fn) apply fn every N cycles.
 
 NAMED SAMPLES you may use inside s("..."):
-- drums:    bd sd hh oh cp rim cb (add :N for variants - bd:2, hh:5, sd:3)
+- drums:    bd sd hh oh cp rim cb lt mt ht (add :N for variants - bd:2, hh:5, sd:3)
 - pitched:  piano pluck jvbass bass arpy sitar sax
 - atmospheric: chain s("arpy").slow(N).room(N) or note("<c3 eb3 g3>").s("sine").slow(N).room(N) for chord beds
 - raw osc:  triangle sine (the only allowed raw oscillators)
