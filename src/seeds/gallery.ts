@@ -25,7 +25,7 @@ export const SEED_GALLERY: GallerySeed[] = [
   {
     id: 'minimal-tick',
     label: 'Minimal tick',
-    code: 's("bd ~ ~ bd, ~ rim ~ rim")',
+    code: 's("bd ~ ~ bd, ~ hh:2 ~ hh:2")',
     genre: 'minimal',
     difficulty: 2,
   },

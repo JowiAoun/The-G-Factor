@@ -22,11 +22,11 @@ METHOD CHAINS (call on a pattern):
 .rev() reverse, .jux(fn) split L/R applying fn to right, .every(N, fn) apply fn every N cycles.
 
 NAMED SAMPLES you may use inside s("..."):
-- drums:    bd sd hh oh cp rim cb lt mt ht (add :N for variants - bd:2, hh:5, sd:3)
-- pitched:  piano pluck jvbass bass arpy sitar sax
+- drums:    bd sd hh cp cb lt mt ht (add :N for variants - bd:2, hh:5, sd:3)
+- pitched:  piano pluck jvbass bass arpy sax
 - atmospheric: chain s("arpy").slow(N).room(N) or note("<c3 eb3 g3>").s("sine").slow(N).room(N) for chord beds
 - raw osc:  triangle sine (the only allowed raw oscillators)
-DO NOT use sawtooth, square, pad, stab, or tabla - those samples are banned from this app. Spread your timbre choices and match the timbre to the musical intent (piano for chords, jvbass for basslines, pluck for melody, arpy/sine for atmosphere, triangle for clean leads).
+DO NOT use sawtooth, square, pad, stab, tabla, sitar, oh, or rim - those samples are banned from this app (oh/rim ship empty in the bundle and produce no audio). Spread your timbre choices and match the timbre to the musical intent (piano for chords, jvbass for basslines, pluck for melody, arpy/sine for atmosphere, triangle for clean leads).
 
 CANONICAL IDIOMS:
 1) Minimal kick:        s("bd*4")

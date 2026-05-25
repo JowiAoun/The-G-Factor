@@ -3,11 +3,16 @@
  *
  * Drums use `s("name*4")` rather than a bare `s("name")` for two reasons:
  *   1. Audition - a single trigger per cycle is barely perceptible for
- *      high-frequency percussion like open-hat (`oh`) and rim shot (`rim`).
- *      Four triggers per cycle is reliably audible across all sounds.
+ *      high-frequency percussion. Four triggers per cycle is reliably
+ *      audible across all sounds.
  *   2. Drop default - `s("bd*4")` matches the canonical-idiom "four on the
  *      floor" kick pattern from the system prompt (`prompts.ts` idiom #1),
  *      so the dropped chip immediately makes useful music.
+ *
+ * `oh` (open hat) and `rim` (rim) are deliberately NOT included - the
+ * loaded `github:tidalcycles/dirt-samples` bundle ships those folders
+ * empty in our build, so even `*4` of `oh:N` produces no audio. Use the
+ * toms (lt/mt/ht) for accents and `hh:N` variants if you need a tick.
  *
  * Synths carry a default `c e g` triad to drive the sample with a pitch
  * source (raw oscillators are silent without `note()`; sampled instruments
@@ -32,9 +37,7 @@ export const SOUND_PALETTE: SoundChip[] = [
   { name: 'bd', label: 'Kick', kind: 'drum', snippet: 's("bd*4")' },
   { name: 'sd', label: 'Snare', kind: 'drum', snippet: 's("sd*4")' },
   { name: 'hh', label: 'Hi-hat', kind: 'drum', snippet: 's("hh*4")' },
-  { name: 'oh', label: 'Open hat', kind: 'drum', snippet: 's("oh:1*4")' },
   { name: 'cp', label: 'Clap', kind: 'drum', snippet: 's("cp*4")' },
-  { name: 'rim', label: 'Rim', kind: 'drum', snippet: 's("rim:1*4")' },
   { name: 'cb', label: 'Cowbell', kind: 'drum', snippet: 's("cb*4")' },
   { name: 'lt', label: 'Low tom', kind: 'drum', snippet: 's("lt*4")' },
   { name: 'mt', label: 'Mid tom', kind: 'drum', snippet: 's("mt*4")' },
@@ -45,7 +48,6 @@ export const SOUND_PALETTE: SoundChip[] = [
   { name: 'pluck', label: 'Pluck', kind: 'synth', snippet: 'note("c e g").s("pluck")' },
   { name: 'jvbass', label: 'Bass', kind: 'synth', snippet: 'note("c2 eb2 g2").s("jvbass")' },
   { name: 'arpy', label: 'Arpy', kind: 'synth', snippet: 'note("c e g c5").s("arpy")' },
-  { name: 'sitar', label: 'Sitar', kind: 'synth', snippet: 'note("c e g").s("sitar")' },
   { name: 'sax', label: 'Sax', kind: 'synth', snippet: 'note("c e g").s("sax")' },
 ];
 

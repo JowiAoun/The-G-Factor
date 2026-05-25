@@ -55,10 +55,10 @@ export const VARIATION_AXES: VariationAxis[] = [
     label: 'Modulated',
     directive:
       'Use `.every(n, x => …)`, `.sometimes(…)`, or `.jux(rev)` so the pattern audibly evolves cycle to cycle.',
-    techniques: ['.every(n, fn)', '.sometimes(fn)', '.jux(rev)', 'melodic arpy/sitar'],
+    techniques: ['.every(n, fn)', '.sometimes(fn)', '.jux(rev)', 'melodic arpy/sax'],
     timbre: 'percpitch',
     timbreNote:
-      'Reach for soft melodic loops - `note(...).s("arpy")` or `note(...).s("sitar")` - and let `.every`/`.sometimes` re-cut them.',
+      'Reach for soft melodic loops - `note(...).s("arpy")` or `note(...).s("sax")` - and let `.every`/`.sometimes` re-cut them.',
     exemplar:
       'stack(s("bd sd"), note("c e g c5").s("arpy").every(4, x => x.fast(2)).sometimes(x => x.rev()).jux(rev))',
   },
@@ -94,7 +94,7 @@ export const VARIATION_AXES: VariationAxis[] = [
     techniques: ['.fast(n)', '.slow(n)', 'per-layer speed contrast', 'plucked melody'],
     timbre: 'pluck',
     timbreNote:
-      'Pair the speed contrast with a plucked melody - `note(...).s("pluck")` or `s("sitar")` - over half-time drums.',
+      'Pair the speed contrast with a plucked melody - `note(...).s("pluck")` or `note(...).s("arpy")` - over half-time drums.',
     exemplar:
       'stack(s("bd sd").slow(2), s("hh*8").fast(1.5), note("c4 e4 g4 b4").s("pluck"))',
   },

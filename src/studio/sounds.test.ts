@@ -3,8 +3,8 @@ import { parse } from '../strudel/parse';
 import { SOUND_PALETTE } from './sounds';
 
 describe('SOUND_PALETTE', () => {
-  it('exposes exactly 18 curated chips', () => {
-    expect(SOUND_PALETTE).toHaveLength(18);
+  it('exposes exactly 15 curated chips', () => {
+    expect(SOUND_PALETTE).toHaveLength(15);
   });
 
   it('has no duplicate names', () => {
@@ -12,11 +12,11 @@ describe('SOUND_PALETTE', () => {
     expect(new Set(names).size).toBe(names.length);
   });
 
-  it('mixes 10 drums and 8 synths', () => {
+  it('mixes 8 drums and 7 synths', () => {
     const drums = SOUND_PALETTE.filter((c) => c.kind === 'drum');
     const synths = SOUND_PALETTE.filter((c) => c.kind === 'synth');
-    expect(drums).toHaveLength(10);
-    expect(synths).toHaveLength(8);
+    expect(drums).toHaveLength(8);
+    expect(synths).toHaveLength(7);
   });
 
   it('every chip carries a non-empty label and snippet', () => {
@@ -64,10 +64,14 @@ describe('SOUND_PALETTE', () => {
 
   it('does not expose any of the banned timbres', () => {
     // Regression fence - sawtooth/square sound too electric, and pad/stab/
-    // tabla were flagged as unpleasant during audit. Removing them from the
-    // palette is the user-facing half of the banlist; the AI-prompt half
-    // lives in src/model/prompts.ts.
-    const BANNED = ['sawtooth', 'square', 'pad', 'stab', 'tabla', 'tabla2'];
+    // tabla were flagged as unpleasant during audit. `oh` and `rim` are
+    // here too because the loaded dirt-samples bundle ships those folders
+    // empty - chips for them produced no audio output at all.
+    // Removing them from the palette is the user-facing half of the
+    // banlist; the AI-prompt half lives in src/model/prompts.ts.
+    const BANNED = [
+      'sawtooth', 'square', 'pad', 'stab', 'tabla', 'tabla2', 'oh', 'rim', 'sitar',
+    ];
     const names = SOUND_PALETTE.map((c) => c.name);
     for (const name of BANNED) {
       expect(names, `${name} must not appear in SOUND_PALETTE`).not.toContain(name);
