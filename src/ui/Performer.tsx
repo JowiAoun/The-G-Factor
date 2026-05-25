@@ -62,15 +62,16 @@ export function Performer({
   if (isDnf) classes.push('is-dnf');
   if (state === 'playing') classes.push('is-playing');
 
-  const wrapStyle: React.CSSProperties = {};
-  if (size != null) wrapStyle['--perf-size' as string] = `${size}px`;
-  if (isPlaying) wrapStyle['--aura' as string] = amp.toFixed(2);
+  const wrapVars: Record<string, string> = {};
+  if (size != null) wrapVars['--perf-size'] = `${size}px`;
+  if (isPlaying)    wrapVars['--aura']      = amp.toFixed(2);
+  const wrapStyle = wrapVars as React.CSSProperties;
 
   return (
     <div className={classes.join(' ')}>
       <div
         className="performer-avatar-wrap"
-        style={Object.keys(wrapStyle).length ? wrapStyle : undefined}
+        style={Object.keys(wrapVars).length ? wrapStyle : undefined}
       >
         <div
           className="performer-avatar"
