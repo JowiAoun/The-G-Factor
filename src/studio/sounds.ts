@@ -34,6 +34,11 @@ export const SOUND_PALETTE: SoundChip[] = [
   { name: 'triangle', label: 'Tri', kind: 'synth', snippet: 'note("c e g").s("triangle")' },
   { name: 'sine', label: 'Sine', kind: 'synth', snippet: 'note("c e g").s("sine")' },
   { name: 'piano', label: 'Piano', kind: 'synth', snippet: 'note("c e g").s("piano")' },
+  { name: 'pluck', label: 'Pluck', kind: 'synth', snippet: 'note("c e g").s("pluck")' },
+  { name: 'pad', label: 'Pad', kind: 'synth', snippet: 's("pad").slow(4)' },
+  { name: 'jvbass', label: 'Bass', kind: 'synth', snippet: 'note("c2 eb2 g2").s("jvbass")' },
+  { name: 'stab', label: 'Stab', kind: 'synth', snippet: 's("stab")' },
+  { name: 'tabla', label: 'Tabla', kind: 'synth', snippet: 's("tabla").fast(4)' },
 ];
 
 export const STRUDEL_SNIPPET_MIME = 'application/x-strudel-snippet';
