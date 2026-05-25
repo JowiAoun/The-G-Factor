@@ -24,7 +24,6 @@ import {
 } from '../model/backend';
 import { pickRandomSeed } from '../seeds/gallery';
 import { loadDraft, seedStudioDraft } from '../studio/storage';
-import { TasteSidebar } from './TasteSidebar';
 import { TalentShow } from './TalentShow';
 import { Studio } from './Studio';
 import { BackendChooserModal } from './BackendChooserModal';
@@ -157,11 +156,6 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
   }, []);
 
   const bumpTaste = useCallback(() => setTasteVersion((v) => v + 1), []);
-  const handleTasteCleared = useCallback(() => {
-    // Bump so Studio's `likedMixCodes` set (a sibling to the sidebar)
-    // also refreshes from an empty store.
-    setTasteVersion((v) => v + 1);
-  }, []);
 
   /**
    * Studio → Talent Show bridge: switch tabs with the current mix as the seed.
@@ -344,8 +338,6 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
       )}
 
       {mode === 'leaderboard' && <Leaderboard version={tasteVersion} />}
-
-      <TasteSidebar version={tasteVersion} onCleared={handleTasteCleared} />
 
       <Footer />
 
