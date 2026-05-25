@@ -4,7 +4,11 @@ import { App, type AppMode } from './ui/App';
 import './styles.css';
 
 const params = new URLSearchParams(window.location.search);
-const initialMode: AppMode = params.has('talentshow') ? 'talentshow' : 'remix';
+const initialMode: AppMode = params.has('leaderboard')
+  ? 'leaderboard'
+  : params.has('talentshow')
+    ? 'talentshow'
+    : 'remix';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

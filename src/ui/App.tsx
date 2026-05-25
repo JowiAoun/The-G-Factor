@@ -29,9 +29,10 @@ import { TalentShow } from './TalentShow';
 import { Studio } from './Studio';
 import { BackendChooserModal } from './BackendChooserModal';
 import { Footer } from './Footer';
+import { Leaderboard } from './Leaderboard';
 
 type ModelState = 'idle' | 'loading' | 'ready' | 'error';
-export type AppMode = 'remix' | 'talentshow';
+export type AppMode = 'remix' | 'talentshow' | 'leaderboard';
 
 export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
   const [mode, setMode] = useState<AppMode>(initialMode);
@@ -95,8 +96,10 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
   // Mirror active tab into the URL so refresh + deep-link both work.
   useEffect(() => {
     const url = new URL(window.location.href);
+    url.searchParams.delete('talentshow');
+    url.searchParams.delete('leaderboard');
     if (mode === 'talentshow') url.searchParams.set('talentshow', '1');
-    else url.searchParams.delete('talentshow');
+    else if (mode === 'leaderboard') url.searchParams.set('leaderboard', '1');
     window.history.replaceState({}, '', url.toString());
   }, [mode]);
 
@@ -222,6 +225,17 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
             🎪 Talent Show
           </button>
           <button
+            className={`mode-tab${mode === 'leaderboard' ? ' active' : ''}`}
+            role="tab"
+            aria-selected={mode === 'leaderboard'}
+            onClick={() => {
+              if (mode === 'leaderboard') return;
+              setMode('leaderboard');
+            }}
+          >
+            🏆 Leaderboard
+          </button>
+          <button
             className="header-settings-btn"
             onClick={handleOpenSettings}
             title="Switch model backend"
@@ -328,6 +342,8 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
           onOpenSettings={handleOpenSettings}
         />
       )}
+
+      {mode === 'leaderboard' && <Leaderboard version={tasteVersion} />}
 
       <TasteSidebar version={tasteVersion} onCleared={handleTasteCleared} />
 
