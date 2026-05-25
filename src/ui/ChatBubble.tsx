@@ -35,7 +35,7 @@ export function ChatBubble({
           className="mini-avatar"
           aria-hidden="true"
           dangerouslySetInnerHTML={{
-            __html: renderAvatar(PERSONA.avatarSeed, 'smile'),
+            __html: renderAvatar(PERSONA.avatarSeed, 'smile', PERSONA.avatarOptions),
           }}
         />
       )}

@@ -8,7 +8,7 @@ import {
 import { VARIATION_AXES } from '../remix/axes';
 
 describe('buildRemixPrompt (Studio / regression guard)', () => {
-  // The Studio's Bleep path uses a different builder, but `buildRemixPrompt`
+  // The Studio's Gemma path uses a different builder, but `buildRemixPrompt`
   // is still exported and we don't want its voice to drift just because the
   // Talent Show got louder next door. Guard the shape.
   it('returns the bare SYSTEM_PROMPT as system message', () => {

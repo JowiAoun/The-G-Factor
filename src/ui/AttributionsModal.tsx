@@ -49,7 +49,7 @@ export function AttributionsModal({ onClose }: Props) {
         <section className="attr-section">
           <h3>Avatars</h3>
           <p>
-            Talent-show contestants and the Bleep persona wear the{' '}
+            Talent-show contestants and the Gemma persona wear the{' '}
             <a
               href="https://www.dicebear.com/styles/toon-head/"
               target="_blank"

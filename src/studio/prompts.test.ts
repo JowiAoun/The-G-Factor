@@ -46,9 +46,9 @@ describe('buildTurnPrompt - system content', () => {
     expect(messages[0].content).toMatch(/<empty/);
   });
 
-  it('includes Bleep persona + JSON rule unconditionally', () => {
+  it('includes Gemma persona + JSON rule unconditionally', () => {
     const { messages } = buildTurnPrompt('', [], 'hi');
-    expect(messages[0].content).toMatch(/Bleep/);
+    expect(messages[0].content).toMatch(/Gemma/);
     expect(messages[0].content).toMatch(/new_mix_code/);
     expect(messages[0].content).toMatch(/action_label/);
   });

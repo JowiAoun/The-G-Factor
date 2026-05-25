@@ -5,7 +5,7 @@ import { useTalkCycle } from './useTalkCycle';
 import { useAudioMouth } from './useAudioMouth';
 
 /**
- * Bleep's mood drives the mouth state:
+ * Gemma's mood drives the mouth state:
  *   idle      → smile (closed)
  *   thinking  → smile ↔ agape on a 200 ms cycle (lip-sync)
  *   saved     → laugh (after a successful "Save as…")

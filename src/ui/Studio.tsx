@@ -63,7 +63,7 @@ function StudioInner({
   onOpenSettings,
 }: StudioProps) {
   // Boot from a persisted draft when present; otherwise start fresh with
-  // Bleep's greeting. We read once on first render via useMemo so React
+  // Gemma's greeting. We read once on first render via useMemo so React
   // StrictMode's double-effect doesn't double-write the draft.
   const initial = useMemo(() => loadDraft(), []);
   const [mixCode, setMixCode] = useState(initial?.mix_code ?? '');
@@ -95,7 +95,7 @@ function StudioInner({
   // CodeMirror has its own per-keystroke history; Studio's undoStack stays
   // at "macro" granularity (one entry per chat turn / palette drop / settled
   // typing burst) so the ↶ Undo button doesn't take 50 clicks to back out
-  // one Bleep turn. `editStartMixRef` snapshots the pre-typing mix on the
+  // one Gemma turn. `editStartMixRef` snapshots the pre-typing mix on the
   // first keystroke of a burst; `editDebounceRef` is the 1.5 s timer.
   // `dropFlagRef` lets the drop handler claim an undo push for itself so
   // the subsequent onChange echo doesn't schedule a duplicate.
@@ -582,7 +582,7 @@ function StudioInner({
           <div className="exemplar-pill-row">
             <span
               className="exemplar-pill"
-              title="Top-K liked mixes were injected into Bleep's prompt for this turn"
+              title="Top-K liked mixes were injected into Gemma's prompt for this turn"
             >
               ♥ {usedExemplars} taste exemplar{usedExemplars === 1 ? '' : 's'} used
             </span>
@@ -607,11 +607,11 @@ function StudioInner({
           role="log"
           aria-live="polite"
           aria-relevant="additions"
-          aria-label="Chat with Bleep"
+          aria-label="Chat with Gemma"
         >
           {history.map((t, i) => {
             // Stream only the newest assistant turn - gives the typewriter
-            // effect on Bleep's freshest reply without re-animating the
+            // effect on Gemma's freshest reply without re-animating the
             // whole transcript on every render.
             const isLatestAssistant =
               i === history.length - 1 && t.role === 'assistant' && !generating;
@@ -638,10 +638,10 @@ function StudioInner({
             currentMode === 'local' && !modelReady
               ? 'load the model first'
               : generating
-                ? 'bleep is thinking…'
+                ? 'gemma is thinking…'
                 : currentMode === 'remote' && !modelReady
-                  ? '> add your OpenRouter key in ⚙ Settings to chat with Bleep'
-                  : '> ask Bleep for what to add or change (try "start with a four-on-the-floor kick")'
+                  ? '> add your OpenRouter key in ⚙ Settings to chat with Gemma'
+                  : '> ask Gemma for what to add or change (try "start with a four-on-the-floor kick")'
           }
         />
       </div>

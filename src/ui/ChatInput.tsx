@@ -74,7 +74,7 @@ export function ChatInput({
           className="primary"
           onClick={submit}
           disabled={disabled || !text.trim()}
-          aria-label="Send message to Bleep"
+          aria-label="Send message to Gemma"
         >
           Send
         </button>

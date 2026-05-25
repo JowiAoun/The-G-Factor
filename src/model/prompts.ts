@@ -87,7 +87,7 @@ Output:`,
 }
 
 // Appended to SYSTEM_PROMPT only when the Talent Show is building a prompt.
-// Bleep (the Studio chat builder) never sees this - its voice should stay
+// Gemma (the Studio chat builder) never sees this - its voice should stay
 // surgical, not maximalist.
 export const TALENT_SHOW_SYSTEM_PROMPT_SUFFIX = `TALENT SHOW STAGE
 You are auditioning for a remix bracket. Each contestant explores a different musical territory. Compose a layered Strudel pattern - typically a \`stack(...)\` of 3 to 4 lines, or a single line with 3+ chained methods. Aim for ~5 to 12 lines of formatted code. The seed's identity should still be recognisable, but boldness wins.

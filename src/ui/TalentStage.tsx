@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { Audience } from './Audience';
 
 export type StagePhase = 'casting' | 'showing' | 'champion';
 export type CurtainState = 'open' | 'closed';
@@ -62,6 +63,8 @@ export function TalentStage({
           <span key={i} className="stage-footlight" />
         ))}
       </div>
+
+      <Audience cheering={!!spotlightActive} />
 
       <div className="stage-curtain left" aria-hidden="true" />
       <div className="stage-curtain right" aria-hidden="true" />

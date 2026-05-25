@@ -38,7 +38,7 @@ export class TurnCancelledError extends Error {
 }
 
 /**
- * One conversational round-trip with Bleep.
+ * One conversational round-trip with Gemma.
  *
  * Wraps `generate()` from the Gemma loader, validates the JSON with
  * `safeParseTurn`, then runs the proposed mix code through the parser

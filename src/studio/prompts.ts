@@ -20,7 +20,7 @@ If the user's request can't be satisfied musically, return the previous mix verb
 /**
  * How many prior turns of chat history get echoed back into the model.
  *
- * Six was picked empirically - enough for Bleep to maintain a coherent
+ * Six was picked empirically - enough for Gemma to maintain a coherent
  * thread ("you just added hats, now I'm asking for snare"), short enough
  * to keep the prompt budget comfortable on Gemma 4 E2B.
  */
@@ -62,7 +62,7 @@ function buildSystem(currentMix: string, exemplars: Exemplar[]): string {
 /**
  * Build the message array passed to `generate()` for one studio chat turn.
  *
- * The model sees: the Strudel cheat sheet, Bleep's persona, the JSON rule,
+ * The model sees: the Strudel cheat sheet, Gemma's persona, the JSON rule,
  * the current mix code in the system message; then the last few real chat
  * turns; then the user's new message (with an optional retry hint when an
  * earlier attempt produced invalid Strudel).

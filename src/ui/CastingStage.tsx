@@ -1,32 +1,13 @@
 import { useEffect, useMemo } from 'react';
 import { preloadAvatar, renderAvatar, type MouthState } from '../talent/avatar';
-import type { ToonHeadOptions } from '../talent/characters';
+import {
+  GEMMA_AVATAR_OPTIONS,
+  GEMMA_AVATAR_SEED,
+  GEMMA_NAME,
+} from '../talent/gemma';
 import { useChatterMouth } from './useChatterMouth';
 import { useAnnouncerJoke } from './useAnnouncerJoke';
 import { TalentStage, type CurtainState } from './TalentStage';
-
-const HOST_AVATAR_SEED = 'gemma-the-host';
-const HOST_NAME = 'Gemma';
-
-/**
- * Pinned avatar config for the host. Curated rather than seed-hashed so
- * Gemma stays visually consistent across casting screens: long wavy
- * blonde hair (with front coverage so the crown isn't bald), open eyes
- * and lifted brows for stage-presenter energy, warm-red jacket.
- */
-const HOST_AVATAR_OPTIONS: ToonHeadOptions = {
-  hairProbability: 100,
-  rearHairProbability: 100,
-  beardProbability: 0,
-  rearHair: ['longWavy'],
-  hair: ['sideComed'],
-  eyes: ['wide'],
-  eyebrows: ['raised'],
-  clothes: ['openJacket'],
-  skinColor: ['f2d3b1'],
-  hairColor: ['c8a165'],
-  clothesColor: ['b85c5c'],
-};
 
 type CastingStageProps = {
   bracketSize: 4 | 8;
@@ -57,7 +38,7 @@ export function CastingStage({
   // Warm Gemma's five mouth-state SVGs up-front so the lip-sync never
   // blinks while a cache miss resolves.
   useEffect(() => {
-    preloadAvatar(HOST_AVATAR_SEED, HOST_AVATAR_OPTIONS);
+    preloadAvatar(GEMMA_AVATAR_SEED, GEMMA_AVATAR_OPTIONS);
   }, []);
 
   // When the curtains are closing, the host takes a bow and stops talking.
@@ -74,7 +55,7 @@ export function CastingStage({
       ? 'smile'
       : 'agape';
   const svg = useMemo(
-    () => renderAvatar(HOST_AVATAR_SEED, mouth, HOST_AVATAR_OPTIONS),
+    () => renderAvatar(GEMMA_AVATAR_SEED, mouth, GEMMA_AVATAR_OPTIONS),
     [mouth],
   );
 
@@ -90,7 +71,7 @@ export function CastingStage({
           aria-hidden="true"
           dangerouslySetInnerHTML={{ __html: svg }}
         />
-        <div className="casting-host-name">{HOST_NAME}, your host</div>
+        <div className="casting-host-name">{GEMMA_NAME}, your host</div>
         <div
           key={joke}
           className="casting-host-bubble"
