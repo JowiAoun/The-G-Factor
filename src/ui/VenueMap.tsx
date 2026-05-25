@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { AppMode } from './App';
 import { StageLamp } from './StageLamp';
 
@@ -15,11 +15,9 @@ const VENUES: Venue[] = [
   { id: 'leaderboard', label: 'Hall of Fame',   sublabel: 'every champion, ever',     icon: '🏆' },
 ];
 
+const HALL_OF_FAME_IDX = VENUES.length - 1;
 const LAMP_LENS_Y = 68; // matches `.stage-lamp-lens` vertical placement in styles.css
-// Soft cap on cone rotation. 55deg covers cursors at the far edges of a
-// wide button comfortably; anything more becomes a near-horizontal beam.
-// The previous 22deg cap was too tight - the cone bottom landed nowhere
-// near the cursor at button edges, reading as "flipped/off-target".
+// Soft cap on cone rotation; covers wide buttons without going horizontal.
 const CONE_MAX_TILT_DEG = 55;
 const CURSOR_LERP_DAMPING = 0.30;
 const LERP_STOP_THRESHOLD = 0.3;
@@ -35,24 +33,21 @@ type VenueMapProps = {
  * as its own miniature proscenium: gold-trimmed arch, bulbs that chase
  * around the active door, brief sublabel below.
  *
- * A single stage lamp (`StageLamp`) hangs from the arch and tracks the
- * hovered/focused button: it swings horizontally to centre over the target
- * and projects a cone of warm light that tilts toward the cursor.
- *
- * Backstage lives in the top-right corner of the nav (outside the
- * proscenium) so it doesn't pull the three main doors off-centre, and the
- * lamp deliberately skips it - the lamp is for show destinations, not the
- * utility door out to settings.
+ * A single stage lamp (`StageLamp`) hangs from the arch and parks over the
+ * currently-selected venue at rest, swings to whichever door the user
+ * hovers/focuses, and projects a cone of warm light that tilts toward the
+ * cursor. Backstage lives in Hall of Fame's bottom-right corner (its cell
+ * is its anchor) so the three main doors centre symmetrically and the
+ * lamp doesn't waste a swing on a utility button.
  *
  * Per-pixel cone tracking runs through a rAF lerp loop that writes CSS
  * variables directly via `setProperty`; React state stays coarse (one
  * update per hover/focus change) so the cursor's motion never re-renders
- * the component. Self-terminates when the lerp converges so idle CPU
- * stays at zero.
+ * the component.
  */
 export function VenueMap({ mode, onSelect, onOpenSettings }: VenueMapProps) {
   const navRef = useRef<HTMLElement | null>(null);
-  const buttonRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const cellRefs = useRef<Array<HTMLDivElement | null>>([]);
   const targetRef = useRef({ cursorX: 0, cursorY: 0 });
   const currentRef = useRef({ cursorX: 0, cursorY: 0 });
   const lampXRef = useRef<number>(0);
@@ -60,6 +55,11 @@ export function VenueMap({ mode, onSelect, onOpenSettings }: VenueMapProps) {
   const reducedMotionRef = useRef<boolean>(false);
 
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+
+  const selectedIdx = useMemo(() => {
+    const idx = VENUES.findIndex((v) => v.id === mode);
+    return idx === -1 ? 0 : idx;
+  }, [mode]);
 
   useEffect(() => {
     reducedMotionRef.current =
@@ -72,7 +72,10 @@ export function VenueMap({ mode, onSelect, onOpenSettings }: VenueMapProps) {
     if (!nav) return;
     const dx = currentRef.current.cursorX - lampXRef.current;
     const dy = Math.max(20, currentRef.current.cursorY - LAMP_LENS_Y);
-    const rawTilt = (Math.atan2(dx, dy) * 180) / Math.PI;
+    // Negated: CSS rotate(+deg) is CW, and CW from straight-down in screen
+    // coords (y-axis points down) moves the cone bottom to the LEFT. We
+    // want bottom toward cursor, so flip the sign.
+    const rawTilt = -((Math.atan2(dx, dy) * 180) / Math.PI);
     const tilt = Math.max(-CONE_MAX_TILT_DEG, Math.min(CONE_MAX_TILT_DEG, rawTilt));
     const length = Math.sqrt(dx * dx + dy * dy);
     nav.style.setProperty('--cone-rotation', `${tilt}deg`);
@@ -91,7 +94,6 @@ export function VenueMap({ mode, onSelect, onOpenSettings }: VenueMapProps) {
     if (dx > LERP_STOP_THRESHOLD || dy > LERP_STOP_THRESHOLD) {
       rafIdRef.current = requestAnimationFrame(tick);
     } else {
-      // Snap to exact target so we don't leave sub-pixel drift on screen.
       c.cursorX = t.cursorX;
       c.cursorY = t.cursorY;
       writeConeVars();
@@ -105,14 +107,14 @@ export function VenueMap({ mode, onSelect, onOpenSettings }: VenueMapProps) {
     nav.style.setProperty('--lamp-x', `${px}px`);
   }, []);
 
-  const handleEnter = (idx: number) => (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleEnter = (idx: number) => (e: React.MouseEvent<HTMLDivElement>) => {
     setHoveredIdx(idx);
     const nav = navRef.current;
-    const btn = buttonRefs.current[idx];
-    if (!nav || !btn) return;
+    const cell = cellRefs.current[idx];
+    if (!nav || !cell) return;
     const navRect = nav.getBoundingClientRect();
-    const btnRect = btn.getBoundingClientRect();
-    setLampX(btnRect.left + btnRect.width / 2 - navRect.left);
+    const cellRect = cell.getBoundingClientRect();
+    setLampX(cellRect.left + cellRect.width / 2 - navRect.left);
     targetRef.current.cursorX = e.clientX - navRect.left;
     targetRef.current.cursorY = e.clientY - navRect.top;
     // Snap on enter so the cone appears in the right place over the new
@@ -122,7 +124,7 @@ export function VenueMap({ mode, onSelect, onOpenSettings }: VenueMapProps) {
     writeConeVars();
   };
 
-  const handleMove = (idx: number) => (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleMove = (idx: number) => (e: React.MouseEvent<HTMLDivElement>) => {
     const nav = navRef.current;
     if (!nav) return;
     const navRect = nav.getBoundingClientRect();
@@ -137,7 +139,6 @@ export function VenueMap({ mode, onSelect, onOpenSettings }: VenueMapProps) {
     if (rafIdRef.current == null) {
       rafIdRef.current = requestAnimationFrame(tick);
     }
-    // Silence unused-param when idx isn't read directly here.
     void idx;
   };
 
@@ -148,12 +149,12 @@ export function VenueMap({ mode, onSelect, onOpenSettings }: VenueMapProps) {
   const handleFocus = (idx: number) => () => {
     setHoveredIdx(idx);
     const nav = navRef.current;
-    const btn = buttonRefs.current[idx];
-    if (!nav || !btn) return;
+    const cell = cellRefs.current[idx];
+    if (!nav || !cell) return;
     const navRect = nav.getBoundingClientRect();
-    const btnRect = btn.getBoundingClientRect();
-    const cx = btnRect.left + btnRect.width / 2 - navRect.left;
-    const cy = btnRect.top + btnRect.height / 2 - navRect.top;
+    const cellRect = cell.getBoundingClientRect();
+    const cx = cellRect.left + cellRect.width / 2 - navRect.left;
+    const cy = cellRect.top + cellRect.height / 2 - navRect.top;
     setLampX(cx);
     targetRef.current.cursorX = cx;
     targetRef.current.cursorY = cy;
@@ -166,35 +167,30 @@ export function VenueMap({ mode, onSelect, onOpenSettings }: VenueMapProps) {
     setHoveredIdx(null);
   };
 
-  // Re-centre the lamp on resize. While idle, drop the inline --lamp-x so
-  // the CSS default (50%) takes over - that way the rest position adapts
-  // to any width change without us tracking it.
-  useEffect(() => {
+  // Park lamp over hovered button (if any) or the selected venue. Single
+  // source of truth: this effect runs whenever the active button changes
+  // or the nav resizes. Always writes a pixel value - never falls back to
+  // the (broken) CSS percentage default. useLayoutEffect so the lamp is
+  // positioned correctly before paint on mount and on mode switch.
+  useLayoutEffect(() => {
     const nav = navRef.current;
     if (!nav) return;
-    const onResize = () => {
-      if (hoveredIdx == null) {
-        nav.style.removeProperty('--lamp-x');
-        lampXRef.current = nav.getBoundingClientRect().width / 2;
-      } else {
-        const btn = buttonRefs.current[hoveredIdx];
-        if (btn) {
-          const navRect = nav.getBoundingClientRect();
-          const btnRect = btn.getBoundingClientRect();
-          setLampX(btnRect.left + btnRect.width / 2 - navRect.left);
-          writeConeVars();
-        }
-      }
+    const park = () => {
+      const idx = hoveredIdx ?? selectedIdx;
+      const cell = cellRefs.current[idx];
+      if (!cell) return;
+      const navRect = nav.getBoundingClientRect();
+      const cellRect = cell.getBoundingClientRect();
+      setLampX(cellRect.left + cellRect.width / 2 - navRect.left);
     };
-    onResize();
-    const ro = new ResizeObserver(onResize);
+    park();
+    const ro = new ResizeObserver(park);
     ro.observe(nav);
     return () => ro.disconnect();
-  }, [hoveredIdx, setLampX, writeConeVars]);
+  }, [hoveredIdx, selectedIdx, setLampX]);
 
-  // Toggle --lamp-active on the document element so the body::after audience
-  // dim picks it up alongside the nav-scoped cone fade and lens glow (CSS
-  // var inheritance carries it down into .venue-map).
+  // Toggle --lamp-active on the document element so body::after audience
+  // dim picks it up alongside the nav-scoped cone fade and lens glow.
   useEffect(() => {
     document.documentElement.style.setProperty(
       '--lamp-active',
@@ -202,8 +198,6 @@ export function VenueMap({ mode, onSelect, onOpenSettings }: VenueMapProps) {
     );
   }, [hoveredIdx]);
 
-  // Cancel any in-flight rAF on unmount, and reset --lamp-active so the dim
-  // doesn't stay stuck on after route changes that unmount the nav.
   useEffect(() => () => {
     if (rafIdRef.current != null) cancelAnimationFrame(rafIdRef.current);
     document.documentElement.style.removeProperty('--lamp-active');
@@ -221,51 +215,58 @@ export function VenueMap({ mode, onSelect, onOpenSettings }: VenueMapProps) {
       <div className="venue-doors">
         {VENUES.map((v, i) => {
           const here = mode === v.id;
+          const isHallOfFame = i === HALL_OF_FAME_IDX;
           return (
-            <button
+            <div
               key={v.id}
-              ref={(el) => { buttonRefs.current[i] = el; }}
-              type="button"
-              role="tab"
-              aria-selected={here}
-              aria-label={v.label}
-              className={`venue-door${here ? ' is-here' : ''}`}
-              onClick={() => {
-                if (!here) onSelect(v.id);
-              }}
+              ref={(el) => { cellRefs.current[i] = el; }}
+              className="venue-door-cell"
               onMouseEnter={handleEnter(i)}
               onMouseMove={handleMove(i)}
               onMouseLeave={handleLeave}
-              onFocus={handleFocus(i)}
-              onBlur={handleBlur}
             >
-              <span className="venue-door-bulbs" aria-hidden="true">
-                {Array.from({ length: 9 }, (_, b) => (
-                  <span
-                    key={b}
-                    className="venue-bulb"
-                    style={{ animationDelay: `${b * 80}ms` }}
-                  />
-                ))}
-              </span>
-              <span className="venue-door-arch" aria-hidden="true" />
-              <span className="venue-door-icon" aria-hidden="true">{v.icon}</span>
-              <span className="venue-door-label">{v.label}</span>
-              <span className="venue-door-sub">{v.sublabel}</span>
-            </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={here}
+                aria-label={v.label}
+                className={`venue-door${here ? ' is-here' : ''}`}
+                onClick={() => {
+                  if (!here) onSelect(v.id);
+                }}
+                onFocus={handleFocus(i)}
+                onBlur={handleBlur}
+              >
+                <span className="venue-door-bulbs" aria-hidden="true">
+                  {Array.from({ length: 9 }, (_, b) => (
+                    <span
+                      key={b}
+                      className="venue-bulb"
+                      style={{ animationDelay: `${b * 80}ms` }}
+                    />
+                  ))}
+                </span>
+                <span className="venue-door-arch" aria-hidden="true" />
+                <span className="venue-door-icon" aria-hidden="true">{v.icon}</span>
+                <span className="venue-door-label">{v.label}</span>
+                <span className="venue-door-sub">{v.sublabel}</span>
+              </button>
+              {isHallOfFame && (
+                <button
+                  type="button"
+                  className="venue-stage-door"
+                  onClick={onOpenSettings}
+                  aria-label="Backstage (settings)"
+                  title="Backstage: pick your engine"
+                >
+                  <span aria-hidden="true">🚪</span>
+                  <span className="venue-stage-door-label">Backstage</span>
+                </button>
+              )}
+            </div>
           );
         })}
       </div>
-      <button
-        type="button"
-        className="venue-stage-door"
-        onClick={onOpenSettings}
-        aria-label="Backstage (settings)"
-        title="Backstage: pick your engine"
-      >
-        <span aria-hidden="true">🚪</span>
-        <span className="venue-stage-door-label">Backstage</span>
-      </button>
     </nav>
   );
 }

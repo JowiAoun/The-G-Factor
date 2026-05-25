@@ -226,15 +226,6 @@ export function App({ initialMode = 'talentshow' }: { initialMode?: AppMode } = 
             <span className="wordmark-factor">FACTOR</span>
           </span>
         </div>
-        <div className="sub">
-          Where Gemma learns your sound, live.{' '}
-          <span
-            className="brand-explain"
-            title="The g factor is psychology's name for general intelligence: the broad cognitive capacity behind diverse tasks. We use Gemma as the engine."
-          >
-            G = general intelligence × Gemma
-          </span>
-        </div>
       </header>
 
       <VenueMap
