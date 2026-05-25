@@ -1,0 +1,91 @@
+<mxfile host="app.diagrams.net" agent="the-g-factor-blog" version="24.0.0">
+  <diagram name="Why The G Factor" id="why-g-factor">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1040" math="0" shadow="0" background="#141021">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="lyr_title" value="Title" parent="0" />
+        <mxCell id="lyr_spotlights" value="Spotlights" parent="0" />
+        <mxCell id="lyr_wordmark" value="Wordmark" parent="0" />
+        <mxCell id="lyr_mapping" value="Mapping table" parent="0" />
+
+        <mxCell id="title" value="Why &quot;The G Factor&quot;?" style="text;html=1;fontColor=#FFD24A;fontSize=30;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="lyr_title">
+          <mxGeometry x="560" y="16" width="480" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="title_sub" value="One name, three readings - and each maps onto what the app actually does." style="text;html=1;fontColor=#C9B8FF;fontSize=15;align=center;verticalAlign=middle;" vertex="1" parent="lyr_title">
+          <mxGeometry x="460" y="60" width="680" height="26" as="geometry" />
+        </mxCell>
+
+        <mxCell id="spot_a" value="" style="ellipse;fillColor=#FFD24A;strokeColor=none;opacity=20;" vertex="1" parent="lyr_spotlights">
+          <mxGeometry x="420" y="100" width="470" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="spot_b" value="" style="ellipse;fillColor=#19E0FF;strokeColor=none;opacity=18;" vertex="1" parent="lyr_spotlights">
+          <mxGeometry x="760" y="100" width="470" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="spot_c" value="" style="ellipse;fillColor=#FF3D7F;strokeColor=none;opacity=18;" vertex="1" parent="lyr_spotlights">
+          <mxGeometry x="590" y="260" width="470" height="320" as="geometry" />
+        </mxCell>
+        <mxCell id="spot_a_lbl" value="Gemma's G&#10;the model" style="text;html=1;fontColor=#FFD24A;fontSize=16;fontStyle=1;align=center;verticalAlign=middle;whiteSpace=wrap;" vertex="1" parent="lyr_spotlights">
+          <mxGeometry x="460" y="120" width="220" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="spot_b_lbl" value="g factor&#10;general intelligence" style="text;html=1;fontColor=#19E0FF;fontSize=16;fontStyle=1;align=center;verticalAlign=middle;whiteSpace=wrap;" vertex="1" parent="lyr_spotlights">
+          <mxGeometry x="980" y="120" width="240" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="spot_c_lbl" value="The &quot;Factor&quot;&#10;a talent show" style="text;html=1;fontColor=#FF6FA3;fontSize=16;fontStyle=1;align=center;verticalAlign=middle;whiteSpace=wrap;" vertex="1" parent="lyr_spotlights">
+          <mxGeometry x="710" y="520" width="230" height="44" as="geometry" />
+        </mxCell>
+
+        <mxCell id="wordmark" value="THE G FACTOR" style="rounded=1;arcSize=14;fillColor=#141021;strokeColor=#FFD24A;strokeWidth=3;fontColor=#FFD24A;fontSize=34;fontStyle=1;shadow=1;whiteSpace=wrap;html=1;" vertex="1" parent="lyr_wordmark">
+          <mxGeometry x="615" y="250" width="410" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="tagline" value="Where Gemma learns your sound, live." style="text;html=1;fontColor=#E9DBFF;fontSize=16;fontStyle=2;align=center;verticalAlign=middle;" vertex="1" parent="lyr_wordmark">
+          <mxGeometry x="600" y="350" width="440" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="map_h_l" value="Psychometric g factor" style="rounded=0;fillColor=#FFD24A;strokeColor=#FFB300;fontColor=#141021;fontStyle=1;fontSize=15;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;" vertex="1" parent="lyr_mapping">
+          <mxGeometry x="200" y="600" width="600" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="map_h_r" value="The G Factor (the app)" style="rounded=0;fillColor=#FF3D7F;strokeColor=#C72866;fontColor=#FFFFFF;fontStyle=1;fontSize=15;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;" vertex="1" parent="lyr_mapping">
+          <mxGeometry x="800" y="600" width="600" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="map_l1" value="One latent capacity predicting performance across diverse cognitive tasks" style="rounded=0;fillColor=#241a33;strokeColor=#5a4b86;fontColor=#E9DBFF;fontSize=13;whiteSpace=wrap;html=1;align=left;spacingLeft=12;verticalAlign=middle;" vertex="1" parent="lyr_mapping">
+          <mxGeometry x="200" y="650" width="600" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="map_r1" value="One small Gemma model performing across diverse musical tasks it never trained on" style="rounded=0;fillColor=#10222b;strokeColor=#2a6b78;fontColor=#D6FBFF;fontSize=13;whiteSpace=wrap;html=1;align=left;spacingLeft=12;verticalAlign=middle;" vertex="1" parent="lyr_mapping">
+          <mxGeometry x="800" y="650" width="600" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="map_l2" value="A test battery of varied subtests" style="rounded=0;fillColor=#241a33;strokeColor=#5a4b86;fontColor=#E9DBFF;fontSize=13;whiteSpace=wrap;html=1;align=left;spacingLeft=12;verticalAlign=middle;" vertex="1" parent="lyr_mapping">
+          <mxGeometry x="200" y="712" width="600" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="map_r2" value="The single-elimination bracket of 4-8 contestants" style="rounded=0;fillColor=#10222b;strokeColor=#2a6b78;fontColor=#D6FBFF;fontSize=13;whiteSpace=wrap;html=1;align=left;spacingLeft=12;verticalAlign=middle;" vertex="1" parent="lyr_mapping">
+          <mxGeometry x="800" y="712" width="600" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="map_l3" value="The subtests themselves" style="rounded=0;fillColor=#241a33;strokeColor=#5a4b86;fontColor=#E9DBFF;fontSize=13;whiteSpace=wrap;html=1;align=left;spacingLeft=12;verticalAlign=middle;" vertex="1" parent="lyr_mapping">
+          <mxGeometry x="200" y="762" width="600" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="map_r3" value="8 musical axes: polyrhythmic, polyphonic, modulated, timbral, harmonic, tempo-shifted, sparse, dense" style="rounded=0;fillColor=#10222b;strokeColor=#2a6b78;fontColor=#D6FBFF;fontSize=13;whiteSpace=wrap;html=1;align=left;spacingLeft=12;verticalAlign=middle;" vertex="1" parent="lyr_mapping">
+          <mxGeometry x="800" y="762" width="600" height="62" as="geometry" />
+        </mxCell>
+        <mxCell id="map_l4" value="The examiner scoring responses" style="rounded=0;fillColor=#241a33;strokeColor=#5a4b86;fontColor=#E9DBFF;fontSize=13;whiteSpace=wrap;html=1;align=left;spacingLeft=12;verticalAlign=middle;" vertex="1" parent="lyr_mapping">
+          <mxGeometry x="200" y="824" width="600" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="map_r4" value="You, judging contestants head-to-head" style="rounded=0;fillColor=#10222b;strokeColor=#2a6b78;fontColor=#D6FBFF;fontSize=13;whiteSpace=wrap;html=1;align=left;spacingLeft=12;verticalAlign=middle;" vertex="1" parent="lyr_mapping">
+          <mxGeometry x="800" y="824" width="600" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="map_l5" value="Adaptation to the test-taker" style="rounded=0;fillColor=#241a33;strokeColor=#5a4b86;fontColor=#E9DBFF;fontSize=13;whiteSpace=wrap;html=1;align=left;spacingLeft=12;verticalAlign=middle;" vertex="1" parent="lyr_mapping">
+          <mxGeometry x="200" y="874" width="600" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="map_r5" value="Session taste memory (IndexedDB + character-bigram retrieval)" style="rounded=0;fillColor=#10222b;strokeColor=#2a6b78;fontColor=#D6FBFF;fontSize=13;whiteSpace=wrap;html=1;align=left;spacingLeft=12;verticalAlign=middle;" vertex="1" parent="lyr_mapping">
+          <mxGeometry x="800" y="874" width="600" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="map_l6" value="&quot;Is it generally capable?&quot;" style="rounded=0;fillColor=#241a33;strokeColor=#5a4b86;fontColor=#E9DBFF;fontSize=13;whiteSpace=wrap;html=1;align=left;spacingLeft=12;verticalAlign=middle;" vertex="1" parent="lyr_mapping">
+          <mxGeometry x="200" y="924" width="600" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="map_r6" value="The thesis: a 2B model is enough when the runtime carries the structure" style="rounded=0;fillColor=#10222b;strokeColor=#2a6b78;fontColor=#D6FBFF;fontSize=13;fontStyle=1;whiteSpace=wrap;html=1;align=left;spacingLeft=12;verticalAlign=middle;" vertex="1" parent="lyr_mapping">
+          <mxGeometry x="800" y="924" width="600" height="56" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

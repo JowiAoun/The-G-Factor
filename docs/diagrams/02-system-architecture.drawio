@@ -1,0 +1,106 @@
+<mxfile host="app.diagrams.net" agent="the-g-factor-blog" version="24.0.0">
+  <diagram name="System architecture" id="system-architecture">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1180" math="0" shadow="0" background="#141021">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="lyr_frame" value="Frame + cloud" parent="0" />
+        <mxCell id="lyr_surfaces" value="Surfaces" parent="0" />
+        <mxCell id="lyr_backend" value="Model backend" parent="0" />
+        <mxCell id="lyr_runtime" value="Runtime + audio" parent="0" />
+        <mxCell id="lyr_persistence" value="Persistence" parent="0" />
+        <mxCell id="lyr_edges" value="Flows" parent="0" />
+
+        <mxCell id="title" value="The G Factor - system architecture" style="text;html=1;fontColor=#FFD24A;fontSize=28;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="lyr_frame">
+          <mxGeometry x="500" y="20" width="600" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="boundary" value="Browser (your device) - everything inside runs on-device, in-browser" style="rounded=1;arcSize=3;fillColor=#1b1530;strokeColor=#6c5aa6;strokeWidth=2;dashed=1;fontColor=#C9B8FF;fontStyle=1;fontSize=14;align=left;verticalAlign=top;spacingLeft=16;spacingTop=10;whiteSpace=wrap;html=1;" vertex="1" parent="lyr_frame">
+          <mxGeometry x="40" y="110" width="1260" height="1020" as="geometry" />
+        </mxCell>
+        <mxCell id="cloud" value="OpenRouter (cloud)&#10;google/gemma-4-31b-it&#10;the only hop that leaves the device" style="shape=cloud;fillColor=#2a2140;strokeColor=#FF3D7F;strokeWidth=2;fontColor=#FFD9EA;fontSize=12;whiteSpace=wrap;html=1;" vertex="1" parent="lyr_frame">
+          <mxGeometry x="1360" y="470" width="210" height="150" as="geometry" />
+        </mxCell>
+
+        <mxCell id="surf_ts" value="Talent Show&#10;src/ui/TalentShow.tsx&#10;bracket of 4-8 contestants" style="rounded=1;arcSize=12;fillColor=#3a2a08;strokeColor=#FFD24A;strokeWidth=2;fontColor=#FFE9A8;fontSize=13;fontStyle=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;" vertex="1" parent="lyr_surfaces">
+          <mxGeometry x="120" y="160" width="320" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="surf_rr" value="Rehearsal Room (Studio)&#10;src/ui/Studio.tsx&#10;chat + CodeMirror editor" style="rounded=1;arcSize=12;fillColor=#3a0f24;strokeColor=#FF3D7F;strokeWidth=2;fontColor=#FFD2E6;fontSize=13;fontStyle=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;" vertex="1" parent="lyr_surfaces">
+          <mxGeometry x="470" y="160" width="320" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="surf_hof" value="Hall of Fame&#10;src/ui/Leaderboard.tsx&#10;tournament winners + taste" style="rounded=1;arcSize=12;fillColor=#06262e;strokeColor=#19E0FF;strokeWidth=2;fontColor=#CFF7FF;fontSize=13;fontStyle=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;" vertex="1" parent="lyr_surfaces">
+          <mxGeometry x="820" y="160" width="320" height="110" as="geometry" />
+        </mxCell>
+
+        <mxCell id="dispatcher" value="Model backend - generate()&#10;src/model/gemma.ts" style="rounded=1;arcSize=12;fillColor=#241a33;strokeColor=#C9B8FF;strokeWidth=2;fontColor=#EADFFF;fontSize=14;fontStyle=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;" vertex="1" parent="lyr_backend">
+          <mxGeometry x="420" y="330" width="440" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="local" value="Local (on-device, in-browser)&#10;@huggingface/transformers&#10;onnx-community/gemma-4-E2B-it-ONNX&#10;WebGPU, q4f16, ~1.5 GB cached&#10;zero network after first load" style="rounded=1;arcSize=10;fillColor=#10222b;strokeColor=#19E0FF;strokeWidth=2;fontColor=#D6FBFF;fontSize=12;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;" vertex="1" parent="lyr_backend">
+          <mxGeometry x="170" y="480" width="400" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="remote" value="Remote&#10;src/model/openrouter.ts&#10;OpenRouter google/gemma-4-31b-it&#10;your API key, OpenAI-compatible POST&#10;faster brackets, no download" style="rounded=1;arcSize=10;fillColor=#2e1322;strokeColor=#FF3D7F;strokeWidth=2;fontColor=#FFD9EA;fontSize=12;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;" vertex="1" parent="lyr_backend">
+          <mxGeometry x="720" y="480" width="400" height="150" as="geometry" />
+        </mxCell>
+
+        <mxCell id="firewall" value="Parser firewall&#10;src/strudel/parse.ts&#10;acorn AST + acorn-walk security pass" style="rounded=1;arcSize=12;fillColor=#13251a;strokeColor=#3DDC84;strokeWidth=2;fontColor=#CFFBE2;fontSize=13;fontStyle=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;" vertex="1" parent="lyr_runtime">
+          <mxGeometry x="420" y="690" width="440" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="engine" value="Strudel engine&#10;src/strudel/engine.ts&#10;play() then globalThis.evaluate()" style="rounded=1;arcSize=12;fillColor=#241a33;strokeColor=#C9B8FF;strokeWidth=2;fontColor=#EADFFF;fontSize=13;fontStyle=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;" vertex="1" parent="lyr_runtime">
+          <mxGeometry x="420" y="840" width="440" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="audio" value="Audio out (Web Audio) + amplitude analyser&#10;drives stage visuals and contestant mouth-sync" style="rounded=1;arcSize=12;fillColor=#3a2a08;strokeColor=#FFD24A;strokeWidth=2;fontColor=#FFE9A8;fontSize=13;fontStyle=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;" vertex="1" parent="lyr_runtime">
+          <mxGeometry x="380" y="990" width="520" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="taste" value="Taste store - IndexedDB&#10;strudel-tutor / likes&#10;src/memory/taste.ts" style="shape=cylinder3;boundedLbl=1;backgroundOutline=1;fillColor=#06262e;strokeColor=#19E0FF;strokeWidth=2;fontColor=#CFF7FF;fontSize=12;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;" vertex="1" parent="lyr_persistence">
+          <mxGeometry x="980" y="690" width="280" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="localstorage" value="localStorage&#10;drafts, saved mixes,&#10;settings, API key" style="shape=cylinder3;boundedLbl=1;backgroundOutline=1;fillColor=#2a2140;strokeColor=#C9B8FF;strokeWidth=2;fontColor=#EADFFF;fontSize=12;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;" vertex="1" parent="lyr_persistence">
+          <mxGeometry x="980" y="840" width="280" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e_ts_disp" style="edgeStyle=orthogonalEdgeStyle;rounded=1;flowAnimation=1;strokeColor=#19E0FF;strokeWidth=2;endArrow=block;html=1;" edge="1" parent="lyr_edges" source="surf_ts" target="dispatcher">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_rr_disp" style="edgeStyle=orthogonalEdgeStyle;rounded=1;flowAnimation=1;strokeColor=#19E0FF;strokeWidth=2;endArrow=block;html=1;" edge="1" parent="lyr_edges" source="surf_rr" target="dispatcher">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_hof_disp" style="edgeStyle=orthogonalEdgeStyle;rounded=1;flowAnimation=1;strokeColor=#19E0FF;strokeWidth=2;endArrow=block;html=1;" edge="1" parent="lyr_edges" source="surf_hof" target="dispatcher">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_disp_local" value="local mode" style="edgeStyle=orthogonalEdgeStyle;rounded=1;flowAnimation=1;strokeColor=#19E0FF;strokeWidth=2;endArrow=block;html=1;fontColor=#CFF7FF;" edge="1" parent="lyr_edges" source="dispatcher" target="local">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_disp_remote" value="remote mode" style="edgeStyle=orthogonalEdgeStyle;rounded=1;flowAnimation=1;strokeColor=#FF3D7F;strokeWidth=2;endArrow=block;html=1;fontColor=#FFD9EA;" edge="1" parent="lyr_edges" source="dispatcher" target="remote">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_remote_cloud" value="HTTPS POST (your key)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;dashed=1;strokeColor=#FF3D7F;strokeWidth=2;startArrow=none;endArrow=block;html=1;fontColor=#FFD9EA;" edge="1" parent="lyr_edges" source="remote" target="cloud">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_local_fw" style="edgeStyle=orthogonalEdgeStyle;rounded=1;flowAnimation=1;strokeColor=#19E0FF;strokeWidth=2;endArrow=block;html=1;" edge="1" parent="lyr_edges" source="local" target="firewall">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_remote_fw" style="edgeStyle=orthogonalEdgeStyle;rounded=1;flowAnimation=1;strokeColor=#FF3D7F;strokeWidth=2;endArrow=block;html=1;" edge="1" parent="lyr_edges" source="remote" target="firewall">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_fw_engine" value="valid only" style="edgeStyle=orthogonalEdgeStyle;rounded=1;flowAnimation=1;strokeColor=#3DDC84;strokeWidth=2;endArrow=block;html=1;fontColor=#CFFBE2;" edge="1" parent="lyr_edges" source="firewall" target="engine">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_engine_audio" style="edgeStyle=orthogonalEdgeStyle;rounded=1;flowAnimation=1;strokeColor=#FFD24A;strokeWidth=2;endArrow=block;html=1;" edge="1" parent="lyr_edges" source="engine" target="audio">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_taste_disp" value="getTopKSimilar() retrieval" style="edgeStyle=orthogonalEdgeStyle;rounded=1;dashed=1;strokeColor=#19E0FF;strokeWidth=2;endArrow=block;html=1;fontColor=#CFF7FF;" edge="1" parent="lyr_edges" source="taste" target="dispatcher">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_ts_taste" value="addTournamentWin()" style="edgeStyle=orthogonalEdgeStyle;rounded=1;dashed=1;strokeColor=#FFD24A;strokeWidth=2;endArrow=block;html=1;fontColor=#FFE9A8;" edge="1" parent="lyr_edges" source="surf_ts" target="taste">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_rr_taste" value="addLike()" style="edgeStyle=orthogonalEdgeStyle;rounded=1;dashed=1;strokeColor=#FF3D7F;strokeWidth=2;endArrow=block;html=1;fontColor=#FFD9EA;" edge="1" parent="lyr_edges" source="surf_rr" target="taste">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_rr_ls" value="autosave draft" style="edgeStyle=orthogonalEdgeStyle;rounded=1;dashed=1;strokeColor=#C9B8FF;strokeWidth=2;endArrow=block;html=1;fontColor=#EADFFF;" edge="1" parent="lyr_edges" source="surf_rr" target="localstorage">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

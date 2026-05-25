@@ -1,0 +1,75 @@
+<mxfile host="app.diagrams.net" agent="the-g-factor-blog" version="24.0.0">
+  <diagram name="One generation end-to-end" id="one-generation-pipeline">
+    <mxGraphModel dx="1400" dy="700" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1900" pageHeight="760" math="0" shadow="0" background="#141021">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="lyr_title" value="Title" parent="0" />
+        <mxCell id="lyr_s1" value="1 User action" parent="0" />
+        <mxCell id="lyr_s2" value="2 Retrieve taste" parent="0" />
+        <mxCell id="lyr_s3" value="3 Assemble prompt" parent="0" />
+        <mxCell id="lyr_s4" value="4 Generate" parent="0" />
+        <mxCell id="lyr_s5" value="5 Parse JSON" parent="0" />
+        <mxCell id="lyr_s6" value="6 Firewall" parent="0" />
+        <mxCell id="lyr_s7" value="7 Play + audio" parent="0" />
+        <mxCell id="lyr_edges" value="Flows" parent="0" />
+
+        <mxCell id="title" value="One generation, end-to-end" style="text;html=1;fontColor=#FFD24A;fontSize=26;fontStyle=1;align=left;verticalAlign=middle;" vertex="1" parent="lyr_title">
+          <mxGeometry x="40" y="24" width="600" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle" value="A single contestant from tap to sound. The cyan path is the happy case; the red path is the retry loop." style="text;html=1;fontColor=#C9B8FF;fontSize=14;align=left;verticalAlign=middle;" vertex="1" parent="lyr_title">
+          <mxGeometry x="40" y="62" width="900" height="24" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s1" value="1. User action&#10;&#10;pick a seed or&#10;send a chat turn" style="rounded=1;arcSize=12;fillColor=#3a2a08;strokeColor=#FFD24A;strokeWidth=2;fontColor=#FFE9A8;fontSize=13;fontStyle=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;" vertex="1" parent="lyr_s1">
+          <mxGeometry x="40" y="280" width="220" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="s2" value="2. Retrieve taste&#10;&#10;getTopKSimilar(seed, 3)&#10;src/memory/taste.ts" style="rounded=1;arcSize=12;fillColor=#06262e;strokeColor=#19E0FF;strokeWidth=2;fontColor=#CFF7FF;fontSize=13;fontStyle=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;" vertex="1" parent="lyr_s2">
+          <mxGeometry x="300" y="280" width="220" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="s3" value="3. Assemble prompt&#10;&#10;priors + top-3 exemplars&#10;+ axis directive&#10;src/model/prompts.ts" style="rounded=1;arcSize=12;fillColor=#241a33;strokeColor=#C9B8FF;strokeWidth=2;fontColor=#EADFFF;fontSize=13;fontStyle=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;" vertex="1" parent="lyr_s3">
+          <mxGeometry x="560" y="280" width="220" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="s4" value="4. Generate&#10;&#10;generate() - src/model/gemma.ts&#10;local: serial 1500 ms&#10;remote: fan-out 0 ms&#10;src/model/backend.ts" style="rounded=1;arcSize=12;fillColor=#2e1322;strokeColor=#FF3D7F;strokeWidth=2;fontColor=#FFD9EA;fontSize=13;fontStyle=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;" vertex="1" parent="lyr_s4">
+          <mxGeometry x="820" y="280" width="220" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="s5" value="5. Parse JSON (zod)&#10;&#10;safeParseVariation()&#10;src/remix/schema.ts" style="rounded=1;arcSize=12;fillColor=#06262e;strokeColor=#19E0FF;strokeWidth=2;fontColor=#CFF7FF;fontSize=13;fontStyle=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;" vertex="1" parent="lyr_s5">
+          <mxGeometry x="1080" y="280" width="220" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="s6" value="6. Strudel firewall&#10;&#10;strudelParse() - acorn AST&#10;src/strudel/parse.ts" style="rounded=1;arcSize=12;fillColor=#13251a;strokeColor=#3DDC84;strokeWidth=2;fontColor=#CFFBE2;fontSize=13;fontStyle=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;" vertex="1" parent="lyr_s6">
+          <mxGeometry x="1340" y="280" width="220" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="s7" value="7. play() then audio&#10;&#10;src/strudel/engine.ts&#10;sound on the stage" style="rounded=1;arcSize=12;fillColor=#3a2a08;strokeColor=#FFD24A;strokeWidth=2;fontColor=#FFE9A8;fontSize=13;fontStyle=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;" vertex="1" parent="lyr_s7">
+          <mxGeometry x="1600" y="280" width="220" height="130" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e12" style="edgeStyle=orthogonalEdgeStyle;rounded=1;flowAnimation=1;strokeColor=#19E0FF;strokeWidth=2.5;endArrow=block;html=1;" edge="1" parent="lyr_edges" source="s1" target="s2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e23" style="edgeStyle=orthogonalEdgeStyle;rounded=1;flowAnimation=1;strokeColor=#19E0FF;strokeWidth=2.5;endArrow=block;html=1;" edge="1" parent="lyr_edges" source="s2" target="s3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e34" style="edgeStyle=orthogonalEdgeStyle;rounded=1;flowAnimation=1;strokeColor=#19E0FF;strokeWidth=2.5;endArrow=block;html=1;" edge="1" parent="lyr_edges" source="s3" target="s4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e45" style="edgeStyle=orthogonalEdgeStyle;rounded=1;flowAnimation=1;strokeColor=#19E0FF;strokeWidth=2.5;endArrow=block;html=1;" edge="1" parent="lyr_edges" source="s4" target="s5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e56" style="edgeStyle=orthogonalEdgeStyle;rounded=1;flowAnimation=1;strokeColor=#19E0FF;strokeWidth=2.5;endArrow=block;html=1;" edge="1" parent="lyr_edges" source="s5" target="s6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e67" value="valid" style="edgeStyle=orthogonalEdgeStyle;rounded=1;flowAnimation=1;strokeColor=#3DDC84;strokeWidth=2.5;endArrow=block;html=1;fontColor=#CFFBE2;fontStyle=1;" edge="1" parent="lyr_edges" source="s6" target="s7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_retry" value="invalid JSON or unsafe code: retry with a 'why it failed' hint  (up to 3x, temperature 0.95 to 1.25)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;dashed=1;strokeColor=#FF4D4D;strokeWidth=2.5;endArrow=block;html=1;fontColor=#FFD9D9;fontStyle=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="lyr_edges" source="s6" target="s4">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1450" y="560" />
+              <mxPoint x="930" y="560" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

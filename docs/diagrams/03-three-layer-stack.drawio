@@ -1,0 +1,66 @@
+<mxfile host="app.diagrams.net" agent="the-g-factor-blog" version="24.0.0">
+  <diagram name="Three-layer teaching stack" id="three-layer-stack">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0" background="#141021">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="lyr_title" value="Title" parent="0" />
+        <mxCell id="lyr_gemma" value="Gemma" parent="0" />
+        <mxCell id="lyr_l1" value="Layer 1 - priors" parent="0" />
+        <mxCell id="lyr_l2" value="Layer 2 - taste" parent="0" />
+        <mxCell id="lyr_l3" value="Layer 3 - firewall" parent="0" />
+        <mxCell id="lyr_output" value="Output" parent="0" />
+        <mxCell id="lyr_edges" value="Flows" parent="0" />
+
+        <mxCell id="title" value="How a 2B model is made reliable" style="text;html=1;fontColor=#FFD24A;fontSize=28;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="lyr_title">
+          <mxGeometry x="500" y="20" width="600" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle" value="Three layers carry the structure - so Gemma only has to be good enough to fill it in." style="text;html=1;fontColor=#C9B8FF;fontSize=15;align=center;verticalAlign=middle;" vertex="1" parent="lyr_title">
+          <mxGeometry x="420" y="64" width="760" height="26" as="geometry" />
+        </mxCell>
+
+        <mxCell id="gemma" value="Gemma 4&#10;E2B (local) or 31B (remote)&#10;&#10;never saw Strudel&#10;at training time" style="rounded=1;arcSize=14;fillColor=#241a33;strokeColor=#C9B8FF;strokeWidth=2;fontColor=#EADFFF;fontSize=13;fontStyle=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;" vertex="1" parent="lyr_gemma">
+          <mxGeometry x="120" y="430" width="200" height="300" as="geometry" />
+        </mxCell>
+
+        <mxCell id="l1" value="Layer 1 - Static priors (always present)&#10;src/model/prompts.ts  ::  SYSTEM_PROMPT (~43 lines)&#10;Mini-notation operators + method chains + 10 canonical idioms.&#10;Tells Gemma the rules of Strudel with zero fine-tuning." style="rounded=1;arcSize=8;fillColor=#3a2a08;strokeColor=#FFD24A;strokeWidth=2;fontColor=#FFE9A8;fontSize=14;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;" vertex="1" parent="lyr_l1">
+          <mxGeometry x="360" y="680" width="880" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="l2" value="Layer 2 - Session taste memory&#10;src/memory/taste.ts + similarity.ts&#10;Every like writes {seed_code, variation_code, label} to IndexedDB.&#10;Next prompt scores likes by character-bigram Jaccard and injects the&#10;top-3 as a 'This user has previously liked...' block." style="rounded=1;arcSize=8;fillColor=#06262e;strokeColor=#19E0FF;strokeWidth=2;fontColor=#CFF7FF;fontSize=14;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;" vertex="1" parent="lyr_l2">
+          <mxGeometry x="360" y="490" width="880" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="l3" value="Layer 3 - Parser firewall&#10;src/strudel/parse.ts&#10;acorn syntax check + AST security walk.&#10;Invalid output is retried up to 3x with a 'why it failed' hint;&#10;broken syntax never reaches the UI." style="rounded=1;arcSize=8;fillColor=#13251a;strokeColor=#3DDC84;strokeWidth=2;fontColor=#CFFBE2;fontSize=14;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;" vertex="1" parent="lyr_l3">
+          <mxGeometry x="360" y="300" width="880" height="160" as="geometry" />
+        </mxCell>
+
+        <mxCell id="output" value="Valid Strudel that increasingly sounds like you" style="rounded=1;arcSize=12;fillColor=#3a0f24;strokeColor=#FF3D7F;strokeWidth=2;fontColor=#FFD2E6;fontSize=16;fontStyle=1;whiteSpace=wrap;html=1;verticalAlign=middle;align=center;" vertex="1" parent="lyr_output">
+          <mxGeometry x="480" y="180" width="640" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uparrow" value="" style="shape=singleArrow;direction=north;fillColor=#FFD24A;strokeColor=none;opacity=22;" vertex="1" parent="lyr_title">
+          <mxGeometry x="1290" y="300" width="90" height="540" as="geometry" />
+        </mxCell>
+        <mxCell id="uparrow_lbl" value="the runtime carries the structure" style="text;html=1;fontColor=#FFD24A;fontSize=13;fontStyle=1;align=center;verticalAlign=middle;horizontal=0;" vertex="1" parent="lyr_title">
+          <mxGeometry x="1295" y="470" width="80" height="200" as="geometry" />
+        </mxCell>
+
+        <mxCell id="caption" value="Gemma never saw Strudel - these three layers carry the structure, which is exactly why a 2B model is enough." style="text;html=1;fontColor=#E9DBFF;fontSize=14;fontStyle=2;align=center;verticalAlign=middle;" vertex="1" parent="lyr_title">
+          <mxGeometry x="360" y="870" width="880" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e_gemma_l1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;flowAnimation=1;strokeColor=#C9B8FF;strokeWidth=2;endArrow=block;html=1;" edge="1" parent="lyr_edges" source="gemma" target="l1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_l1_l2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;flowAnimation=1;strokeColor=#FFD24A;strokeWidth=2.5;endArrow=block;html=1;exitX=0.5;exitY=0;entryX=0.5;entryY=1;" edge="1" parent="lyr_edges" source="l1" target="l2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_l2_l3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;flowAnimation=1;strokeColor=#19E0FF;strokeWidth=2.5;endArrow=block;html=1;exitX=0.5;exitY=0;entryX=0.5;entryY=1;" edge="1" parent="lyr_edges" source="l2" target="l3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_l3_out" style="edgeStyle=orthogonalEdgeStyle;rounded=1;flowAnimation=1;strokeColor=#3DDC84;strokeWidth=2.5;endArrow=block;html=1;exitX=0.5;exitY=0;entryX=0.5;entryY=1;" edge="1" parent="lyr_edges" source="l3" target="output">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
