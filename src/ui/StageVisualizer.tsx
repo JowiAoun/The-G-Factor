@@ -29,6 +29,12 @@ export default function StageVisualizer({ active }: StageVisualizerProps) {
       instRef.current = new AudioMotionAnalyzer(containerRef.current, {
         audioCtx: ctx,
         source: node,
+        // Strudel already wires every source to ctx.destination; we only want
+        // to *observe* the analyser here. Leaving this at the default true
+        // adds a second source -> analyser -> AudioMotion -> destination path
+        // alongside Strudel's direct one, and the small group delay between
+        // the two summed copies sounds as background comb-filter static.
+        connectSpeakers: false,
         mode: 6,                  // 1/12 octave bands - dense, musical
         gradient: 'rainbow',
         showBgColor: false,
