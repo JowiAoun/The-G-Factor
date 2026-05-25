@@ -420,7 +420,7 @@ function TalentShowInner({
             )}
           </div>
           <button
-            className="primary"
+            className="primary cta-shine"
             onClick={handleHoldShow}
             disabled={
               !seedCode.trim() || (currentMode === 'local' && !modelReady)

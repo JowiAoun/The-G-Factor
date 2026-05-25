@@ -139,6 +139,53 @@ button.primary:hover:not(:disabled) {
 button.primary:active:not(:disabled) {
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.45);
 }
+
+/* CTA shine: opt-in attention-getter for the primary button that is
+   clearly the next step (currently "Hold the show"). Two layered
+   effects on the same element:
+   - pulse: the gold box-shadow breathes between dim and bright on a
+     2.4s cycle, so the button glows from across the stage.
+   - sweep: a thin highlight pseudo-element slides left -> right across
+     the brass, then waits, then slides again - the classic polish
+     shine. position: relative + overflow: hidden keep the pseudo
+     clipped to the button shape.
+   Both animations only run while the button is enabled and the user
+   has not opted out of motion. */
+button.primary.cta-shine:not(:disabled) {
+  position: relative;
+  overflow: hidden;
+  animation: cta-shine-pulse 2.4s ease-in-out infinite;
+}
+button.primary.cta-shine:not(:disabled)::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    rgba(255, 246, 200, 0.55) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+  animation: cta-shine-sweep 3.4s ease-in-out infinite;
+}
+@keyframes cta-shine-pulse {
+  0%, 100% { box-shadow: 0 0 14px rgba(255, 216, 107, 0.45); }
+  50%      { box-shadow: 0 0 28px rgba(255, 216, 107, 0.85); }
+}
+@keyframes cta-shine-sweep {
+  0%       { transform: translateX(0); }
+  70%, 100% { transform: translateX(360%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  button.primary.cta-shine:not(:disabled),
+  button.primary.cta-shine:not(:disabled)::after {
+    animation: none;
+  }
+}
 button.yes {
   background: #1f3b22;
   border-color: var(--ink-success);
