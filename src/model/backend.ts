@@ -16,7 +16,7 @@
 
 export type BackendMode = 'local' | 'remote';
 
-export const REMOTE_MODEL_ID = 'google/gemma-4-31b-it:free';
+export const REMOTE_MODEL_ID = 'google/gemma-4-31b-it';
 
 const LS_MODE = 'strudel-tutor.model.backend-mode';
 const LS_KEY = 'strudel-tutor.model.openrouter-key';

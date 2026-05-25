@@ -142,7 +142,7 @@ export function BackendChooserModal({ isFirstVisit, onClose }: Props) {
             </div>
             <div className="backend-card-title">On OpenRouter</div>
             <div className="backend-card-subtitle">
-              {REMOTE_MODEL_ID.replace('google/', '').replace(':free', ' (free)')}
+              {REMOTE_MODEL_ID.replace('google/', '')}
             </div>
             <div className="backend-card-body">
               No download. Faster contestants. Calls OpenRouter directly from
@@ -169,10 +169,9 @@ export function BackendChooserModal({ isFirstVisit, onClose }: Props) {
             />
             <div className="backend-key-note">
               We call OpenRouter <em>directly from your browser</em> — your
-              key never goes to our servers. We recommend creating a fresh
-              key for this demo with a low spending limit, or relying on the
-              <code> :free </code> tier of Gemma 4 31B which is rate-limited
-              but costs nothing.{' '}
+              key never goes to our servers. Each contestant generation is
+              a paid OpenRouter call against your balance, so we recommend
+              creating a fresh key for this demo with a low spending limit.{' '}
               <a
                 href="https://openrouter.ai/keys"
                 target="_blank"

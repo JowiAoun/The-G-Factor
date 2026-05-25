@@ -41,8 +41,8 @@ beforeEach(() => {
 });
 
 describe('REMOTE_MODEL_ID', () => {
-  it('is the free Gemma 4 31B identifier confirmed by the user', () => {
-    expect(REMOTE_MODEL_ID).toBe('google/gemma-4-31b-it:free');
+  it('is the paid Gemma 4 31B identifier confirmed by the user', () => {
+    expect(REMOTE_MODEL_ID).toBe('google/gemma-4-31b-it');
   });
 });
 
