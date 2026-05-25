@@ -1781,6 +1781,7 @@ button.liked { background: #6b2a4a; border-color: #80303f; color: #ffd6e3; }
   text-shadow: 0 0 24px rgba(255, 107, 155, 0.45);
   align-self: center;
   margin-bottom: 80px;
+  animation: vs-arrive 900ms ease-out both;
 }
 
 /* Code strip — always-visible code/explanation BELOW the stage. */
@@ -1922,6 +1923,12 @@ button.liked { background: #6b2a4a; border-color: #80303f; color: #ffd6e3; }
   0%   { opacity: 0; transform: translateY(40px); }
   60%  { opacity: 1; transform: translateY(-6px); }
   100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes vs-arrive {
+  0%   { opacity: 0; transform: scale(0.4) rotate(-12deg); }
+  50%  { opacity: 1; transform: scale(1.35) rotate(0); }
+  100% { opacity: 1; transform: scale(1)   rotate(0); }
 }
 
 @keyframes performer-arrive-left {
