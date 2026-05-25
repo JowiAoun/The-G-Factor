@@ -1,14 +1,12 @@
 *This is a submission for the [Gemma 4 Challenge: Write About Gemma 4](https://dev.to/challenges/google-gemma-2026-05-06)*
 
-<img src="PASTE_LOGO_URL" alt="The G Factor" width="130" />
-<!-- LOGO at top of post: public/assets/images/logo.png -->
+<img src="https://the-g-factor.vercel.app/assets/images/logo.png" alt="The G Factor" width="130" />
 
 <!-- You are free to structure your post however you want. You might consider: walking through a local setup or fine-tuning experiment, writing a getting started guide for one of the Gemma 4 models, comparing the model variants and when to use each, or reflecting on what open-source models at this capability level mean for developers. Whatever your angle, make it yours. -->
 
 <!-- Don't forget to add a cover image if you want! -->
 
-![Welcome to The G Factor, with Gemma as your host for tonight](PASTE_COVER_IMAGE_URL)
-<!-- COVER: public/assets/images/gemma.png (the "Welcome to The G Factor" host banner). You can also set this as the post's cover image in dev.to's editor settings. -->
+![Welcome to The G Factor, with Gemma as your host for tonight](https://the-g-factor.vercel.app/assets/images/gemma.png)
 
 In psychometrics there is a beautiful, slightly controversial idea called the **g factor**. The short version: across wildly different mental tasks (vocabulary, spatial puzzles, arithmetic, pattern matching) people who do well on one tend to do well on the others, and statisticians can squeeze that shared variance into a single number. One latent "general intelligence" that quietly predicts performance everywhere. 🧠
 
@@ -21,9 +19,6 @@ The name pulls triple duty, and each meaning maps onto something the app actuall
 - The **G** in **Gemma**, the model doing all the work, fully on your machine.
 - The **g factor** of psychometrics, one capacity stretched across many different tasks.
 - The **"Factor"** in *X-Factor*, because the app is literally a talent show where you judge contestants. 🎤
-
-<!-- HERO VIDEO (optional, but the asset is ready): the concept animation lives at public/assets/videos/bundle-a/g-factor-bundle-a.mp4. To use it, either upload it to YouTube and replace the commented line below with {% youtube YOUR_ID %}, OR convert it to a GIF, drag the GIF in, and use the ![]() image form. Left commented out so the post renders cleanly without it. -->
-<!-- {% youtube PASTE_YOUTUBE_ID %} -->
 
 That middle meaning is the one I keep coming back to. Lay the psychometric idea next to the app and it lines up almost suspiciously well:
 
@@ -46,11 +41,7 @@ If you have not met Strudel before: it is a free, open-source environment for ma
 
 There are two ways in. In the **Rehearsal Room** you chat with **Bleep**, a cartoon producer who rewrites the track turn by turn ("add a four-on-the-floor kick", "make the hats busier", "give it some reverb"). In the **Talent Show** you drop a seed and Gemma fields a bracket of contestants, each told to explore a different musical axis, and you judge them two at a time until one is left standing. Both surfaces feed the same taste memory.
 
-![A Talent Show semifinal: two Gemma-generated contestants going head to head](PASTE_1V1_SCREENSHOT_URL)
-<!-- public/assets/images/1v1.png (a live head-to-head match) -->
-
-<!-- SCREENSHOT B: upload a fresh shot of the Rehearsal Room with Bleep mid-conversation (a few chat turns visible and code in the mix canvas). screens/02-rehearsal-room.png is close but re-take it with an active chat for the post. -->
-![Chatting with Bleep in the Rehearsal Room](PASTE_REHEARSAL_ROOM_SCREENSHOT_URL)
+![A Talent Show semifinal: two Gemma-generated contestants going head to head](https://the-g-factor.vercel.app/assets/images/1v1.png)
 
 That is the demo. The part worth writing about is *why a 2B model can do this at all*.
 
@@ -60,8 +51,7 @@ Here is the catch that makes this a real problem and not a toy: Gemma 4 almost c
 
 You stop asking the model to know things, and you let the runtime carry the structure. Three layers do that, and this is the pattern I think transfers to any small-model-on-an-unfamiliar-domain problem.
 
-![The three-layer teaching stack: static priors and session taste feed Gemma, the parser firewall guards the output](PASTE_THREE_LAYER_GIF_URL)
-<!-- Upload: public/assets/videos/three-layer-stack-theme/three-layer-stack-theme.gif (swap to public/assets/videos/three-layer-stack/three-layer-stack.gif for the light version) -->
+![The three-layer teaching stack: static priors and session taste feed Gemma, the parser firewall guards the output](https://the-g-factor.vercel.app/assets/videos/three-layer-stack-theme/three-layer-stack-theme.gif)
 
 ### Layer 1: static priors
 
@@ -73,15 +63,13 @@ Every time you like a pattern, the app writes `{seed_code, variation_code, trans
 
 That is the **"learns your taste"** claim, and it is honest: no weights move, no GPU time, no API call. The model adapts to you the way the psychometric test adapts to the test-taker, by feeding it the right few-shot context at the right moment. Cold start works on priors alone, and the experience just gets warmer the more you use it. And when a contestant wins its bracket, that head-to-head-verified preference is exactly what gets written back into the taste memory:
 
-![A crowned Talent Show champion, saved as a head-to-head-verified taste signal](PASTE_WINNER_SCREENSHOT_URL)
-<!-- public/assets/images/winner.png (the champion screen) -->
+![A crowned Talent Show champion, saved as a head-to-head-verified taste signal](https://the-g-factor.vercel.app/assets/images/winner.png)
 
 ### Layer 3: the parser firewall
 
 A small model *will* hallucinate broken syntax. So nothing it generates is trusted. Every output is parsed with `acorn`, validated against a `zod` schema, and walked for a deny-list of dangerous references before a single note plays. If it fails, the app retries up to 3 times with a hint that says *exactly* what was wrong ("previous attempt was invalid because: ..."). Invalid code never reaches the UI, and unsafe code (think `fetch`, `eval`, `localStorage`) never reaches the audio engine. 🔒
 
-![The parser firewall: raw output runs through JSON parse, syntax check, and a security walk before it is allowed to play](PASTE_PARSER_FIREWALL_GIF_URL)
-<!-- Upload: public/assets/videos/parser-firewall-theme/parser-firewall-theme.gif (swap to public/assets/videos/parser-firewall/parser-firewall.gif for the light version) -->
+![The parser firewall: raw output runs through JSON parse, syntax check, and a security walk before it is allowed to play](https://the-g-factor.vercel.app/assets/videos/parser-firewall-theme/parser-firewall-theme.gif)
 
 Priors tell the model the rules. Taste tells it your style. The firewall guarantees the output is real. None of those three layers is the model getting smarter. They are the *runtime* getting smarter, and that is the point.
 
@@ -92,9 +80,6 @@ The judging rubric asks for intentional model selection, so let me be blunt abou
 The app uses **Gemma 4 E2B** (effective 2B parameters, q4f16 ONNX). It is around 1.5 GB on disk, loads in under two minutes on a mid-range laptop, runs comfortably on WebGPU, and falls back to WASM when WebGPU is missing. After the first download it needs *zero* network. The whole loop (generate, like, re-generate) runs offline.
 
 Could I have reached for something bigger? Sure. But once the three layers carry the structure, the model's actual job shrinks to something tiny: take a seed plus 3 stylistic exemplars and emit one short JSON object. That is well within a 2B model's reach. Spending 30 billion parameters on a task this constrained would be paying for generality I already built into the harness.
-
-<!-- SCREENSHOT E (NEW): upload the first-visit backend chooser modal (Local vs Remote cards). Open it with the gear button in the header if you have already chosen. -->
-![The backend chooser: run Gemma locally on WebGPU, or via OpenRouter](PASTE_BACKEND_MODAL_SCREENSHOT_URL)
 
 I did wire in an optional cloud path too, **Gemma 4 31B** via OpenRouter's free tier, for visitors without WebGPU or who want a faster bracket. Same prompts, same firewall, same axis directives. Judges can run it both ways and watch the small local model hold its own against its much larger sibling. *That* comparison, on identical scaffolding, is the most honest demo of the thesis I could ask for.
 
@@ -118,9 +103,6 @@ E2B running *in a browser tab* still feels a little like magic. WebGPU inference
 
 It never saw Strudel, full stop. Without the priors and the retry scaffolding it confidently invents operators that do not exist. The structure is doing real work here, and you feel it the moment you remove a layer. Local generation is also serial on a single WebGPU adapter, so a 4-contestant bracket has a real wait. I leaned into that instead of fighting it: a host toon named **Buzz** tells rotating jokes during the casting window and slips into a "patience mode" pool if it drags. A forced wait became part of the show.
 
-<!-- SCREENSHOT D (NEW): upload the casting stage with Buzz mid-joke and the progress dots filling in (open /?talentshow and start a bracket). -->
-![Buzz the host filling the generation wait with jokes while contestants are cast](PASTE_CASTING_STAGE_SCREENSHOT_URL)
-
 ### The ugly
 
 The browser-ML reality: the first model download is large, WebGPU support is uneven across browsers, and there is a memory ceiling you can absolutely faceplant into if you are not careful. The fixes were unglamorous but they worked: cache aggressively after first load, fall back to WASM when WebGPU is unavailable, and keep the model's actual job small so memory pressure stays manageable. None of it is exotic, but it is the difference between a demo that works on your machine and one that works on a stranger's.
@@ -130,14 +112,6 @@ The browser-ML reality: the first model download is large, WebGPU support is une
 The whole thing is live and runs entirely client-side:
 
 **Live demo:** https://the-g-factor.vercel.app/
-
-<!-- DEMO VIDEO (optional): if you record a walkthrough, upload it to YouTube and replace the line below with {% youtube YOUR_ID %}. Left commented out so the post renders cleanly without it. -->
-<!-- {% youtube PASTE_DEMO_VIDEO_ID %} -->
-
-```bash
-pnpm install
-pnpm dev
-```
 
 Open it in any WebGPU-capable Chromium browser. The first load pulls the weights into the HTTP cache; after that you can go fully offline and the whole loop still works.
 
