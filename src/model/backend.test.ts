@@ -98,8 +98,22 @@ describe('getStoredApiKey / setStoredApiKey', () => {
 });
 
 describe('getThrottleMs / setThrottleMs', () => {
-  it('defaults to the documented default when unset', () => {
-    expect(getThrottleMs()).toBe(THROTTLE_DEFAULTS.default);
+  it('defaults per backend mode when unset', () => {
+    expect(getThrottleMs('local')).toBe(THROTTLE_DEFAULTS.local);
+    expect(getThrottleMs('remote')).toBe(THROTTLE_DEFAULTS.remote);
+  });
+
+  it('uses the saved mode as the default fallback when no mode arg is given', () => {
+    setMode('remote');
+    expect(getThrottleMs()).toBe(THROTTLE_DEFAULTS.remote);
+    setMode('local');
+    expect(getThrottleMs()).toBe(THROTTLE_DEFAULTS.local);
+  });
+
+  it('applies a saved override to both modes (shared slider)', () => {
+    setThrottleMs(800);
+    expect(getThrottleMs('local')).toBe(800);
+    expect(getThrottleMs('remote')).toBe(800);
   });
 
   it('round-trips a value', () => {
@@ -122,9 +136,10 @@ describe('getThrottleMs / setThrottleMs', () => {
     expect(getThrottleMs()).toBe(1235);
   });
 
-  it('ignores garbage stored values and returns the default', () => {
+  it('ignores garbage stored values and falls back to the mode default', () => {
     localStorage.setItem('strudel-tutor.model.throttle-ms', 'not-a-number');
-    expect(getThrottleMs()).toBe(THROTTLE_DEFAULTS.default);
+    expect(getThrottleMs('local')).toBe(THROTTLE_DEFAULTS.local);
+    expect(getThrottleMs('remote')).toBe(THROTTLE_DEFAULTS.remote);
   });
 
   it('notifies subscribers', () => {

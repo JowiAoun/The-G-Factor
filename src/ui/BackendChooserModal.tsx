@@ -235,9 +235,9 @@ export function BackendChooserModal({ isFirstVisit, onClose }: Props) {
             />
             <div className="backend-key-note">
               How long to pause between each Talent Show contestant generation.
-              Higher values keep the free OpenRouter tier under its per-minute
-              cap; <code>0</code> is fine for Local mode. Default{' '}
-              {THROTTLE_DEFAULTS.default} ms.
+              Defaults to {THROTTLE_DEFAULTS.remote} ms on OpenRouter and{' '}
+              {THROTTLE_DEFAULTS.local} ms locally; raising it eases OpenRouter
+              rate limits. A value set here applies to both modes.
             </div>
           </div>
         )}

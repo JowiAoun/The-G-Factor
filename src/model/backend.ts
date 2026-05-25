@@ -24,11 +24,16 @@ const LS_CHOSEN = 'strudel-tutor.model.has-chosen';
 const LS_THROTTLE = 'strudel-tutor.model.throttle-ms';
 
 // Min delay between sequential contestant generations, applied by
-// `remixSeed` in `src/remix/orchestrate.ts`. The default is tuned to keep
-// the free OpenRouter tier under its per-minute cap on a 4-bracket even
-// when each contestant retries once. Local mode users can drop it to 0
-// via Settings since WebGPU already serialises on the adapter.
-const THROTTLE_DEFAULT_MS = 1500;
+// `remixSeed` in `src/remix/orchestrate.ts`. The default is per backend:
+//   - remote (OpenRouter): 0ms, so launches fan out at full speed. This
+//     assumes a paid / higher-limit key; on the free tier a non-zero
+//     stagger is what keeps requests under the per-minute cap (see the
+//     429 note in orchestrate.ts), so raise it via Settings if needed.
+//   - local: 1500ms, purely to pace the on-stage show. WebGPU already
+//     serialises on the adapter, so this is about rhythm, not throughput.
+// A user override set in Settings is shared across both modes.
+const THROTTLE_REMOTE_DEFAULT_MS = 0;
+const THROTTLE_LOCAL_DEFAULT_MS = 1500;
 const THROTTLE_MAX_MS = 30_000;
 
 function safeGetItem(key: string): string | null {
@@ -82,11 +87,19 @@ export function hasMadeBackendChoice(): boolean {
   return safeGetItem(LS_CHOSEN) === '1';
 }
 
-export function getThrottleMs(): number {
+/** Per-backend default delay, used when the user has set no override. */
+export function defaultThrottleMs(mode: BackendMode): number {
+  return mode === 'remote'
+    ? THROTTLE_REMOTE_DEFAULT_MS
+    : THROTTLE_LOCAL_DEFAULT_MS;
+}
+
+export function getThrottleMs(mode: BackendMode = getMode()): number {
+  const fallback = defaultThrottleMs(mode);
   const raw = safeGetItem(LS_THROTTLE);
-  if (raw === null) return THROTTLE_DEFAULT_MS;
+  if (raw === null) return fallback;
   const n = Number.parseInt(raw, 10);
-  if (!Number.isFinite(n) || n < 0) return THROTTLE_DEFAULT_MS;
+  if (!Number.isFinite(n) || n < 0) return fallback;
   return Math.min(n, THROTTLE_MAX_MS);
 }
 
@@ -97,7 +110,8 @@ export function setThrottleMs(ms: number): void {
 }
 
 export const THROTTLE_DEFAULTS = {
-  default: THROTTLE_DEFAULT_MS,
+  local: THROTTLE_LOCAL_DEFAULT_MS,
+  remote: THROTTLE_REMOTE_DEFAULT_MS,
   max: THROTTLE_MAX_MS,
 } as const;
 
