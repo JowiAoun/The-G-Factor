@@ -72,15 +72,42 @@ let loadPromise: Promise<void> | null = null;
 let loadedModelId: string | null = null;
 let detectedDevice: 'webgpu' | 'wasm' | null = null;
 
-async function hasWebGPU(): Promise<boolean> {
-  const nav = navigator as Navigator & { gpu?: { requestAdapter?: () => Promise<unknown> } };
-  if (!nav.gpu || typeof nav.gpu.requestAdapter !== 'function') return false;
+// Some hardware (notably Intel Iris/Xe and other integrated GPUs) loads the
+// model on WebGPU but then loses the WGPUInstance during inference, surfacing
+// as "Failed to execute 'mapAsync' on 'GPUBuffer': A valid external Instance
+// reference no longer exists". Once we've seen that failure, persist it so
+// the next page load skips WebGPU and goes straight to WASM, avoiding a
+// guaranteed-broken first run for that browser/hardware combo.
+const WEBGPU_BLACKLIST_KEY = 'strudel-tutor.model.webgpu-blacklisted';
+
+function isWebGpuBlacklisted(): boolean {
   try {
-    const adapter = await nav.gpu.requestAdapter();
-    return !!adapter;
+    return localStorage.getItem(WEBGPU_BLACKLIST_KEY) === '1';
   } catch {
     return false;
   }
+}
+
+function blacklistWebGpu(): void {
+  try {
+    localStorage.setItem(WEBGPU_BLACKLIST_KEY, '1');
+  } catch {
+    // localStorage may be unavailable (private mode, storage quota); the
+    // session simply won't remember the failure for next time.
+  }
+}
+
+// Cheap probe - just checks if the `navigator.gpu` surface area exists.
+// Intentionally does NOT call `requestAdapter()`: doing so and then dropping
+// the adapter is a documented anti-pattern that can leave the underlying
+// Dawn Instance reference stale, breaking subsequent ORT compute on some
+// Chrome + integrated-GPU combinations. Real availability is decided by
+// trying to load with `device: 'webgpu'` and falling back on failure.
+function webGpuLikelyAvailable(): boolean {
+  const nav = navigator as Navigator & {
+    gpu?: { requestAdapter?: () => Promise<unknown> };
+  };
+  return !!nav.gpu && typeof nav.gpu.requestAdapter === 'function';
 }
 
 export function getDetectedDevice(): 'webgpu' | 'wasm' | null {
@@ -111,22 +138,66 @@ export async function loadModel(options: LoadOptions = {}): Promise<void> {
         from_pretrained: (id: string, opts: Record<string, unknown>) => Promise<Model>;
       };
     };
-    const device: 'webgpu' | 'wasm' = (await hasWebGPU()) ? 'webgpu' : 'wasm';
-    detectedDevice = device;
-    options.onProgress?.({ status: 'device-selected', name: device });
+    const wantWebGpu = webGpuLikelyAvailable() && !isWebGpuBlacklisted();
     const t0 = performance.now();
     processor = await tfs.AutoProcessor.from_pretrained(modelId);
-    model = await tfs.Gemma4ForConditionalGeneration.from_pretrained(modelId, {
+    const buildOpts = (device: 'webgpu' | 'wasm') => ({
       dtype: 'q4f16',
       device,
       progress_callback: (p: LoadProgress) => options.onProgress?.(p),
     });
+    if (wantWebGpu) {
+      try {
+        detectedDevice = 'webgpu';
+        options.onProgress?.({ status: 'device-selected', name: 'webgpu' });
+        model = await tfs.Gemma4ForConditionalGeneration.from_pretrained(
+          modelId,
+          buildOpts('webgpu'),
+        );
+      } catch (err) {
+        // WebGPU init failed entirely. Persist that and fall through to WASM
+        // so subsequent loads (and the rest of this load) skip WebGPU.
+        blacklistWebGpu();
+        options.onProgress?.({
+          status: 'webgpu-failed',
+          name: err instanceof Error ? err.message : String(err),
+        });
+        model = null;
+      }
+    }
+    if (!model) {
+      detectedDevice = 'wasm';
+      options.onProgress?.({ status: 'device-selected', name: 'wasm' });
+      model = await tfs.Gemma4ForConditionalGeneration.from_pretrained(
+        modelId,
+        buildOpts('wasm'),
+      );
+    }
     const ms = Math.round(performance.now() - t0);
     options.onProgress?.({ status: 'ready', name: `cold-load ${ms}ms` });
     loadedModelId = modelId;
   })();
 
+  loadPromise.catch(() => {
+    // Clear loadPromise on failure so the caller can retry instead of
+    // permanently latching onto a rejected promise.
+    loadPromise = null;
+  });
+
   return loadPromise;
+}
+
+// Heuristic to recognize the specific runtime WebGPU failures that mean the
+// device is gone (instance-released, mapAsync failures, OrtRun on the WebGPU
+// EP). On those, blacklisting WebGPU and asking the user to reload is the
+// only realistic recovery - the model state inside ORT is already wedged.
+function isWebGpuRuntimeFailure(err: unknown): boolean {
+  const msg = err instanceof Error ? err.message : String(err);
+  return (
+    /webgpu/i.test(msg) &&
+    (/mapAsync|Instance reference|OrtRun|buffer_manager/i.test(msg) ||
+      /Failed to fetch/i.test(msg))
+  );
 }
 
 export type GenerateMessage = { role: 'system' | 'user' | 'assistant'; content: string };
@@ -174,14 +245,35 @@ export async function generate(
     add_special_tokens: false,
   })) as { input_ids: { dims: number[] } } & Record<string, unknown>;
 
-  const outputs = await model.generate({
-    ...(inputs as unknown as Record<string, unknown>),
-    max_new_tokens: options.maxNewTokens ?? 256,
-    do_sample: true,
-    temperature: options.temperature ?? 1.0,
-    top_p: options.topP ?? 0.95,
-    top_k: options.topK ?? 64,
-  });
+  let outputs: Awaited<ReturnType<Model['generate']>>;
+  try {
+    outputs = await model.generate({
+      ...(inputs as unknown as Record<string, unknown>),
+      max_new_tokens: options.maxNewTokens ?? 256,
+      do_sample: true,
+      temperature: options.temperature ?? 1.0,
+      top_p: options.topP ?? 0.95,
+      top_k: options.topK ?? 64,
+    });
+  } catch (err) {
+    if (detectedDevice === 'webgpu' && isWebGpuRuntimeFailure(err)) {
+      // Inference-time WebGPU failure (device lost mid-OrtRun, mapAsync
+      // released, etc.). The ORT session is wedged - the only safe recovery
+      // is a fresh load on the WASM backend. Persist the blacklist so the
+      // next page load skips WebGPU entirely, and reset module state so the
+      // next loadModel() builds a fresh WASM session.
+      blacklistWebGpu();
+      model = null;
+      processor = null;
+      loadedModelId = null;
+      loadPromise = null;
+      detectedDevice = null;
+      throw new Error(
+        "WebGPU lost the inference session on this hardware. Reload the page - we'll use CPU (WASM) next time. For better performance, switch to Remote (OpenRouter) mode in Settings.",
+      );
+    }
+    throw err;
+  }
 
   // Slice off the prompt tokens, decode only what was generated.
   const promptLen = inputs.input_ids.dims.at(-1) ?? 0;
