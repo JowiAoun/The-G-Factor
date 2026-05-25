@@ -998,6 +998,107 @@ button.liked {
   grid-template-columns: minmax(0, 1fr) 280px;
   gap: 16px;
 }
+
+/* ---- Rehearsal Room (Studio reskin) ---- */
+.rehearsal-room {
+  position: relative;
+}
+.rehearsal-head {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin: 0 0 2px;
+  padding: 6px 4px 10px;
+  border-bottom: 1px solid rgba(201, 176, 110, 0.25);
+}
+.rehearsal-title {
+  font-family: var(--font-marquee);
+  font-size: 1.6rem;
+  margin: 0;
+  letter-spacing: 0.04em;
+  color: var(--ink-cream);
+  text-shadow: 0 0 14px rgba(255, 216, 107, 0.2);
+}
+.rehearsal-sub {
+  font-family: var(--font-display);
+  font-size: 0.84rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-parchment);
+  opacity: 0.7;
+  font-style: italic;
+}
+.on-air-lamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1px solid var(--ink-danger);
+  border-radius: 4px;
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  color: var(--ink-danger);
+  background: rgba(74, 8, 16, 0.7);
+  text-transform: uppercase;
+  box-shadow: 0 0 12px rgba(255, 90, 90, 0.35);
+}
+.on-air-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--ink-danger);
+  box-shadow: 0 0 6px rgba(255, 90, 90, 0.9);
+  animation: on-air-pulse 1.4s ease-in-out infinite;
+}
+@keyframes on-air-pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 6px rgba(255, 90, 90, 0.9); }
+  50%      { opacity: 0.45; box-shadow: 0 0 14px rgba(255, 90, 90, 0.6); }
+}
+
+/* Persona: brass oval frame around the avatar (Persona.tsx untouched). */
+.rehearsal-room .persona-avatar {
+  position: relative;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 25%, rgba(255, 230, 180, 0.18), transparent 55%),
+    var(--theatre-burgundy-soft);
+  box-shadow:
+    0 0 0 2px var(--gold-bright),
+    0 0 0 5px var(--theatre-curtain-deeper),
+    0 0 0 7px var(--gold-deep),
+    0 6px 18px rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+}
+
+/* ChatLog: coach's notebook treatment. */
+.rehearsal-room .chat-log {
+  background:
+    repeating-linear-gradient(180deg,
+      transparent 0 28px,
+      rgba(201, 176, 110, 0.08) 28px 29px),
+    linear-gradient(180deg, var(--theatre-burgundy-soft), var(--theatre-burgundy));
+  border: 1px solid rgba(201, 176, 110, 0.35);
+  border-radius: 8px;
+}
+
+/* Setlist: ticket-stub styling on each saved row. */
+.setlist-panel { background: linear-gradient(180deg, var(--theatre-curtain-deeper), var(--theatre-burgundy)); }
+.setlist-panel h2 {
+  font-family: var(--font-marquee);
+  font-size: 1.1rem;
+  color: var(--gold-bright);
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+.setlist-panel .saved-mixes-empty {
+  color: var(--ink-parchment);
+  font-style: italic;
+}
+.setlist-panel .saved-mix-row {
+  border-left: 3px solid var(--gold-bright);
+  background: linear-gradient(90deg, rgba(255, 216, 107, 0.08), transparent 30%);
+}
 .studio-main {
   display: flex;
   flex-direction: column;

@@ -551,7 +551,14 @@ function StudioInner({
   }, []);
 
   return (
-    <div className="studio-grid">
+    <div className="studio-grid rehearsal-room">
+      <header className="rehearsal-head">
+        <span className="on-air-lamp" aria-hidden="true">
+          <span className="on-air-dot" /> ON AIR
+        </span>
+        <h2 className="rehearsal-title">The Rehearsal Room</h2>
+        <span className="rehearsal-sub">tonight's mix in progress</span>
+      </header>
       <div className="studio-main">
         <Persona mood={mood} playing={playing} />
 
@@ -641,7 +648,7 @@ function StudioInner({
                 ? 'gemma is thinking…'
                 : currentMode === 'remote' && !modelReady
                   ? '> add your OpenRouter key in ⚙ Settings to chat with Gemma'
-                  : '> ask Gemma for what to add or change (try "start with a four-on-the-floor kick")'
+                  : '✎ note to coach: what should we try next? (try "start with a four-on-the-floor kick")'
           }
         />
       </div>
@@ -655,9 +662,9 @@ function StudioInner({
 
       {replaying && (
         <div className="replay-banner" role="status">
-          <span>🎬 Replaying saved mix…</span>
+          <span>🎬 Encore in progress…</span>
           <button className="muted" onClick={handleStopReplay}>
-            ⏹ Stop replay
+            ⏹ End encore
           </button>
         </div>
       )}

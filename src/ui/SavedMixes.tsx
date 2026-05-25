@@ -34,19 +34,19 @@ export function SavedMixes({
 
   if (mixes.length === 0) {
     return (
-      <div className="panel saved-mixes-panel">
-        <h2 style={{ margin: 0 }}>📁 Saved mixes</h2>
+      <div className="panel saved-mixes-panel setlist-panel">
+        <h2 style={{ margin: 0 }}>🎟 Tonight's Setlist</h2>
         <div className="saved-mixes-empty">
-          Nothing saved yet. Click <kbd>💾 Save as…</kbd> on a mix you like.
+          The setlist is empty. Click <kbd>💾 Save as…</kbd> on a mix to add it to the night.
         </div>
       </div>
     );
   }
 
   return (
-    <div className="panel saved-mixes-panel">
-      <h2 style={{ margin: '0 0 10px' }}>📁 Saved mixes · {mixes.length}</h2>
-      <ul className="saved-mix-list" aria-label="Saved mixes">
+    <div className="panel saved-mixes-panel setlist-panel">
+      <h2 style={{ margin: '0 0 10px' }}>🎟 Tonight's Setlist · {mixes.length}</h2>
+      <ul className="saved-mix-list" aria-label="Tonight's setlist">
         {mixes.map((m) => (
           <li key={m.id} className="saved-mix-row">
             <button
