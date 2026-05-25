@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>The G Factor - Bundle A explainer</title>
+  </head>
+  <body>
+    <div
+      id="g-factor-bundle-a"
+      data-composition-id="g-factor-bundle-a"
+      data-width="1920"
+      data-height="1080"
+      data-start="0"
+      data-duration="37"
+      data-track-index="0"
+    >
+      <!-- ===================== SCENE 1 - the name ===================== -->
+      <div class="scene is-first" id="s1">
+        <div class="spot-cone deco" data-layout-ignore></div>
+        <div class="drape drape-l deco" data-layout-ignore></div>
+        <div class="drape drape-r deco" data-layout-ignore></div>
+        <div class="footlight deco" data-layout-ignore></div>
+        <div class="scene-content sc-1">
+          <div class="kicker">ACT I &middot; THE NAME</div>
+          <h1 class="s1-title">Why &ldquo;The G Factor&rdquo;?</h1>
+          <div class="s1-row">
+            <div class="reading">
+              <div class="reading-tag">the model</div>
+              <div class="reading-big">Gemma&rsquo;s G</div>
+            </div>
+            <div class="reading">
+              <div class="reading-tag">general intelligence</div>
+              <div class="reading-big">the g factor</div>
+            </div>
+            <div class="reading">
+              <div class="reading-tag">a talent show</div>
+              <div class="reading-big">the &lsquo;Factor&rsquo;</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================== SCENE 2 - wordmark ===================== -->
+      <div class="scene" id="s2">
+        <div class="glow-big deco" data-layout-ignore></div>
+        <div class="scene-content sc-2">
+          <div class="bulb-strip deco" data-layout-ignore></div>
+          <h1 class="s2-wordmark">THE G FACTOR</h1>
+          <div class="bulb-strip deco" data-layout-ignore></div>
+          <div class="s2-tagline">Where Gemma learns your sound, live.</div>
+        </div>
+      </div>
+
+      <!-- ===================== SCENE 3 - the mapping ===================== -->
+      <div class="scene" id="s3">
+        <div class="glow-big deco" data-layout-ignore></div>
+        <div class="center-rule deco" data-layout-ignore></div>
+        <div class="footlight deco" data-layout-ignore></div>
+        <div class="scene-content sc-3">
+          <div class="s3-head">
+            <span class="col-label col-psy">PSYCHOMETRICS</span>
+            <span class="col-arrow">maps to</span>
+            <span class="col-label col-app">THE G FACTOR</span>
+          </div>
+          <div class="map-row" data-layout-allow-overflow>
+            <span class="cell-l">One capacity across many cognitive tasks</span>
+            <span class="cell-arrow">&rarr;</span>
+            <span class="cell-r">One small model across many musical tasks</span>
+          </div>
+          <div class="map-row" data-layout-allow-overflow>
+            <span class="cell-l">A battery of subtests</span>
+            <span class="cell-arrow">&rarr;</span>
+            <span class="cell-r">A bracket of 4 to 8 contestants</span>
+          </div>
+          <div class="map-row" data-layout-allow-overflow>
+            <span class="cell-l">The subtests themselves</span>
+            <span class="cell-arrow">&rarr;</span>
+            <span class="cell-r">8 musical axes: polyrhythm, harmony, tempo&hellip;</span>
+          </div>
+          <div class="map-row" data-layout-allow-overflow>
+            <span class="cell-l">The examiner who scores</span>
+            <span class="cell-arrow">&rarr;</span>
+            <span class="cell-r">You, judging two performers head-to-head</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================== SCENE 4 - act II ===================== -->
+      <div class="scene" id="s4">
+        <div class="spot-cone deco" data-layout-ignore></div>
+        <div class="footlight deco" data-layout-ignore></div>
+        <div class="scene-content sc-4">
+          <div class="s4-left">
+            <div class="kicker">ACT II &middot; UNDER THE HOOD</div>
+            <h1 class="s4-title" data-layout-allow-overflow>It all runs on your device.</h1>
+            <div class="s4-sub">In-browser, on WebGPU. Nothing routes through our servers.</div>
+          </div>
+          <div class="browser-frame" data-layout-ignore>
+            <div class="browser-bar">
+              <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+              <span class="bar-url">the-g-factor &middot; localhost</span>
+            </div>
+            <div class="browser-stage">
+              <span class="stage-chip">Gemma 4 E2B</span>
+              <span class="stage-note">~1.5 GB cached &middot; zero network</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================== SCENE 5 - the pipeline ===================== -->
+      <div class="scene" id="s5">
+        <div class="footlight deco" data-layout-ignore></div>
+        <div class="scene-content sc-5">
+          <div class="s5-label">ONE GENERATION, ON-DEVICE</div>
+          <div class="pipeline">
+            <div class="node n-surface">
+              <div class="node-title">Surfaces</div>
+              <div class="node-sub">Talent Show / Studio</div>
+            </div>
+            <span class="conn"></span>
+            <div class="node n-gen">
+              <div class="node-title">generate()</div>
+              <div class="node-sub">prompt = priors + taste + axis</div>
+            </div>
+            <span class="conn"></span>
+            <div class="node n-fork">
+              <div class="fork-pill fork-local">Local &middot; E2B &middot; WebGPU</div>
+              <div class="fork-pill fork-remote">Remote &middot; 31B &middot; OpenRouter</div>
+            </div>
+            <span class="conn"></span>
+            <div class="node n-fire">
+              <div class="node-title">Parser firewall</div>
+              <div class="node-sub">acorn + zod &middot; retry 3x</div>
+            </div>
+            <span class="conn"></span>
+            <div class="node n-engine">
+              <div class="node-title">Strudel engine</div>
+              <div class="node-sub">play()</div>
+            </div>
+            <span class="conn"></span>
+            <div class="node n-audio">
+              <div class="node-title">Audio</div>
+              <div class="node-sub">on stage</div>
+            </div>
+          </div>
+          <div class="taste-row">
+            <div class="taste-store">
+              <div class="taste-title">Taste memory</div>
+              <div class="taste-sub">IndexedDB &middot; getTopKSimilar()</div>
+            </div>
+            <span class="taste-arrow">feeds the prompt &uarr;</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================== SCENE 6 - close ===================== -->
+      <div class="scene" id="s6">
+        <div class="glow-big deco" data-layout-ignore></div>
+        <div class="footlight deco" data-layout-ignore></div>
+        <div class="scene-content sc-6">
+          <h1 class="s6-line1">A 2B model is enough</h1>
+          <div class="s6-line2">when the runtime carries the structure.</div>
+          <div class="s6-mark">THE G FACTOR &middot; Where Gemma learns your sound, live.</div>
+        </div>
+      </div>
+
+      <!-- ===================== transition + outro layers ===================== -->
+      <div class="curtain" data-layout-ignore>
+        <div class="curtain-panel curtain-l"></div>
+        <div class="curtain-panel curtain-r"></div>
+      </div>
+      <div class="blackout" data-layout-ignore></div>
+
+      <style>
+        @font-face {
+          font-family: 'Fraunces';
+          font-style: normal;
+          font-weight: 300 900;
+          font-display: swap;
+          src: url('fonts/fraunces-latin.woff2') format('woff2');
+        }
+        #g-factor-bundle-a {
+          --velvet: #120307;
+          --burgundy: #4a0810;
+          --burgundy-soft: #2a060a;
+          --curtain: #6e0e0e;
+          --curtain-dark: #3a0404;
+          --gold: #ffd86b;
+          --gold-muted: #c9b06e;
+          --gold-deep: #8a6f2e;
+          --cream: #f6e9c8;
+          --parchment: #e7d6a8;
+          --muted: #b29a6f;
+          --green: #6ed98a;
+          --red: #ff5a5a;
+          --rose: #d8748f;
+          --show: "Fraunces", Georgia, serif; /* kept for reference; literals used below for font embedding */
+          --mono: "JetBrains Mono", ui-monospace, monospace;
+          position: absolute;
+          inset: 0;
+          background: var(--velvet);
+          overflow: hidden;
+          font-family: 'JetBrains Mono', ui-monospace, monospace;
+        }
+        #g-factor-bundle-a * { box-sizing: border-box; }
+
+        .scene {
+          position: absolute;
+          inset: 0;
+          background: var(--velvet);
+          overflow: hidden;
+          opacity: 0;
+        }
+        #s1 { z-index: 1; }
+        #s2 { z-index: 2; }
+        #s3 { z-index: 3; }
+        #s4 { z-index: 4; }
+        #s5 { z-index: 5; }
+        #s6 { z-index: 6; }
+        .scene.is-first { opacity: 1; }
+
+        .scene-content {
+          position: relative;
+          z-index: 5;
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          padding: 120px 150px;
+          gap: 28px;
+        }
+
+        /* ---------- decoratives ---------- */
+        .deco { position: absolute; z-index: 1; pointer-events: none; }
+        .spot-cone {
+          top: -10%; left: 50%; transform: translateX(-50%);
+          width: 1100px; height: 760px;
+          background: radial-gradient(ellipse at 50% 0%, rgba(255, 220, 140, 0.22) 0%, rgba(255, 220, 140, 0) 68%);
+        }
+        .footlight {
+          left: 0; right: 0; bottom: 0; height: 220px;
+          background: radial-gradient(ellipse at 50% 100%, rgba(255, 200, 110, 0.16) 0%, rgba(255, 200, 110, 0) 70%);
+        }
+        .glow-big {
+          top: 50%; left: 50%; transform: translate(-50%, -50%);
+          width: 1200px; height: 1200px;
+          background: radial-gradient(circle at 50% 50%, rgba(255, 216, 107, 0.16) 0%, rgba(255, 216, 107, 0) 62%);
+        }
+        .drape { top: 0; bottom: 0; width: 150px; }
+        .drape-l { left: 0; background: linear-gradient(90deg, var(--curtain-dark) 0%, rgba(58, 4, 4, 0) 100%); }
+        .drape-r { right: 0; background: linear-gradient(270deg, var(--curtain-dark) 0%, rgba(58, 4, 4, 0) 100%); }
+        .ghost {
+          top: 50%; left: 50%; transform: translate(-50%, -50%);
+          font-family: 'Fraunces', serif; font-weight: 900; font-size: 980px;
+          color: rgba(255, 216, 107, 0.045); line-height: 1; user-select: none;
+        }
+        .ghost-sm { font-size: 760px; left: 50%; }
+        .center-rule {
+          top: 220px; bottom: 220px; left: 50%; width: 2px;
+          background: linear-gradient(180deg, rgba(201,176,110,0) 0%, rgba(201,176,110,0.45) 50%, rgba(201,176,110,0) 100%);
+        }
+
+        /* ---------- shared type ---------- */
+        .kicker {
+          font-family: 'JetBrains Mono', ui-monospace, monospace; font-weight: 500; font-size: 22px;
+          letter-spacing: 0.42em; color: var(--gold-muted); text-transform: uppercase;
+        }
+
+        /* ---------- scene 1 ---------- */
+        .sc-1 { gap: 40px; }
+        .s1-title {
+          margin: 0; font-family: 'Fraunces', serif; font-weight: 900; font-size: 96px;
+          line-height: 1.02; letter-spacing: -0.02em; color: var(--cream); max-width: 1400px;
+        }
+        .s1-row { display: flex; gap: 44px; margin-top: 8px; }
+        .reading {
+          flex: 1; padding: 30px 32px; border-radius: 16px;
+          background: var(--burgundy); border: 1px solid rgba(201, 176, 110, 0.3);
+        }
+        .reading-tag {
+          font-family: 'JetBrains Mono', ui-monospace, monospace; font-weight: 400; font-size: 19px;
+          letter-spacing: 0.16em; color: var(--muted); text-transform: uppercase; margin-bottom: 14px;
+        }
+        .reading-big {
+          font-family: 'Fraunces', serif; font-weight: 700; font-size: 46px;
+          color: var(--gold); line-height: 1.05;
+        }
+
+        /* ---------- scene 2 ---------- */
+        .sc-2 { align-items: center; justify-content: center; gap: 26px; }
+        .s2-wordmark {
+          margin: 0; font-family: 'Fraunces', serif; font-weight: 900; font-size: 158px;
+          letter-spacing: -0.02em; color: var(--gold); line-height: 1;
+          text-shadow: 0 0 42px rgba(255, 216, 107, 0.5), 0 0 14px rgba(255, 216, 107, 0.4);
+        }
+        .bulb-strip {
+          position: relative; width: 980px; height: 16px;
+          background-image: radial-gradient(circle at center, var(--gold) 0, var(--gold) 5px, rgba(255,216,107,0) 6px);
+          background-size: 46px 16px; background-repeat: repeat-x;
+          filter: drop-shadow(0 0 8px rgba(255, 216, 107, 0.6));
+        }
+        .s2-tagline {
+          font-family: 'JetBrains Mono', ui-monospace, monospace; font-weight: 400; font-size: 30px;
+          letter-spacing: 0.04em; color: var(--parchment); margin-top: 10px;
+        }
+
+        /* ---------- scene 3 ---------- */
+        .sc-3 { gap: 26px; padding: 110px 150px; }
+        .s3-head {
+          display: grid; grid-template-columns: 1fr 150px 1fr; align-items: center;
+          gap: 24px; margin-bottom: 12px;
+        }
+        .col-label { font-size: 24px; letter-spacing: 0.18em; text-transform: uppercase; }
+        .col-psy { font-family: 'JetBrains Mono', ui-monospace, monospace; font-weight: 500; color: var(--muted); }
+        .col-app { font-family: 'Fraunces', serif; font-weight: 700; color: var(--gold); letter-spacing: 0.04em; }
+        .col-arrow { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 16px; color: var(--gold-deep); text-align: center; letter-spacing: 0.1em; }
+        .map-row {
+          display: grid; grid-template-columns: 1fr 150px 1fr; align-items: center; gap: 24px;
+          padding: 18px 0; border-top: 1px solid rgba(201, 176, 110, 0.18);
+        }
+        .cell-l { font-family: 'JetBrains Mono', ui-monospace, monospace; font-weight: 400; font-size: 26px; color: var(--parchment); line-height: 1.3; }
+        .cell-arrow { font-family: 'Fraunces', serif; font-size: 40px; color: var(--gold); text-align: center; }
+        .cell-r { font-family: 'Fraunces', serif; font-weight: 500; font-size: 30px; color: var(--cream); line-height: 1.25; }
+
+        /* ---------- scene 4 ---------- */
+        .sc-4 { flex-direction: row; align-items: center; gap: 80px; }
+        .s4-left { flex: 1; display: flex; flex-direction: column; gap: 28px; }
+        .s4-title {
+          margin: 0; font-family: 'Fraunces', serif; font-weight: 900; font-size: 92px;
+          line-height: 1.04; letter-spacing: -0.02em; color: var(--cream); max-width: 820px;
+        }
+        .s4-sub { font-family: 'JetBrains Mono', ui-monospace, monospace; font-weight: 400; font-size: 27px; color: var(--parchment); line-height: 1.4; max-width: 740px; }
+        .browser-frame {
+          position: relative; z-index: 5; width: 560px; height: 360px; flex-shrink: 0;
+          border: 2px solid var(--gold-muted); border-radius: 16px; overflow: hidden;
+          background: var(--burgundy-soft); box-shadow: 0 0 50px rgba(0,0,0,0.5);
+        }
+        .browser-bar {
+          display: flex; align-items: center; gap: 10px; height: 52px; padding: 0 20px;
+          background: var(--burgundy); border-bottom: 1px solid rgba(201,176,110,0.3);
+        }
+        .browser-bar .dot { width: 13px; height: 13px; border-radius: 50%; background: var(--gold-deep); }
+        .bar-url { margin-left: 16px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 17px; color: var(--muted); letter-spacing: 0.04em; }
+        .browser-stage { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; height: calc(100% - 52px); }
+        .stage-chip {
+          font-family: 'JetBrains Mono', ui-monospace, monospace; font-weight: 700; font-size: 30px; color: var(--gold);
+          padding: 12px 26px; border: 1px solid rgba(255,216,107,0.5); border-radius: 999px;
+        }
+        .stage-note { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 18px; color: var(--parchment); letter-spacing: 0.04em; }
+
+        /* ---------- scene 5 ---------- */
+        .sc-5 { gap: 56px; justify-content: center; }
+        .s5-label { font-family: 'JetBrains Mono', ui-monospace, monospace; font-weight: 500; font-size: 22px; letter-spacing: 0.34em; color: var(--gold-muted); text-transform: uppercase; }
+        .pipeline { display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .node {
+          background: var(--burgundy); border: 1px solid rgba(201, 176, 110, 0.4); border-radius: 14px;
+          padding: 20px 18px; min-width: 196px; max-width: 230px; text-align: center;
+        }
+        .node-title { font-family: 'Fraunces', serif; font-weight: 700; font-size: 27px; color: var(--gold); line-height: 1.1; }
+        .node-sub { font-family: 'JetBrains Mono', ui-monospace, monospace; font-weight: 400; font-size: 16px; color: var(--parchment); margin-top: 8px; line-height: 1.25; }
+        .n-fire { border-color: rgba(110, 217, 138, 0.6); }
+        .n-fire .node-title { color: var(--green); }
+        .n-audio { border-color: rgba(255, 216, 107, 0.7); }
+        .n-fork { display: flex; flex-direction: column; gap: 10px; padding: 16px; min-width: 250px; max-width: 270px; background: transparent; border: none; }
+        .fork-pill { font-family: 'JetBrains Mono', ui-monospace, monospace; font-weight: 500; font-size: 17px; padding: 14px 14px; border-radius: 10px; line-height: 1.15; }
+        .fork-local { color: var(--gold); background: var(--burgundy); border: 1px solid rgba(255, 216, 107, 0.5); }
+        .fork-remote { color: var(--rose); background: var(--burgundy-soft); border: 1px solid rgba(216, 116, 143, 0.55); }
+        .conn { width: 34px; height: 3px; border-radius: 2px; background: var(--gold-muted); flex-shrink: 0; }
+        .taste-row { display: flex; align-items: center; justify-content: center; gap: 22px; }
+        .taste-store { background: var(--burgundy-soft); border: 1px dashed rgba(216, 116, 143, 0.55); border-radius: 12px; padding: 16px 24px; text-align: center; }
+        .taste-title { font-family: 'Fraunces', serif; font-weight: 700; font-size: 24px; color: var(--rose); }
+        .taste-sub { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 16px; color: var(--parchment); margin-top: 6px; }
+        .taste-arrow { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 18px; color: var(--gold-muted); letter-spacing: 0.06em; }
+
+        /* ---------- scene 6 ---------- */
+        .sc-6 { align-items: center; justify-content: center; gap: 22px; text-align: center; }
+        .s6-line1 { margin: 0; font-family: 'Fraunces', serif; font-weight: 900; font-size: 84px; letter-spacing: -0.02em; color: var(--gold); line-height: 1.05; }
+        .s6-line2 { font-family: 'Fraunces', serif; font-weight: 300; font-style: normal; font-size: 50px; color: var(--cream); line-height: 1.1; }
+        .s6-mark { font-family: 'JetBrains Mono', ui-monospace, monospace; font-weight: 400; font-size: 22px; letter-spacing: 0.14em; color: var(--gold-muted); margin-top: 26px; text-transform: uppercase; }
+
+        /* ---------- curtain + blackout ---------- */
+        .curtain { position: absolute; inset: 0; z-index: 100; pointer-events: none; }
+        .curtain-panel {
+          position: absolute; top: 0; bottom: 0; width: 51%;
+          background:
+            repeating-linear-gradient(90deg, rgba(0,0,0,0.28) 0 20px, rgba(0,0,0,0) 20px 64px),
+            linear-gradient(180deg, var(--curtain) 0%, var(--curtain-dark) 100%);
+          box-shadow: inset 0 0 80px rgba(0,0,0,0.6);
+        }
+        .curtain-l { left: 0; }
+        .curtain-r { right: 0; }
+        .blackout { position: absolute; inset: 0; z-index: 200; background: #000; pointer-events: none; }
+      </style>
+
+      <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+      <script>
+        window.__timelines = window.__timelines || {};
+        const tl = gsap.timeline({ paused: true });
+
+        /* curtain panels park offscreen from the start */
+        tl.set(".curtain-l", { xPercent: -101 }, 0);
+        tl.set(".curtain-r", { xPercent: 101 }, 0);
+
+        /* ===== SCENE 1 (0 - 6) ===== */
+        tl.from("#s1 .kicker", { opacity: 0, y: -24, duration: 0.6, ease: "power2.out" }, 0.2);
+        tl.from("#s1 .s1-title", { opacity: 0, y: 64, duration: 0.9, ease: "expo.out" }, 0.45);
+        tl.from("#s1 .reading", { opacity: 0, scale: 0.82, y: 30, duration: 0.66, ease: "back.out(1.6)", stagger: 0.14 }, 1.05);
+        tl.to("#s1 .spot-cone", { opacity: 0.65, scale: 1.06, duration: 2.6, ease: "sine.inOut", repeat: 1, yoyo: true }, 0.4);
+
+        /* ===== SCENE 2 (6 - 11) - blur in, then wordmark slam ===== */
+        tl.fromTo("#s2", { opacity: 0, filter: "blur(16px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.55, ease: "power2.out" }, 6);
+        tl.from("#s2 .s2-wordmark", { opacity: 0, scale: 0.42, duration: 0.8, ease: "back.out(1.7)" }, 6.1);
+        tl.from("#s2 .bulb-strip", { opacity: 0, scaleX: 0.4, duration: 0.5, ease: "power3.out", stagger: 0.1 }, 6.45);
+        tl.from("#s2 .s2-tagline", { opacity: 0, y: 24, letterSpacing: "0.3em", duration: 0.6, ease: "power2.out" }, 6.75);
+        tl.to("#s2 .glow-big", { opacity: 0.6, scale: 1.08, duration: 1.4, ease: "sine.inOut", repeat: 2, yoyo: true }, 6.6);
+
+        /* ===== SCENE 3 (11 - 19) - push up ===== */
+        tl.fromTo("#s3", { opacity: 0, yPercent: 7 }, { opacity: 1, yPercent: 0, duration: 0.55, ease: "power3.out" }, 11);
+        tl.from("#s3 .col-psy", { opacity: 0, x: -40, duration: 0.5, ease: "power2.out" }, 11.2);
+        tl.from("#s3 .col-arrow", { opacity: 0, duration: 0.5, ease: "sine.inOut" }, 11.4);
+        tl.from("#s3 .col-app", { opacity: 0, x: 40, duration: 0.5, ease: "power2.out" }, 11.2);
+        tl.from("#s3 .map-row .cell-l", { opacity: 0, x: -48, duration: 0.55, ease: "expo.out", stagger: 0.26 }, 11.7);
+        tl.from("#s3 .map-row .cell-arrow", { opacity: 0, scale: 0.3, duration: 0.4, ease: "back.out(2)", stagger: 0.26 }, 11.85);
+        tl.from("#s3 .map-row .cell-r", { opacity: 0, x: 48, duration: 0.55, ease: "expo.out", stagger: 0.26 }, 11.95);
+        tl.from("#s3 .center-rule", { opacity: 0, scaleY: 0, transformOrigin: "50% 50%", duration: 0.9, ease: "power2.inOut" }, 11.4);
+
+        /* ===== SCENE 4 (19 - 25) - red curtain wipe ===== */
+        tl.to(".curtain-l", { xPercent: 0, duration: 0.46, ease: "power2.in" }, 18.55);
+        tl.to(".curtain-r", { xPercent: 0, duration: 0.46, ease: "power2.in" }, 18.55);
+        tl.set("#s4", { opacity: 1 }, 19.05);
+        tl.to(".curtain-l", { xPercent: -101, duration: 0.55, ease: "power2.out" }, 19.2);
+        tl.to(".curtain-r", { xPercent: 101, duration: 0.55, ease: "power2.out" }, 19.2);
+        tl.from("#s4 .kicker", { opacity: 0, y: -20, duration: 0.5, ease: "power2.out" }, 19.5);
+        tl.from("#s4 .s4-title", { opacity: 0, x: -60, duration: 0.8, ease: "expo.out" }, 19.65);
+        tl.from("#s4 .s4-sub", { opacity: 0, y: 28, duration: 0.6, ease: "power2.out" }, 20.0);
+        tl.from("#s4 .browser-frame", { opacity: 0, scale: 0.8, duration: 0.7, ease: "back.out(1.4)" }, 19.9);
+        tl.from("#s4 .stage-chip", { opacity: 0, scale: 0.7, duration: 0.5, ease: "back.out(1.8)" }, 20.4);
+        tl.from("#s4 .stage-note", { opacity: 0, duration: 0.5, ease: "sine.inOut" }, 20.6);
+        tl.to("#s4 .spot-cone", { opacity: 0.6, scale: 1.05, duration: 2.2, ease: "sine.inOut", repeat: 1, yoyo: true }, 20.2);
+
+        /* ===== SCENE 5 (25 - 33) - blur in, build pipeline ===== */
+        tl.fromTo("#s5", { opacity: 0, filter: "blur(13px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.55, ease: "power2.out" }, 25);
+        tl.from("#s5 .s5-label", { opacity: 0, y: -20, duration: 0.5, ease: "power2.out" }, 25.2);
+        tl.from("#s5 .node", { opacity: 0, y: 44, duration: 0.5, ease: "power3.out", stagger: 0.16 }, 25.5);
+        tl.from("#s5 .conn", { scaleX: 0, transformOrigin: "0% 50%", duration: 0.28, ease: "power1.inOut", stagger: 0.16 }, 25.78);
+        tl.from("#s5 .taste-row", { opacity: 0, y: 36, duration: 0.6, ease: "power2.out" }, 27.0);
+        tl.to("#s5 .n-audio", { boxShadow: "0 0 38px rgba(255,216,107,0.55)", duration: 1.2, ease: "sine.inOut", repeat: 4, yoyo: true }, 27.4);
+
+        /* ===== SCENE 6 (33 - 37) - gentle in, fade to black ===== */
+        tl.fromTo("#s6", { opacity: 0, filter: "blur(20px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.75, ease: "sine.inOut" }, 33);
+        tl.from("#s6 .s6-line1", { opacity: 0, y: 40, duration: 0.7, ease: "power3.out" }, 33.3);
+        tl.from("#s6 .s6-line2", { opacity: 0, letterSpacing: "0.2em", duration: 0.8, ease: "sine.out" }, 33.7);
+        tl.from("#s6 .s6-mark", { opacity: 0, y: 22, duration: 0.6, ease: "power2.out" }, 34.2);
+        tl.to("#s6 .glow-big", { opacity: 0.55, scale: 1.06, duration: 1.3, ease: "sine.inOut", repeat: 1, yoyo: true }, 33.6);
+        tl.fromTo(".blackout", { opacity: 0 }, { opacity: 1, duration: 0.8, ease: "power2.in" }, 36.1);
+
+        window.__timelines["g-factor-bundle-a"] = tl;
+      </script>
+    </div>
+  </body>
+</html>
