@@ -89,6 +89,12 @@ function TalentShowInner({
   const { toast, showToast, dismissToast } = useToast();
 
   const playLock = useRef(false);
+  // Bumped by every stop intent (handleStop / handleChoose / handleGoldenBuzz
+  // / handleReset). handlePlay captures this token before its async
+  // play(code), and if it has changed when the await resolves we know a
+  // stop was requested mid-flight - we re-stop and skip setPlayingId so
+  // the audio play() just started doesn't loop on past the user's intent.
+  const playTokenRef = useRef(0);
   const autoSaveTimer = useRef<number | null>(null);
   const castingStartedAt = useRef<number>(0);
   // Pending curtain-choreography timers. Cleared whenever the desired phase
@@ -217,11 +223,20 @@ function TalentShowInner({
   const handlePlay = useCallback(async (cid: string, code: string) => {
     if (playLock.current) return;
     playLock.current = true;
+    const token = playTokenRef.current;
     setEngineError(null);
     clearLastError();
     try {
       stop();
       await play(code);
+      if (playTokenRef.current !== token) {
+        // A stop intent fired during the await - play() resumed the audio
+        // context and started a pattern that would now loop indefinitely.
+        // Stop again and don't claim playingId for an audio path the user
+        // already cancelled.
+        stop();
+        return;
+      }
       setPlayingId(cid);
     } catch (err) {
       setEngineError(err instanceof Error ? err.message : String(err));
@@ -231,6 +246,7 @@ function TalentShowInner({
   }, []);
 
   const handleStop = useCallback(() => {
+    playTokenRef.current++;
     stop();
     setPlayingId(null);
   }, []);
@@ -240,6 +256,7 @@ function TalentShowInner({
     const winner = bracket.contestants.find((c) => c.id === winnerId);
     if (!winner) return;
     setBuzzedId(winnerId);
+    playTokenRef.current++;
     stop();
     setPlayingId(null);
     void fireGoldenConfetti();
@@ -268,6 +285,7 @@ function TalentShowInner({
       }
       return next;
     });
+    playTokenRef.current++;
     stop();
     setPlayingId(null);
   }, []);
@@ -340,6 +358,7 @@ function TalentShowInner({
       window.clearTimeout(autoSaveTimer.current);
       autoSaveTimer.current = null;
     }
+    playTokenRef.current++;
     stop();
     setPhase('setup');
     setContestants([]);
