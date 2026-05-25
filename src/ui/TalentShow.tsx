@@ -20,6 +20,7 @@ import { TalentStage, type CurtainState } from './TalentStage';
 import { Performer } from './Performer';
 import { Toast, useToast } from './Toast';
 import { fireGoldenConfetti } from './goldenConfetti';
+import { GemmaHost } from './GemmaHost';
 
 const GOLDEN_BUZZ_SHOCK_MS = 1500;
 
@@ -356,9 +357,11 @@ function TalentShowInner({
     <>
       <Toast state={toast} onDismiss={dismissToast} />
       {renderedPhase === 'setup' && (
-        <div className="panel">
-          <div className="taste-head">
-            <h2 style={{ margin: 0 }}>🎪 Talent Show</h2>
+        <>
+          <GemmaHost />
+          <div className="panel">
+            <div className="taste-head">
+              <h2 style={{ margin: 0 }}>🎪 Tonight's Show</h2>
             <div className="bracket-size-toggle" role="radiogroup" aria-label="Bracket size">
               <button
                 className={bracketSize === 4 ? 'primary' : 'muted'}
@@ -378,7 +381,7 @@ function TalentShowInner({
               </button>
             </div>
           </div>
-          <p style={{ color: '#9aa0a8', fontSize: '0.92rem', marginTop: 10 }}>
+          <p style={{ color: 'var(--ink-parchment)', fontSize: '0.92rem', marginTop: 10 }}>
             Gemma picks a fresh seed and spins up {bracketSize} variations of it; each gets a face.
             Pick one from every pair until a champion is crowned - and the champion gets a 🏆 entry
             in your taste memory.
@@ -414,7 +417,8 @@ function TalentShowInner({
               {engineError}
             </div>
           )}
-        </div>
+          </div>
+        </>
       )}
 
       {(renderedPhase === 'casting' || renderedPhase === 'showing') && (

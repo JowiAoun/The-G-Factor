@@ -885,7 +885,7 @@ button.liked {
 }
 
 /* ── match (waiting placeholder; the stage owns the live matchup look) ──── */
-.match-waiting { color: #9aa0a8; text-align: center; padding: 30px 0; }
+.match-waiting { color: var(--ink-parchment); text-align: center; padding: 30px 0; }
 
 /* ── champion scene (positioning context for Confetti + actions row) ────── */
 .champion-scene {
@@ -1021,6 +1021,123 @@ button.liked {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 280px;
   gap: 16px;
+}
+
+/* ---- Gemma host welcome banner ---- */
+.gemma-host {
+  display: grid;
+  grid-template-columns: 132px 1fr;
+  gap: 22px;
+  align-items: center;
+  padding: 20px 22px;
+  margin: 0 0 16px;
+  background:
+    radial-gradient(ellipse at 12% 50%, rgba(255, 216, 107, 0.14) 0%, transparent 55%),
+    linear-gradient(180deg, var(--theatre-burgundy) 0%, var(--theatre-curtain-deeper) 100%);
+  border: 1px solid rgba(201, 176, 110, 0.45);
+  border-radius: 14px;
+  box-shadow: var(--shadow-stage);
+  position: relative;
+  overflow: hidden;
+}
+.gemma-host::before,
+.gemma-host::after {
+  content: '';
+  position: absolute;
+  left: 18px; right: 18px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 216, 107, 0.6), transparent);
+}
+.gemma-host::before { top: 6px; }
+.gemma-host::after  { bottom: 6px; }
+
+.gemma-host-portrait {
+  position: relative;
+  width: 124px;
+  height: 124px;
+  border-radius: 50%;
+  justify-self: center;
+  background:
+    radial-gradient(circle at 35% 25%, rgba(255, 230, 180, 0.2), transparent 55%),
+    var(--theatre-burgundy-soft);
+  box-shadow:
+    0 0 0 2px var(--gold-bright),
+    0 0 0 5px var(--theatre-curtain-deeper),
+    0 0 0 8px var(--gold-deep),
+    0 8px 22px rgba(0, 0, 0, 0.6),
+    0 0 30px rgba(255, 216, 107, 0.25);
+  overflow: hidden;
+}
+.gemma-host-avatar { width: 100%; height: 100%; }
+.gemma-host-avatar svg { width: 100%; height: 100%; }
+.gemma-host-plaque {
+  position: absolute;
+  left: 50%;
+  bottom: -2px;
+  transform: translateX(-50%);
+  padding: 2px 14px;
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  color: var(--theatre-curtain-deeper);
+  background: var(--brass-rail);
+  border-radius: 999px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.55);
+  text-transform: uppercase;
+}
+
+.gemma-host-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+.gemma-host-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.gemma-host-sub {
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-parchment);
+  opacity: 0.85;
+  font-style: italic;
+}
+.gemma-host-title {
+  margin: 0;
+  font-family: var(--font-marquee);
+  font-size: clamp(1.4rem, 3.4vw, 2rem);
+  color: var(--gold-bright);
+  letter-spacing: 0.02em;
+  text-shadow:
+    0 0 12px rgba(255, 216, 107, 0.45),
+    0 2px 0 rgba(0, 0, 0, 0.55);
+  line-height: 1.05;
+}
+.gemma-host-line {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--ink-cream);
+  line-height: 1.45;
+  max-width: 60ch;
+}
+.gemma-host-line strong {
+  color: var(--gold-bright);
+  font-weight: 700;
+}
+@media (max-width: 640px) {
+  .gemma-host {
+    grid-template-columns: 1fr;
+    text-align: center;
+    padding: 16px 14px;
+  }
+  .gemma-host-portrait { width: 96px; height: 96px; }
+  .gemma-host-eyebrow { justify-content: center; }
+  .gemma-host-line { max-width: none; }
 }
 
 /* ---- Rehearsal Room (Studio reskin) ---- */
@@ -1536,7 +1653,7 @@ button.liked {
   line-height: 1.4;
   max-height: 120px;
 }
-.chat-input textarea::placeholder { color: #6c727a; }
+.chat-input textarea::placeholder { color: var(--ink-muted); }
 
 /* saved-mixes sidebar */
 .saved-mixes-panel { align-self: start; position: sticky; top: 12px; }
