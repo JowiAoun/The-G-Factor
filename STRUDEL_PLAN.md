@@ -62,19 +62,6 @@ Every Gemma JSON output runs through `@strudel/core` parse before display:
 
 ## 3. Phased Execution Plan
 
-### Phase 0 — Day 1 (May 15): Brutal Feasibility Spike — HARD GATE
-
-**Goal:** Prove Gemma 4 2B can produce *musically interesting* (not just parseable) Strudel variations in the browser.
-
-- Scaffold Vite + React + `@huggingface/transformers` + `@strudel/web@1.0.3` + `zod` + `idb`.
-- Validate click → `evaluate('note("c e g")')` → `hush()` audio round-trip works on a mid-range laptop (no GPU).
-- Validate Gemma 2B loads + generates in browser (WebGPU primary, WASM fallback). Measure cold load time and first-token latency.
-- **Spike test:** 5 hand-picked seed patterns × 3 variations each = **15 outputs**. Listen honestly.
-  - **PASS:** ≥10/15 parse via Strudel parser **and** ≥8/15 are subjectively "huh, that's actually cool."
-  - **MARGINAL:** 6–9/15 cool → escalate to Gemma 4B, retest, only proceed if 4B passes.
-  - **FAIL:** ≤5/15 cool → **pivot to Sigil** ([PLAN.md](PLAN.md)) by EOD Day 2, telescope its 9-day schedule into 7.
-- Deliverable: `.omc/research/spike-day1.md` with timestamped log of all 15 outputs, listening notes, parse rates, and PASS/MARGINAL/FAIL verdict.
-
 ### Phase 1 — Days 2–3 (May 16–17): Core Remix Loop
 
 - Zod schema for Gemma output: `{variation_code: string, transformation_label: string, explanation_one_line: string}`.
@@ -150,7 +137,6 @@ Every Gemma JSON output runs through `@strudel/core` parse before display:
 | `README.md` | Overview, model rationale, dev/build/deploy instructions |
 | `DEVPOST.md` | Draft submission post (filled in across Days 1–9) |
 | `LICENSE` | MIT |
-| `.omc/research/spike-day1.md` | Day-1 spike log (PASS/MARGINAL/FAIL decision artifact) |
 
 ---
 
@@ -183,10 +169,9 @@ Every Gemma JSON output runs through `@strudel/core` parse before display:
 
 | Risk | Likelihood | Mitigation |
 |------|------------|------------|
-| Day-1 spike fails: Gemma 2B has no musical taste | Medium | Hard pivot gate to Sigil ([PLAN.md](PLAN.md)) by EOD Day 2, telescope to 7-day version |
 | transformers.js Gemma 4 browser support gaps | Low-Med | Validate on Day 1 explicitly; fallback to OpenRouter free tier (loses "fully in-browser" pitch but ships) |
 | Cross-origin isolation headers fail | Low | Vercel native support via `vercel.json`; secondary fallback GitHub Pages + Cloudflare Pages headers |
-| Variations parse but sound boring | Medium | Caught by Day-1 spike; if marginal, add deterministic post-processing layer (force a `.gain()`, pick non-default samples, vary tempo on at least one of 3) |
+| Variations parse but sound boring | Medium | If marginal, add deterministic post-processing layer (force a `.gain()`, pick non-default samples, vary tempo on at least one of 3) |
 | Model download too slow for demo (1.5GB) | Medium | Cache-first PWA semantics; static playable seed patterns visible during download so first impression is sound, not a progress bar |
 | Audio plays badly in screen recording | Low | OBS system-audio capture configured + tested on Day 7, not Day 8 |
 | Taste-memory similarity retrieval picks irrelevant likes | Medium | v1 = n-gram overlap (deterministic, easy to debug); upgrade to MiniLM embeddings only if v1 is clearly broken on Day 5 |
@@ -196,13 +181,12 @@ Every Gemma JSON output runs through `@strudel/core` parse before display:
 
 ## 8. Verification Steps
 
-1. **Day 1:** spike log `.omc/research/spike-day1.md` with all 15 outputs + listening verdicts + go/no-go.
-2. **Day 3:** smoke test 10 seeds × 3 variations = 30 outputs; manually verify all play without error.
-3. **Day 5:** taste-memory bias test — script 5 likes that share `bd(3,8)` euclidean structure, then run remix on a fresh seed, verify ≥1 of 3 variations includes a euclidean.
-4. **Day 7:** fresh-browser-profile cold-start test, time first-like; must be <90s.
-5. **Day 8:** deploy verification — open Vercel URL on a clean second laptop, complete the end-to-end flow.
-6. **Day 8:** recording check — playback the demo video on a phone (typical DEV reader environment) with default volume, verify audio is clear.
-7. **Day 9:** DEV post checklist — domain hook lead, pedagogy diagram, model rationale, embedded video, repo URL, deploy URL, MIT license, screenshots.
+1. **Day 3:** smoke test 10 seeds × 3 variations = 30 outputs; manually verify all play without error.
+2. **Day 5:** taste-memory bias test — script 5 likes that share `bd(3,8)` euclidean structure, then run remix on a fresh seed, verify ≥1 of 3 variations includes a euclidean.
+3. **Day 7:** fresh-browser-profile cold-start test, time first-like; must be <90s.
+4. **Day 8:** deploy verification — open Vercel URL on a clean second laptop, complete the end-to-end flow.
+5. **Day 8:** recording check — playback the demo video on a phone (typical DEV reader environment) with default volume, verify audio is clear.
+6. **Day 9:** DEV post checklist — domain hook lead, pedagogy diagram, model rationale, embedded video, repo URL, deploy URL, MIT license, screenshots.
 
 ---
 
@@ -212,7 +196,7 @@ Every Gemma JSON output runs through `@strudel/core` parse before display:
 |----------|--------|-----------|
 | Audience | Coder learning music | DEV's reader skew + leverages JS familiarity; "live-coding" framing resonates |
 | Primary model | Gemma 4 2B | Constrained DSL output + retrieval lets 2B carry; clean intentional-model story |
-| Fallback model | Gemma 4 4B | Only if Day-1 spike is marginal on 2B |
+| Fallback model | Gemma 4 4B | Only if 2B output quality is marginal |
 | Hosting | Vercel | Native cross-origin isolation header support; free tier sufficient |
 | Memory backend | IndexedDB via `idb` | Browser-native, no server, persists across sessions naturally |
 | Similarity retrieval v1 | N-gram overlap | Deterministic, debuggable, no extra model |
@@ -236,7 +220,7 @@ Every Gemma JSON output runs through `@strudel/core` parse before display:
 
 ## 11. Backup Pivot
 
-If the **Day-1 spike fails** (≤5/15 musically interesting outputs from both 2B and 4B):
+If neither Gemma 2B nor 4B can produce musically interesting Strudel variations (≤5/15 outputs land):
 - Cleanly fall back to **Sigil** ([PLAN.md](PLAN.md)) on Day 2.
 - Telescope Sigil's 9-day schedule into 7: cut SVG library to 12 charges (vs ~30), drop the symbolism-explain pass.
 - This is **not failure** — it's a deliberate de-risked path with the same architectural skeleton (browser-native, transformers.js, zod-validated IR, structured output → renderer).

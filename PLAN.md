@@ -165,14 +165,14 @@ The plan succeeds when:
 | Risk | Mitigation |
 |------|------------|
 | Gemma 4 2B produces malformed JSON | Constrained decoding via prompt + zod validation + 3-retry loop; fallback to 4B if needed. |
-| transformers.js Gemma 4 support gaps on day 1 | Spike on Day 1 specifically to confirm; if blocked, pivot to Gemma 4 4B via `ollama` + small Node bridge (loses "browser-native" pitch but ships). |
+| transformers.js Gemma 4 support gaps on day 1 | Validate on Day 1 specifically to confirm; if blocked, pivot to Gemma 4 4B via `ollama` + small Node bridge (loses "browser-native" pitch but ships). |
 | SVG primitives take longer than 2 days | Pre-scope a minimum viable set of 12 charges; mention "extensible library" in the writeup. |
 | Symbolism explanations sound generic | Cache 3 hand-curated "great" examples in the demo to showcase; explain-pass is bonus, not core. |
 | Time pressure on the writeup | Draft the DEV post structure on Day 1 alongside the README — fill in as you build. |
 
 ### Backup Pick
 
-If the Day-1 transformers.js + Gemma 4 spike fails, pivot to **Etym** (#2): same architecture, smaller surface area (no SVG primitive library — D3 tree rendering is mostly framework code), still hits originality + browser-native + unexpected-domain wow.
+If the transformers.js + Gemma 4 path fails, pivot to **Etym** (#2): same architecture, smaller surface area (no SVG primitive library — D3 tree rendering is mostly framework code), still hits originality + browser-native + unexpected-domain wow.
 
 ### Brainstorming
 - Strudel REPL + Gemma for creating audios using the Strudel language and Gemma

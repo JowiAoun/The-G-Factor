@@ -5,8 +5,7 @@
 
 ## Status
 
-- **Current phase:** Phase 1-3 implementation complete; Phase 0 verdict awaiting user listening session; Phase 4 deploy + Phase 5 submission pending user
-- **Day-1 spike verdict:** pending
+- **Current phase:** Phase 1-3 implementation complete; Phase 4 deploy + Phase 5 submission pending user
 - **Active model:** Gemma 4 2B (4B fallback if marginal)
 - **Last updated:** 2026-05-17
 
@@ -22,62 +21,13 @@
 
 ---
 
-## Phase 0 — Day 1 (May 15) · Brutal Feasibility Spike 🚦
-
-> Prove Gemma 4 2B can produce **musically interesting** Strudel variations in-browser. This phase has a hard pass/fail gate that decides whether the project lives.
-
-### Environment scaffold
-- [x] Init Vite + React + TypeScript project at repo root (`src/`, `index.html`, `vite.config.ts`)
-- [x] Install dependencies: `@huggingface/transformers` (v4, gemma4 support), `@strudel/web@1.2.6`, `zod` (rolled own IndexedDB wrapper instead of `idb`)
-- [x] `vercel.json` with `Cross-Origin-Opener-Policy: same-origin` + `Cross-Origin-Embedder-Policy: require-corp`
-- [x] `.gitignore` excludes `node_modules/`, `dist/`, `.vercel/`
-- [x] MIT `LICENSE` file
-- [x] `README.md` skeleton with run instructions
-
-### Strudel smoke test
-- [x] `initStrudel()` called inside a click handler (not on page load)
-- [ ] `evaluate('note("c e g")')` produces audible audio _(user verification — needs browser)_
-- [ ] `hush()` stops audio within 1s _(user verification)_
-- [ ] 5 consecutive evals work without audio-engine leaks _(user verification)_
-- [x] Async errors from `evaluate()` are caught and surfaced (via `getLastError`)
-
-### Gemma smoke test
-- [x] Gemma 4 2B loads via `@huggingface/transformers` (WebGPU primary) — wired via `Gemma4ForConditionalGeneration` + `AutoProcessor`, q4f16
-- [x] WASM fallback path verified (auto-detect `navigator.gpu` then fall back)
-- [x] Cold load time measured and logged (printed on `ready` event)
-- [ ] First-token latency measured and logged _(captured per-generation as `durationMs`; surfaced on each card; user-verify on browser run)_
-- [x] Constrained JSON generation produces parseable output (zod validation + 3-retry loop)
-
-### The spike itself
-- [x] 5 hand-picked seed patterns selected (`src/spike/seeds.ts`)
-- [x] Minimal Layer-1 prompt drafted (`src/model/prompts.ts`: 13 ops + 12 chains + 8 idioms + 1-shot)
-- [ ] Generate 3 variations × 5 seeds = **15 outputs** _(user click "Run spike" in browser)_
-- [ ] Each output run through `@strudel/core` parser → parse rate recorded _(streamed live in harness UI)_
-- [ ] Each output hand-listened → subjective "interesting?" verdict recorded _(user listening required)_
-- [ ] If 2B is MARGINAL (6–9/15 interesting): repeat spike with Gemma 4 4B
-
-### Decision artifact
-- [x] `research/spike-day1.md` skeleton written with protocol + gate table (moved from `.omc/` since gitignored)
-- [ ] Final verdict committed: **PASS** / **MARGINAL→4B** / **FAIL→pivot to Sigil** _(user listening + verdict required)_
-
-### 🚦 Phase 0 VERIFICATION GATE
-- [ ] Audio round-trip works end-to-end _(user-verify in browser)_
-- [ ] Gemma loads + generates in browser _(user-verify with `Load Gemma 4 E2B` button)_
-- [ ] Parse rate ≥ 10/15 _(harness reports live)_
-- [ ] Interesting rate ≥ 8/15 (on 2B or escalated 4B) _(user listening)_
-- [ ] Day-2 path explicitly chosen (continue / pivot) _(user decision)_
-
-> **If gate fails:** stop Strudel work, switch to [PLAN.md](PLAN.md) (Sigil) on Day 2, telescope into 7-day schedule (cut SVG library to 12 charges, drop explain-pass).
-
----
-
 ## Phase 1 — Days 2–3 (May 16–17) · Core Remix Loop
 
 > Get user → 3 playable variations working end-to-end. No memory yet.
 
 ### Schema + parser firewall
 - [x] `src/strudel/parse.ts`: wraps `@strudel/transpiler` parse → `{valid: boolean, error?: string}`
-- [-] Unit test: 10 known-good Strudel patterns _(deferred — parser exercised on every spike+remix call; harness surfaces results live)_
+- [-] Unit test: 10 known-good Strudel patterns _(deferred — parser exercised on every remix call)_
 - [-] Unit test: 10 known-bad patterns _(deferred — same as above)_
 - [x] Zod schema in `src/remix/schema.ts`: `{variation_code, transformation_label, explanation_one_line}`
 
@@ -97,7 +47,7 @@
 ### UI v1
 - [x] `src/ui/App.tsx`: paste box + "Remix" button + 3 variation cards + seed gallery
 - [x] `src/ui/VariationCard.tsx`: code preview + label + explanation + ▶ play + ♥ like
-- [x] Model-loading progress bar component (in main app and spike harness)
+- [x] Model-loading progress bar component
 - [x] Basic responsive layout (CSS grid with `auto-fit` minmax)
 
 ### ✅ Phase 1 VERIFICATION
@@ -471,3 +421,15 @@ If Phase 0's hard gate fails (≤5/15 interesting on both 2B and 4B):
    - Drop symbolism-explain pass
    - Keep the rest of Sigil's plan intact
 4. Reuse all Phase 0 scaffolding (Vite, React, transformers.js setup) — only the domain code changes.
+
+
+
+---
+
+## Finish up
+- [ ] Make app leaner
+- [ ] Reduce bloat
+- [ ] Security checks
+- [ ] Push to GitHub
+- [ ] Make some cool graphics with hyper
+- [ ] Vision: efficient pre-calls, kind of similar to how Google does some pre-loading in some cases (i.e. uploading a file to an LLM) and explain how small models can make a big difference when used properly

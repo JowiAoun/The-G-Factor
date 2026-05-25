@@ -67,7 +67,7 @@ the model only needs to be good enough to map a seed plus 3 stylistic
 exemplars into one short JSON object. E2B (effective 2B parameter, q4 ONNX)
 loads in under two minutes on a mid-range laptop, runs comfortably on WebGPU,
 and stays under the WASM memory ceiling if WebGPU is unavailable. E4B was kept
-as the marginal-case fallback after a Day-1 brutal feasibility spike.
+as the marginal-case fallback.
 
 The model-choice story is the whole pitch: **a 2B model is *enough* when you
 let the runtime carry the structure.**

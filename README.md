@@ -23,7 +23,6 @@ First load downloads ~1.5 GB of Gemma 4 E2B (q4 ONNX); cached after.
 
 - 🎛 Remix Studio (default): `http://localhost:5173/`
 - 🎪 Talent Show: `http://localhost:5173/?talentshow` (or the tab in the header)
-- Day-1 feasibility spike harness: `http://localhost:5173/?spike`
 
 ## Backends
 
