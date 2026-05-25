@@ -2168,6 +2168,23 @@ button.liked {
    bottom of the stage, with sparse phone-flashlight twinkles. The SVG
    fills the bottom 130px; foreground tier sits on top of curtains so
    the audience stays visible even when the curtains close. */
+/* Register the cheering magnitude as a typed <number> so CSS can
+   interpolate it. Without @property, var() values are treated as opaque
+   strings and transitions snap; with it, --bob-amp / --flash-amp ease
+   smoothly between idle (1) and cheering (2.4), which the keyframes
+   below read via calc() to scale motion and glow continuously rather
+   than swapping animation-duration mid-cycle. */
+@property --bob-amp {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+@property --flash-amp {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+
 .audience {
   position: absolute;
   left: 0;
@@ -2178,37 +2195,35 @@ button.liked {
   z-index: 5;
   pointer-events: none;
   overflow: hidden;
+  --bob-amp: 1;
+  --flash-amp: 1;
+  transition: --bob-amp 700ms ease, --flash-amp 600ms ease;
+}
+
+.audience.is-cheering {
+  --bob-amp: 2.4;
+  --flash-amp: 2.4;
 }
 
 .audience-head {
-  animation: head-sway 4s ease-in-out infinite;
+  animation: head-sway 2.2s ease-in-out infinite;
   transform-origin: center bottom;
   transform-box: fill-box;
 }
 
-.audience.is-cheering .audience-head {
-  animation-duration: 0.7s;
-}
-
 .phone-flashlight {
-  filter: drop-shadow(0 0 4px #ffe6a3);
-  animation: flashlight-twinkle 3s ease-in-out infinite;
-  opacity: 0.55;
-}
-
-.audience.is-cheering .phone-flashlight {
-  opacity: 1;
-  filter: drop-shadow(0 0 11px #ffe6a3);
-  animation-duration: 0.9s;
+  filter: drop-shadow(0 0 calc(4px + 6px * (var(--flash-amp) - 1)) #ffe6a3);
+  animation: flashlight-twinkle 1.8s ease-in-out infinite;
 }
 
 @keyframes head-sway {
-  0%, 100% { transform: translateY(0)    rotate(0); }
-  50%      { transform: translateY(-2px) rotate(1deg); }
+  0%, 100% { transform: translateY(0) rotate(0); }
+  50%      { transform: translateY(calc(-2px * var(--bob-amp)))
+                       rotate(calc(0.8deg * var(--bob-amp))); }
 }
 
 @keyframes flashlight-twinkle {
-  0%, 100% { opacity: var(--flashlight-min, 0.4); }
+  0%, 100% { opacity: calc(0.3 + 0.15 * var(--flash-amp)); }
   50%      { opacity: 1; }
 }
 
