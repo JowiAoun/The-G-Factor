@@ -746,7 +746,7 @@ button.liked {
    --lamp-active   0 at rest, 1 when a button is hovered/focused
    --cone-rotation deg the cone tilts toward the cursor
    --cone-length   px from the lens down to the cursor
-   The 68px lens depth here MUST match LAMP_LENS_Y in VenueMap.tsx. */
+   The 47px lens depth here MUST match LAMP_LENS_Y in VenueMap.tsx. */
 .venue-map {
   --lamp-x: 50%;
   --cone-rotation: 0deg;
@@ -773,7 +773,7 @@ button.liked {
 }
 .stage-lamp-rod {
   width: 2px;
-  height: 42px;
+  height: 21px;
   background: linear-gradient(180deg, rgba(201, 176, 110, 0.85) 0%, rgba(201, 176, 110, 0.55) 100%);
   box-shadow: 0 0 2px rgba(0, 0, 0, 0.6);
 }
@@ -828,7 +828,7 @@ button.liked {
 }
 .stage-lamp-cone {
   position: absolute;
-  top: 68px;
+  top: 47px;
   left: 50%;
   width: 220px;
   height: var(--cone-length);

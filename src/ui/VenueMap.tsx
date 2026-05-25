@@ -16,7 +16,7 @@ const VENUES: Venue[] = [
 ];
 
 const HALL_OF_FAME_IDX = VENUES.length - 1;
-const LAMP_LENS_Y = 68; // matches `.stage-lamp-lens` vertical placement in styles.css
+const LAMP_LENS_Y = 47; // matches `.stage-lamp-lens` vertical placement in styles.css (21px rod + 26px body)
 // Soft cap on cone rotation; covers wide buttons without going horizontal.
 const CONE_MAX_TILT_DEG = 55;
 const CURSOR_LERP_DAMPING = 0.30;
