@@ -3,6 +3,14 @@
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   background: #0e0f12;
   color: #e8eaed;
+
+  /* Stage palette — used by .talent-stage and its inhabitants. */
+  --stage-curtain-red:  #6e0e0e;
+  --stage-curtain-dark: #3a0404;
+  --stage-gold:         #c9b06e;
+  --stage-gold-bright:  #ffd86b;
+  --stage-spot-warm:    rgba(255, 220, 140, 0.32);
+  --curtain-swing-ms:   850ms;
 }
 * { box-sizing: border-box; }
 body { margin: 0; min-height: 100vh; }
@@ -1461,6 +1469,469 @@ button.liked { background: #6b2a4a; border-color: #80303f; color: #ffd6e3; }
   .casting-host-bubble {
     animation: none;
   }
+}
+
+/* ---------- Talent stage — unified theatrical shell ---------- */
+/* Used across casting (host) → showing (performers) → champion (lone winner). */
+
+.talent-stage {
+  position: relative;
+  background: linear-gradient(180deg, #0a0d18 0%, #050608 60%, #03050a 100%);
+  border-radius: 16px;
+  overflow: hidden;
+  min-height: 500px;
+  padding: 28px 24px 56px;
+  isolation: isolate;
+}
+
+/* Proscenium gold frame around the stage opening. */
+.talent-stage::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  border: 2px solid var(--stage-gold);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 216, 107, 0.18),
+    inset 0 8px 22px rgba(0, 0, 0, 0.55);
+  pointer-events: none;
+  z-index: 6;
+}
+
+.talent-stage.phase-champion::before {
+  border-color: var(--stage-gold-bright);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 216, 107, 0.45),
+    inset 0 8px 30px rgba(255, 200, 100, 0.22);
+}
+
+/* Curtains inside a talent-stage cover the full opening (50% each)
+   so they can actually hide the swap. The existing 32%-each .casting-stage
+   curtains stay narrow until task 7 retires that selector. */
+.talent-stage .stage-curtain {
+  width: 50%;
+  transition: transform var(--curtain-swing-ms) cubic-bezier(0.35, 0.1, 0.25, 1);
+}
+
+.talent-stage.curtain-open .stage-curtain.left  { transform: translateX(-100%); }
+.talent-stage.curtain-open .stage-curtain.right { transform: translateX(100%); }
+
+/* Marquee playbill at the top — chasing-bulb effect. */
+.stage-marquee {
+  position: relative;
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 0 auto 6px;
+  padding: 8px 24px;
+  background: linear-gradient(180deg, #2a0606 0%, #150202 100%);
+  border: 1px solid var(--stage-gold);
+  border-radius: 999px;
+  color: var(--stage-gold-bright);
+  font-weight: 700;
+  font-size: 0.92rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-shadow: 0 0 12px rgba(255, 216, 107, 0.55);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.55);
+}
+
+.stage-marquee-wrap {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  justify-content: center;
+}
+
+.stage-marquee-bulb {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--stage-gold-bright);
+  box-shadow: 0 0 10px var(--stage-gold-bright);
+  animation: marquee-bulbs 1.6s linear infinite;
+}
+
+.stage-marquee-bulb:nth-child(2) { animation-delay: 0.4s; }
+.stage-marquee-bulb:nth-child(3) { animation-delay: 0.8s; }
+
+/* Stage floor — subtle planks + shine sweep. */
+.stage-floor {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 24%;
+  background:
+    linear-gradient(180deg, transparent 0%, rgba(40, 26, 14, 0.55) 100%),
+    repeating-linear-gradient(90deg,
+      rgba(0, 0, 0, 0.18) 0px,
+      rgba(0, 0, 0, 0.18) 1px,
+      transparent 1px,
+      transparent 24px);
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.stage-floor::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg,
+    transparent 0%,
+    transparent 40%,
+    rgba(255, 220, 140, 0.08) 50%,
+    transparent 60%,
+    transparent 100%);
+  animation: floor-shine 8s linear infinite;
+  pointer-events: none;
+}
+
+/* Footlights along the bottom. */
+.stage-footlights {
+  position: absolute;
+  bottom: 4px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.stage-footlight {
+  width: 26px;
+  height: 8px;
+  border-radius: 4px 4px 0 0;
+  background: radial-gradient(circle at 50% 100%,
+    rgba(255, 220, 140, 0.95) 0%,
+    rgba(255, 160, 60, 0.7) 50%,
+    rgba(255, 100, 0, 0) 100%);
+  filter: blur(0.5px);
+  animation: footlight-pulse 3s ease-in-out infinite;
+}
+
+.stage-footlight:nth-child(odd) { animation-delay: 0.4s; }
+
+.stage-footlights.is-active .stage-footlight {
+  animation-duration: 0.9s;
+  filter: blur(0.5px) brightness(1.3);
+}
+
+.stage-spotlight.is-active {
+  filter: brightness(1.35);
+}
+
+/* Performers — contestants standing on the stage. */
+.performer-row {
+  position: relative;
+  z-index: 4;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: end;
+  gap: 30px;
+  padding: 40px 16px 40px;
+}
+
+.performer-row.is-solo {
+  grid-template-columns: 1fr;
+  justify-items: center;
+}
+
+.performer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  animation: performer-arrive 550ms cubic-bezier(0.2, 1, 0.3, 1) both;
+}
+
+.performer.side-left  { animation-name: performer-arrive-left; }
+.performer.side-right { animation-name: performer-arrive-right; }
+
+.performer-avatar-wrap {
+  position: relative;
+  width: var(--perf-size, 180px);
+  height: var(--perf-size, 180px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.performer-avatar-wrap::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 70%;
+  height: 14px;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.5) 0%, transparent 70%);
+  filter: blur(2px);
+  z-index: -1;
+}
+
+.performer-avatar {
+  width: 100%;
+  height: 100%;
+  animation: bob 2.4s ease-in-out infinite;
+}
+
+.performer-avatar svg { width: 100%; height: 100%; }
+
+.performer.is-playing  .performer-avatar { animation: bob 0.8s ease-in-out infinite; }
+.performer.state-winner    .performer-avatar { animation: jump 700ms ease-out forwards; }
+.performer.state-loser     .performer-avatar { animation: fade-loss 700ms forwards; }
+.performer.state-champion  .performer-avatar { animation: champion-sway 2.8s ease-in-out infinite; }
+.performer.is-dnf .performer-avatar { filter: grayscale(0.6); opacity: 0.7; }
+
+.performer .sparkles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.performer .sparkles i {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 14px;
+  background: linear-gradient(180deg, #ffe28a 0%, transparent 100%);
+  animation: sparkle 1.2s ease-out var(--delay, 0s) infinite;
+}
+
+.performer .crown {
+  position: absolute;
+  top: -34px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 2.4rem;
+  animation: crown-bounce 1.6s ease-in-out infinite;
+  filter: drop-shadow(0 4px 8px rgba(255, 216, 107, 0.6));
+}
+
+.performer .dnf-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: #6b1f2a;
+  color: #ffd6e3;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.06em;
+}
+
+.performer-placard {
+  background: linear-gradient(180deg, #2a1e10 0%, #1a1208 100%);
+  border: 1px solid var(--stage-gold);
+  border-radius: 8px;
+  padding: 6px 14px;
+  min-width: 160px;
+  text-align: center;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+}
+
+.performer-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #ffe6a3;
+  letter-spacing: 0.04em;
+}
+
+.performer-chip {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 2px 8px;
+  background: rgba(255, 216, 107, 0.12);
+  border: 1px solid rgba(255, 216, 107, 0.35);
+  border-radius: 999px;
+  font-size: 0.7rem;
+  color: var(--stage-gold-bright);
+  text-transform: lowercase;
+  letter-spacing: 0.02em;
+}
+
+.performer-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+.performer-actions button {
+  padding: 5px 12px;
+  font-size: 0.8rem;
+}
+
+.vs-sash {
+  position: relative;
+  z-index: 4;
+  font-size: 2.6rem;
+  font-weight: 900;
+  font-style: italic;
+  background: linear-gradient(135deg, #ff6b9b 0%, #ffd86b 50%, #4f7cff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 24px rgba(255, 107, 155, 0.45);
+  align-self: center;
+  margin-bottom: 80px;
+}
+
+/* Code strip — always-visible code/explanation BELOW the stage. */
+.match-code-strip {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 14px;
+  padding: 0 4px;
+}
+
+.match-code-strip-col {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.match-code-strip-col .label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--stage-gold);
+  font-weight: 600;
+}
+
+.match-code-strip-col pre {
+  font-family: ui-monospace, monospace;
+  font-size: 0.74rem;
+  color: #a8b0bb;
+  background: #0e1014;
+  border: 1px solid #23262d;
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin: 0;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.match-code-strip-col .expl {
+  margin: 0;
+  font-size: 0.78rem;
+  color: #9aa0a8;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+/* Bracket marquee — thin always-visible strip above the stage. */
+.bracket-marquee {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px 14px;
+  background: linear-gradient(180deg, #14181f 0%, #0d1015 100%);
+  border: 1px solid #23262d;
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+
+.bracket-marquee-round {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bracket-marquee-round-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  color: #6a6e76;
+  letter-spacing: 0.1em;
+  margin-right: 4px;
+}
+
+.bracket-marquee-thumb {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid #2a2d34;
+  background: #1d1f25;
+  transition: opacity 200ms, border-color 200ms, transform 200ms, box-shadow 200ms;
+  position: relative;
+}
+
+.bracket-marquee-thumb svg { width: 100%; height: 100%; }
+
+.bracket-marquee-thumb.is-eliminated { opacity: 0.3; filter: grayscale(0.8); }
+.bracket-marquee-thumb.is-advanced   { border-color: #4f7cff; }
+.bracket-marquee-thumb.is-current {
+  border-color: var(--stage-gold-bright);
+  box-shadow: 0 0 12px rgba(255, 216, 107, 0.55);
+  transform: scale(1.15);
+}
+.bracket-marquee-thumb.is-champion {
+  border-color: var(--stage-gold-bright);
+  transform: scale(1.2);
+  box-shadow: 0 0 16px rgba(255, 216, 107, 0.65);
+}
+.bracket-marquee-thumb.is-champion::after {
+  content: '👑';
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.85rem;
+}
+
+.bracket-marquee-vs {
+  font-size: 0.7rem;
+  color: #5a5e66;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.bracket-marquee-sep {
+  color: #4a4e56;
+  font-size: 1.1rem;
+  margin: 0 4px;
+}
+
+/* New keyframes for the stage. */
+@keyframes marquee-bulbs {
+  0%, 100% { opacity: 1;   transform: scale(1); }
+  50%      { opacity: 0.4; transform: scale(0.8); }
+}
+
+@keyframes footlight-pulse {
+  0%, 100% { opacity: 0.85; transform: translateY(0); }
+  50%      { opacity: 1;    transform: translateY(-1px); }
+}
+
+@keyframes floor-shine {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes performer-arrive {
+  0%   { opacity: 0; transform: translateY(40px); }
+  60%  { opacity: 1; transform: translateY(-6px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes performer-arrive-left {
+  0%   { opacity: 0; transform: translate(-40px, 30px); }
+  100% { opacity: 1; transform: translate(0, 0); }
+}
+
+@keyframes performer-arrive-right {
+  0%   { opacity: 0; transform: translate(40px, 30px); }
+  100% { opacity: 1; transform: translate(0, 0); }
 }
 
 /* ---------- Backend chooser modal & settings button ---------- */
