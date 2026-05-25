@@ -1,4 +1,11 @@
-import { lazy, Suspense, type CSSProperties, type ReactNode } from 'react';
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from 'react';
 import { Audience } from './Audience';
 import { useAudioAmplitude } from './useAudioAmplitude';
 
@@ -7,6 +14,27 @@ import { useAudioAmplitude } from './useAudioAmplitude';
 // actually starts.
 const StageVisualizer = lazy(() => import('./StageVisualizer'));
 const StageSparkles = lazy(() => import('./StageSparkles'));
+
+/**
+ * Live `prefers-reduced-motion` flag. Re-evaluates when the user toggles
+ * the system setting mid-session so the gating is honest even during
+ * a long-running show. Returns `false` outside the browser (SSR safety,
+ * though this app doesn't SSR today).
+ */
+function useReducedMotion(): boolean {
+  const [reduced, setReduced] = useState(() =>
+    typeof window !== 'undefined' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+  );
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const handler = (e: MediaQueryListEvent) => setReduced(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+  return reduced;
+}
 
 export type StagePhase = 'casting' | 'showing' | 'champion';
 export type CurtainState = 'open' | 'closed';
@@ -39,10 +67,18 @@ export function TalentStage({
   const classes = ['talent-stage', `phase-${phase}`];
   if (curtain === 'open') classes.push('curtain-open');
 
+  // The expensive reactive layers (canvas visualizer, particle emitter,
+  // amplitude-driven marquee glow) are gated behind reduced-motion as
+  // well as `spotlightActive`. CSS-driven animations inside the stage
+  // are already disabled via the @media (prefers-reduced-motion) block,
+  // but rAF-driven canvases ignore CSS - they have to be unmounted.
+  const reducedMotion = useReducedMotion();
+  const reactive = !!spotlightActive && !reducedMotion;
+
   // One shared amplitude subscription per stage. Drives the marquee
   // bulb glow when a performance is on; idle otherwise (no rAF cost).
-  const amp = useAudioAmplitude(!!spotlightActive);
-  const marqueeStyle = spotlightActive
+  const amp = useAudioAmplitude(reactive);
+  const marqueeStyle = reactive
     ? ({ '--bulb-glow': amp.toFixed(2) } as Record<string, string> as CSSProperties)
     : undefined;
 
@@ -61,7 +97,7 @@ export function TalentStage({
 
       <div className="stage-marquee-wrap" aria-hidden="true">
         <div
-          className={`stage-marquee${spotlightActive ? ' is-reactive' : ''}`}
+          className={`stage-marquee${reactive ? ' is-reactive' : ''}`}
           style={marqueeStyle}
         >
           <span className="stage-marquee-bulb" />
@@ -83,7 +119,7 @@ export function TalentStage({
 
       <Audience cheering={!!spotlightActive} />
 
-      {spotlightActive && (
+      {reactive && (
         <Suspense fallback={null}>
           <StageVisualizer active />
           <StageSparkles active />
