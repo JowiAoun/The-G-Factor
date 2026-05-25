@@ -128,13 +128,14 @@ function LeaderboardInner({ version }: Props) {
   const championedCount = ranked.filter((e) => e.wins > 0).length;
 
   return (
-    <div className="panel leaderboard-panel">
+    <div className="panel leaderboard-panel hall-of-fame">
       <header className="leaderboard-head">
-        <h2 style={{ margin: 0 }}>Leaderboard</h2>
+        <h2 className="hall-of-fame-title" style={{ margin: 0 }}>The Hall of Fame</h2>
+        <div className="hall-of-fame-sub">every champion, every season</div>
         <div className="leaderboard-meta">
           {loading
             ? 'loading…'
-            : `${totalWins} championship${totalWins === 1 ? '' : 's'} · ${championedCount}/${ranked.length} characters have won`}
+            : `${totalWins} ovation${totalWins === 1 ? '' : 's'} · ${championedCount}/${ranked.length} stars have taken the stage`}
         </div>
       </header>
 
@@ -152,7 +153,7 @@ function LeaderboardInner({ version }: Props) {
       </div>
 
       <div className="leaderboard-roster">
-        <h3 className="roster-heading">Full roster</h3>
+        <h3 className="roster-heading">The Playbill</h3>
         <ul className="roster-list">
           {rosterRest.map((entry, i) => (
             <RosterRow
