@@ -39,6 +39,17 @@ export function getStrudelAudioContext(): AudioContext | null {
 }
 
 /**
+ * The side-branch AnalyserNode connected in parallel with the audio
+ * destination. Exposed so downstream visualizers (audiomotion-analyzer,
+ * tsparticles emitters, performer aura) can plug into the same node
+ * the mouth-sync amplitude loop already uses - one analyser, many
+ * consumers. Null before the audio context exists.
+ */
+export function getStrudelAnalyser(): AnalyserNode | null {
+  return analyser;
+}
+
+/**
  * Insert a side-branch `AnalyserNode` into Strudel's audio path.
  *
  * Strudel/superdough route every source through their internal graph and
@@ -55,7 +66,10 @@ export function getStrudelAudioContext(): AudioContext | null {
 function installAudioAnalyser(ctx: AudioContext): void {
   if (analyser) return;
   analyser = ctx.createAnalyser();
-  analyser.fftSize = 256;
+  // 512 bins give audiomotion-analyzer enough resolution for nice
+  // octave-band visuals; the time-domain mouth/aura loops only read
+  // peak amplitude so the larger buffer is essentially free for them.
+  analyser.fftSize = 512;
   analyser.smoothingTimeConstant = 0.6;
   // Allocate with an explicit ArrayBuffer so the type narrows to
   // Uint8Array<ArrayBuffer>, matching getByteTimeDomainData's signature.
