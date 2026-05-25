@@ -215,7 +215,7 @@ export function App({ initialMode = 'talentshow' }: { initialMode?: AppMode } = 
         <div className="wordmark" aria-label="The G Factor">
           <img
             className="wordmark-logo"
-            src="/assets/logo.png"
+            src="/assets/images/logo.png"
             alt=""
             width={88}
             height={88}
