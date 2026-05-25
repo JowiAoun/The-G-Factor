@@ -7,6 +7,7 @@ import {
   useState,
 } from 'react';
 import {
+  PERSONA,
   PERSONA_APOLOGY,
   PERSONA_GREETING,
 } from '../studio/persona';
@@ -21,7 +22,8 @@ import {
 import { addLike, deleteLike, getAllLikes } from '../memory/taste';
 import { play, stop, clearLastError } from '../strudel/engine';
 import { getStoredApiKey, type BackendMode } from '../model/backend';
-import { Persona, type PersonaMood } from './Persona';
+import { type PersonaMood } from './Persona';
+import { GemmaHost } from './GemmaHost';
 import { MixCanvas } from './MixCanvas';
 import { MixInspector } from './MixInspector';
 import { ChatBubble } from './ChatBubble';
@@ -552,15 +554,19 @@ function StudioInner({
 
   return (
     <div className="studio-grid rehearsal-room">
-      <header className="rehearsal-head">
-        <span className="on-air-lamp" aria-hidden="true">
-          <span className="on-air-dot" /> ON AIR
-        </span>
-        <h2 className="rehearsal-title">The Rehearsal Room</h2>
-        <span className="rehearsal-sub">tonight's mix in progress</span>
-      </header>
+      <GemmaHost
+        title="The Rehearsal Room"
+        sub="tonight's mix in progress"
+        mood={mood}
+        playing={playing}
+        line={
+          <>
+            I'm <strong>{PERSONA.name}</strong>. Tell me what we should make.
+            Drag a sound, paste a pattern, or just ask.
+          </>
+        }
+      />
       <div className="studio-main">
-        <Persona mood={mood} playing={playing} />
 
         <MixCanvas
           mixCode={mixCode}

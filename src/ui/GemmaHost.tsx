@@ -1,25 +1,64 @@
 import { useMemo } from 'react';
-import { renderAvatar } from '../talent/avatar';
+import { renderAvatar, type MouthState } from '../talent/avatar';
 import { PERSONA } from '../studio/persona';
+import { useTalkCycle } from './useTalkCycle';
+import { useAudioMouth } from './useAudioMouth';
+import type { PersonaMood } from './Persona';
+
+type GemmaHostProps = {
+  title?: string;
+  /** Eyebrow line shown next to the ON AIR lamp. */
+  sub?: string;
+  /** Override the default body line. */
+  line?: React.ReactNode;
+  /** Drives the avatar's mouth state. When omitted, the portrait sits
+   *  on a static smile (Main Stage welcome). When provided, the avatar
+   *  reacts to Gemma's mood and to live audio amplitude (Rehearsal
+   *  Room playback). */
+  mood?: PersonaMood;
+  /** True while Strudel is playing audio; used together with mood for
+   *  the audio-driven lip-sync state. */
+  playing?: boolean;
+};
+
+function mouthFor(
+  mood: PersonaMood | undefined,
+  playing: boolean,
+  thinkFrame: 0 | 1,
+  audioFrame: 0 | 1,
+): MouthState {
+  if (!mood) return 'smile';
+  switch (mood) {
+    case 'saved':    return 'laugh';
+    case 'apology':  return 'sad';
+    case 'thinking': return thinkFrame === 0 ? 'smile' : 'agape';
+    case 'idle':
+    default:
+      if (playing) return audioFrame === 0 ? 'smile' : 'agape';
+      return 'smile';
+  }
+}
 
 /**
- * Welcome banner displayed at the top of the Main Stage setup phase
- * (the canonical "/" landing) and reusable elsewhere if needed. Shows
- * a brass-framed portrait of Gemma alongside a marquee welcome and
- * a one-line introduction. Purely presentational: no audio reactivity
- * (the Persona card in the Rehearsal Room handles live mouth-sync).
+ * Theatre host banner. One layout, two surfaces:
+ *   - Main Stage setup phase: static portrait + welcome copy.
+ *   - Rehearsal Room: same banner shape, but the portrait gets live
+ *     mouth-sync (thinking-cycle when Gemma is generating, amplitude
+ *     when audio is playing).
  */
 export function GemmaHost({
   title = 'Welcome to The G Factor',
+  sub = 'your host for tonight',
   line,
-}: {
-  title?: string;
-  /** Override the default "I'm Gemma, your host for tonight..." line. */
-  line?: string;
-}) {
+  mood,
+  playing = false,
+}: GemmaHostProps) {
+  const thinkFrame = useTalkCycle(mood === 'thinking', 200);
+  const audioFrame = useAudioMouth(!!playing && mood !== 'thinking');
+  const mouth = mouthFor(mood, playing, thinkFrame, audioFrame);
   const svg = useMemo(
-    () => renderAvatar(PERSONA.avatarSeed, 'smile', PERSONA.avatarOptions),
-    [],
+    () => renderAvatar(PERSONA.avatarSeed, mouth, PERSONA.avatarOptions),
+    [mouth],
   );
   return (
     <section className="gemma-host" aria-label="Hosted by Gemma">
@@ -35,7 +74,7 @@ export function GemmaHost({
           <span className="on-air-lamp" aria-hidden="true">
             <span className="on-air-dot" /> ON AIR
           </span>
-          <span className="gemma-host-sub">your host for tonight</span>
+          <span className="gemma-host-sub">{sub}</span>
         </div>
         <h2 className="gemma-host-title">{title}</h2>
         <p className="gemma-host-line">
