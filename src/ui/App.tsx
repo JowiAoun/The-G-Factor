@@ -28,6 +28,7 @@ import { TasteSidebar } from './TasteSidebar';
 import { TalentShow } from './TalentShow';
 import { Studio } from './Studio';
 import { BackendChooserModal } from './BackendChooserModal';
+import { Footer } from './Footer';
 
 type ModelState = 'idle' | 'loading' | 'ready' | 'error';
 export type AppMode = 'remix' | 'talentshow';
@@ -330,9 +331,7 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
 
       <TasteSidebar version={tasteVersion} onCleared={handleTasteCleared} />
 
-      <footer className="app-foot">
-        <a href="?spike">Day-1 spike harness →</a>
-      </footer>
+      <Footer />
 
       {settingsOpen && (
         <BackendChooserModal
