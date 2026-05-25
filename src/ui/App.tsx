@@ -30,12 +30,28 @@ import { BackendChooserModal } from './BackendChooserModal';
 import { Footer } from './Footer';
 import { Leaderboard } from './Leaderboard';
 import { VenueMap } from './VenueMap';
+import { RouteCurtain } from './RouteCurtain';
 
 type ModelState = 'idle' | 'loading' | 'ready' | 'error';
 export type AppMode = 'remix' | 'talentshow' | 'leaderboard';
 
 export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
   const [mode, setMode] = useState<AppMode>(initialMode);
+  // Two-stage mode switch so the route-curtain wipe can hide the
+  // content swap. Clicking a venue sets `pendingMode`; once the
+  // curtains have fully closed, RouteCurtain fires `onHalfway` and
+  // we promote pendingMode -> mode (the swap happens off-screen).
+  const [pendingMode, setPendingMode] = useState<AppMode | null>(null);
+  const requestMode = useCallback((next: AppMode) => {
+    if (next === mode) return;
+    setPendingMode(next);
+  }, [mode]);
+  const commitPendingMode = useCallback(() => {
+    setPendingMode((next) => {
+      if (next != null) setMode(next);
+      return null;
+    });
+  }, []);
 
   const [modelState, setModelState] = useState<ModelState>('idle');
   const [progressMsg, setProgressMsg] = useState('');
@@ -207,17 +223,22 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
           </span>
         </div>
         <div className="sub">
-          Where Gemma learns your sound — live.{' '}
+          Where Gemma learns your sound, live.{' '}
           <span
             className="brand-explain"
-            title="The g factor is psychology's name for general intelligence — the broad cognitive capacity behind diverse tasks. We use Gemma as the engine."
+            title="The g factor is psychology's name for general intelligence: the broad cognitive capacity behind diverse tasks. We use Gemma as the engine."
           >
             G = general intelligence × Gemma
           </span>
         </div>
       </header>
 
-      <VenueMap mode={mode} onSelect={setMode} onOpenSettings={handleOpenSettings} />
+      <VenueMap
+        mode={pendingMode ?? mode}
+        onSelect={requestMode}
+        onOpenSettings={handleOpenSettings}
+      />
+      <RouteCurtain targetKey={pendingMode ?? mode} onHalfway={commitPendingMode} />
 
       {currentMode !== 'remote' && (
         <div className="panel">

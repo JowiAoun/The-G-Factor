@@ -1,40 +1,18 @@
 import {
   lazy,
   Suspense,
-  useEffect,
-  useState,
   type CSSProperties,
   type ReactNode,
 } from 'react';
 import { Audience } from './Audience';
 import { useAudioAmplitude } from './useAudioAmplitude';
+import { useReducedMotion } from './useReducedMotion';
 
 // Lazy-load so the audiomotion-analyzer payload (~30 kB) and
 // tsparticles payload (~50 kB) are fetched only when a performance
 // actually starts.
 const StageVisualizer = lazy(() => import('./StageVisualizer'));
 const StageSparkles = lazy(() => import('./StageSparkles'));
-
-/**
- * Live `prefers-reduced-motion` flag. Re-evaluates when the user toggles
- * the system setting mid-session so the gating is honest even during
- * a long-running show. Returns `false` outside the browser (SSR safety,
- * though this app doesn't SSR today).
- */
-function useReducedMotion(): boolean {
-  const [reduced, setReduced] = useState(() =>
-    typeof window !== 'undefined' &&
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-  );
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const handler = (e: MediaQueryListEvent) => setReduced(e.matches);
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
-  }, []);
-  return reduced;
-}
 
 export type StagePhase = 'casting' | 'showing' | 'champion';
 export type CurtainState = 'open' | 'closed';

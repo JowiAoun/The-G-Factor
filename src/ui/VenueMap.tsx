@@ -21,7 +21,7 @@ type VenueMapProps = {
 
 /**
  * Theatrical lobby that replaces the flat tab strip. Each venue is rendered
- * as its own miniature proscenium — gold-trimmed arch, bulbs that chase
+ * as its own miniature proscenium: gold-trimmed arch, bulbs that chase
  * around the active door, brief sublabel below.
  *
  * Purely presentational: state lives in App.tsx; this component just emits
@@ -68,7 +68,7 @@ export function VenueMap({ mode, onSelect, onOpenSettings }: VenueMapProps) {
           className="venue-stage-door"
           onClick={onOpenSettings}
           aria-label="Backstage (settings)"
-          title="Backstage — pick your engine"
+          title="Backstage: pick your engine"
         >
           <span aria-hidden="true">🚪</span>
           <span className="venue-stage-door-label">Backstage</span>
