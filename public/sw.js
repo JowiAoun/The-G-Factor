@@ -57,6 +57,12 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // The favicon/wordmark lives at a stable URL (/assets/logo.png), not a
+  // content-hashed one, so cache-first would pin a stale copy. Let it fall
+  // through to the browser default, which honors the revalidating
+  // Cache-Control header from vercel.json.
+  if (url.pathname === '/assets/logo.png') return;
+
   if (url.pathname.startsWith('/assets/')) {
     event.respondWith(cacheFirst(req, ASSET_CACHE));
     return;
