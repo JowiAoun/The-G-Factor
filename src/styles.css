@@ -563,6 +563,9 @@ button.liked {
    between Main Stage, Rehearsal Room, and Hall of Fame). */
 .venue-map {
   position: relative;
+  /* Wider than .app's 1200px cap so the three doors can extend past the
+     gold arch on both sides; auto inline margins keep it centred. */
+  max-width: 1400px;
   margin: 4px auto 22px;
   padding: 38px 14px 14px;
   /* Above the body::after audience dim (z 30); below the route curtain
@@ -592,10 +595,20 @@ button.liked {
   flex-wrap: wrap;
   margin-top: 10px;
 }
-.venue-door {
+/* Cell wraps each door (and Hall of Fame's Backstage sibling). The cell
+   owns the flex sizing and provides the positioning context for
+   Backstage's bottom-right peek; hover handlers attach to the cell so
+   reaching for Backstage doesn't blink the lamp off Hall of Fame. */
+.venue-door-cell {
   position: relative;
   flex: 1 1 260px;
-  max-width: 340px;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+}
+.venue-door {
+  position: relative;
+  width: 100%;
   min-height: 132px;
   padding: 22px 14px 14px;
   border: 1px solid rgba(201, 176, 110, 0.45);
@@ -693,18 +706,17 @@ button.liked {
   text-transform: uppercase;
   opacity: 0.78;
 }
-/* Backstage door: small unobtrusive settings entry. Pinned to the
-   top-right of .venue-map so it sits OUTSIDE the three-door flex row -
-   that way Main Stage stays mathematically centred and the proscenium
-   arch reads symmetrically. */
+/* Backstage door: tiny "stage door tag" anchored to Hall of Fame's
+   bottom-right corner, peeking ~10px outside it on both axes. The
+   parent is Hall of Fame's .venue-door-cell which is position: relative. */
 .venue-stage-door {
   position: absolute;
-  top: 12px;
-  right: 14px;
-  width: 92px;
-  padding: 8px 6px;
-  background: rgba(18, 4, 8, 0.55);
-  border: 1px dashed rgba(201, 176, 110, 0.35);
+  bottom: -10px;
+  right: -12px;
+  width: 70px;
+  padding: 6px 4px;
+  background: rgba(18, 4, 8, 0.88);
+  border: 1px dashed rgba(201, 176, 110, 0.55);
   border-radius: 8px;
   color: var(--ink-parchment);
   cursor: pointer;
@@ -712,19 +724,20 @@ button.liked {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
-  font-size: 0.66rem;
-  letter-spacing: 0.08em;
+  gap: 1px;
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   z-index: 4;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.55);
   transition: color 120ms, border-color 120ms, background 120ms;
 }
 .venue-stage-door:hover {
   color: var(--gold-bright);
   border-color: var(--gold-bright);
-  background: rgba(74, 8, 16, 0.6);
+  background: rgba(74, 8, 16, 0.92);
 }
-.venue-stage-door span:first-child { font-size: 1.1rem; line-height: 1; }
+.venue-stage-door span:first-child { font-size: 1rem; line-height: 1; }
 .venue-stage-door-label { font-family: var(--font-display); }
 
 /* ── stage lamp (hover-tracking spotlight over the nav) ────── */
@@ -744,9 +757,13 @@ button.liked {
 .stage-lamp {
   position: absolute;
   top: 0;
-  left: 0;
-  transform: translateX(var(--lamp-x)) translateX(-50%);
-  transition: transform 320ms cubic-bezier(0.35, 0.1, 0.25, 1);
+  /* --lamp-x is the lamp lens centre in px from .venue-map's left edge.
+     translateX(-50%) refers to the lamp body's own width and correctly
+     centres it on that x. CSS transition runs on `left` so the swing
+     between buttons animates smoothly when JS updates --lamp-x. */
+  left: var(--lamp-x);
+  transform: translateX(-50%);
+  transition: left 320ms cubic-bezier(0.35, 0.1, 0.25, 1);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -843,17 +860,19 @@ button.liked {
   .venue-door-sub { font-size: 0.72rem; }
   .venue-stage-door {
     position: static;
-    top: auto;
+    bottom: auto;
     right: auto;
-    width: auto;
-    min-height: 56px;
-    padding: 14px 12px;
-    margin: 8px auto 0;
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 12px;
+    margin-top: 8px;
     flex-direction: row;
     gap: 8px;
     font-size: 0.78rem;
+    box-shadow: none;
   }
   .venue-stage-door span:first-child { font-size: 1.4rem; }
+  .venue-door-cell { max-width: none; }
   /* Cone math assumes a single-row nav; hide entirely on mobile where
      buttons wrap and there's no hover anyway. Page-wide dim also off
      so the mobile layout never strands in a dimmed state. */
@@ -1222,8 +1241,46 @@ button.liked {
     0 0 30px rgba(255, 216, 107, 0.25);
   overflow: hidden;
 }
-.gemma-host-avatar { width: 100%; height: 100%; }
+.gemma-host-avatar {
+  width: 100%;
+  height: 100%;
+  /* Three composed idle motions. `scale`, `transform`, and `rotate` are
+     independent CSS properties so the browser multiplies them rather
+     than letting them clobber each other; periods are intentionally
+     coprime so the combined motion doesn't visibly loop. The animation
+     lives on this wrapper, not on the inner <svg>, so it survives the
+     mouth-state re-render that swaps innerHTML every 200ms while Gemma
+     is talking. */
+  animation:
+    gemma-host-breathe 4.2s ease-in-out infinite,
+    gemma-host-blink   5.4s ease-in-out infinite,
+    gemma-host-sway    6.8s ease-in-out infinite;
+  transform-origin: center 60%;
+  will-change: transform;
+}
 .gemma-host-avatar svg { width: 100%; height: 100%; }
+
+@keyframes gemma-host-breathe {
+  0%, 100% { scale: 1; }
+  50%      { scale: 1.015; }
+}
+
+/* Squish stays under 3% of the cycle (~150ms of 5400ms) so it reads as
+   a blink, not a head-pancake. transform-origin (set above) keeps the
+   squish anchored near the eye line. */
+@keyframes gemma-host-blink {
+  0%, 97%, 100% { transform: scaleY(1); }
+  98.5%         { transform: scaleY(0.08); }
+}
+
+@keyframes gemma-host-sway {
+  0%, 100% { rotate: -0.6deg; }
+  50%      { rotate:  0.6deg; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gemma-host-avatar { animation: none; }
+}
 .gemma-host-plaque {
   position: absolute;
   left: 50%;
