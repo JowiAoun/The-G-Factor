@@ -191,9 +191,19 @@ export function App({ initialMode = 'remix' }: { initialMode?: AppMode } = {}) {
   return (
     <div className="app">
       <header className="app-head">
-        <h1>Strudel Tutor</h1>
+        <div className="wordmark" aria-label="The G Factor">
+          <span className="wordmark-the">THE</span>
+          <span className="wordmark-g" aria-hidden="true">G</span>
+          <span className="wordmark-factor">FACTOR</span>
+        </div>
         <div className="sub">
-          AI that learns your taste while you live-code. Gemma 4 E2B, in-browser.
+          Where Gemma learns your sound — live.{' '}
+          <span
+            className="brand-explain"
+            title="The g factor is psychology's name for general intelligence — the broad cognitive capacity behind diverse tasks. We use Gemma as the engine."
+          >
+            G = general intelligence × Gemma
+          </span>
         </div>
         <div className="mode-tabs" role="tablist">
           <button
