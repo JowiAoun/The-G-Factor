@@ -139,31 +139,43 @@ function LeaderboardInner({ version }: Props) {
         </div>
       </header>
 
-      <div
-        className="podium-row"
-        role="region"
-        aria-label="Top three characters"
-      >
-        {/* Render in [silver, gold, bronze] order so the gold center spot
-            sits visually between its neighbours regardless of the source
-            ranking order (which is [gold, silver, bronze]). */}
-        <PodiumSpot entry={podium[1]} tierIndex={1} />
-        <PodiumSpot entry={podium[0]} tierIndex={0} />
-        <PodiumSpot entry={podium[2]} tierIndex={2} />
-      </div>
+      {championedCount === 0 ? (
+        <div className="hall-of-fame-empty" role="status">
+          <div className="hall-of-fame-empty-mark" aria-hidden="true">🏆</div>
+          <h3>No champions yet.</h3>
+          <p>
+            Hold a show on the Main Stage to crown your first ovation.
+          </p>
+        </div>
+      ) : (
+        <div
+          className="podium-row"
+          role="region"
+          aria-label="Top three characters"
+        >
+          {/* Render in [silver, gold, bronze] order so the gold center spot
+              sits visually between its neighbours regardless of the source
+              ranking order (which is [gold, silver, bronze]). */}
+          <PodiumSpot entry={podium[1]} tierIndex={1} />
+          <PodiumSpot entry={podium[0]} tierIndex={0} />
+          <PodiumSpot entry={podium[2]} tierIndex={2} />
+        </div>
+      )}
 
-      <div className="leaderboard-roster">
-        <h3 className="roster-heading">The Playbill</h3>
-        <ul className="roster-list">
-          {rosterRest.map((entry, i) => (
-            <RosterRow
-              key={entry.character.id}
-              entry={entry}
-              rank={i + 4}
-            />
-          ))}
-        </ul>
-      </div>
+      {rosterRest.length > 0 && (
+        <div className="leaderboard-roster">
+          <h3 className="roster-heading">The Playbill</h3>
+          <ul className="roster-list">
+            {rosterRest.map((entry, i) => (
+              <RosterRow
+                key={entry.character.id}
+                entry={entry}
+                rank={i + 4}
+              />
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }

@@ -184,7 +184,7 @@ h1 { font-family: var(--font-marquee); font-size: 1.8rem; margin: 0 0 4px; color
 }
 table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
 th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #23262d; vertical-align: top; }
-th { color: #9aa0a8; font-weight: 500; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.06em; }
+th { color: var(--ink-parchment); font-weight: 500; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.06em; }
 td.code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.85rem; max-width: 380px; overflow-wrap: anywhere; }
 td.code .label { color: #9aa0a8; font-size: 0.78rem; margin-bottom: 4px; }
 .badge {
@@ -208,7 +208,7 @@ td.code .label { color: #9aa0a8; font-size: 0.78rem; margin-bottom: 4px; }
 .verdict.pass { background: #1f6b3b; }
 .verdict.marginal { background: #6b521f; }
 .verdict.fail { background: #6b1f2a; }
-.verdict.pending { background: #2a2d34; color: #9aa0a8; }
+.verdict.pending { background: var(--theatre-burgundy-soft); color: var(--ink-parchment); }
 .errors {
   position: relative;
   background: linear-gradient(180deg, var(--theatre-burgundy-soft) 0%, var(--theatre-curtain-deeper) 100%);
@@ -518,17 +518,17 @@ button.liked {
 .cache-info {
   margin-top: 10px;
   padding: 8px 12px;
-  background: #1a1f2a;
-  border: 1px solid #23262d;
+  background: var(--theatre-curtain-deeper);
+  border: 1px solid rgba(201, 176, 110, 0.25);
   border-radius: 6px;
-  color: #a8b0bb;
+  color: var(--ink-parchment);
   font-size: 0.82rem;
   display: flex;
   align-items: center;
   gap: 6px;
   flex-wrap: wrap;
 }
-.cache-info b { color: #d6dde6; font-weight: 700; }
+.cache-info b { color: var(--gold-bright); font-weight: 700; }
 
 /* ── venue map (proscenium-arch nav) ─────────────────────── */
 .venue-map {
@@ -3401,6 +3401,41 @@ button.liked {
   color: var(--gold);
   opacity: 0.7;
 }
+.hall-of-fame-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 40px 20px;
+  margin: 20px auto;
+  max-width: 480px;
+  text-align: center;
+  border: 1px dashed rgba(201, 176, 110, 0.45);
+  border-radius: 12px;
+  background: rgba(74, 8, 16, 0.35);
+}
+.hall-of-fame-empty-mark {
+  font-size: 2.6rem;
+  filter: drop-shadow(0 0 14px rgba(255, 216, 107, 0.55));
+}
+.hall-of-fame-empty h3 {
+  margin: 0;
+  font-family: var(--font-marquee);
+  font-size: 1.25rem;
+  color: var(--gold-bright);
+  letter-spacing: 0.02em;
+}
+.hall-of-fame-empty p {
+  margin: 0;
+  color: var(--ink-parchment);
+  font-style: italic;
+}
+
+/* Persona card text colors under the Rehearsal Room scope. The base
+   .persona-name / .persona-blurb still serve other surfaces, so we
+   only override inside the themed studio. */
+.rehearsal-room .persona-name  { color: var(--ink-cream); }
+.rehearsal-room .persona-blurb { color: var(--ink-parchment); }
 
 /* ---- route-curtain (venue wipe) ---- */
 .route-curtain-layer {

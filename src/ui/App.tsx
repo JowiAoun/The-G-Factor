@@ -264,7 +264,7 @@ export function App({ initialMode = 'talentshow' }: { initialMode?: AppMode } = 
             <div className="progressbar">
               <div style={{ width: `${progressPct}%` }} />
             </div>
-            <span style={{ fontSize: '0.85rem', color: '#9aa0a8' }}>
+            <span style={{ fontSize: '0.85rem', color: 'var(--ink-parchment)' }}>
               {progressMsg ||
                 (modelState === 'idle'
                   ? savedProgress
