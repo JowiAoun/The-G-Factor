@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Three-layer teaching stack - architecture diagram</title>
+  </head>
+  <body>
+    <div
+      id="three-layer-stack"
+      data-composition-id="three-layer-stack"
+      data-width="1600"
+      data-height="560"
+      data-start="0"
+      data-duration="4"
+      data-track-index="0"
+    >
+      <svg class="wires" width="1600" height="560" viewBox="0 0 1600 560" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="ah-blue" markerWidth="11" markerHeight="11" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,5 L0,10 Z" fill="#4f6ef7" /></marker>
+          <marker id="ah-violet" markerWidth="11" markerHeight="11" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,5 L0,10 Z" fill="#7c5cff" /></marker>
+          <marker id="ah-indigo" markerWidth="11" markerHeight="11" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,5 L0,10 Z" fill="#4338ca" /></marker>
+          <marker id="ah-green" markerWidth="11" markerHeight="11" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,5 L0,10 Z" fill="#10b981" /></marker>
+          <marker id="ah-amber" markerWidth="11" markerHeight="11" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,5 L0,10 Z" fill="#e0892b" /></marker>
+        </defs>
+
+        <!-- priors + taste feed the model -->
+        <path class="flow" d="M380,180 C470,180 470,250 596,258" stroke="#4f6ef7" marker-end="url(#ah-blue)" />
+        <path class="flow" d="M380,400 C470,400 470,322 596,314" stroke="#7c5cff" marker-end="url(#ah-violet)" />
+        <!-- model generates into the firewall -->
+        <path class="flow" d="M864,286 L1004,286" stroke="#4338ca" marker-end="url(#ah-indigo)" />
+        <!-- firewall passes valid code out -->
+        <path class="flow" d="M1314,286 L1374,286" stroke="#10b981" marker-end="url(#ah-green)" />
+        <!-- invalid -> retry back to the model -->
+        <path class="flow" d="M1160,215 C1160,135 740,135 740,209" stroke="#e0892b" marker-end="url(#ah-amber)" />
+      </svg>
+
+      <div class="layer" style="left:60px; top:110px; border-left-color:#4f6ef7;">
+        <div class="badge" style="background:#eef1fe; color:#3b4fd0;">LAYER 1</div>
+        <div class="lt">Static priors</div>
+        <div class="ls">operators &middot; chains &middot; 10 idioms</div>
+        <div class="lnote" style="color:#3b4fd0;">always present</div>
+      </div>
+      <div class="layer" style="left:60px; top:330px; border-left-color:#7c5cff;">
+        <div class="badge" style="background:#f1ecff; color:#6d28d9;">LAYER 2</div>
+        <div class="lt">Session taste</div>
+        <div class="ls">likes &rarr; IndexedDB &rarr; top-3</div>
+        <div class="lnote" style="color:#6d28d9;">learned live, in-session</div>
+      </div>
+
+      <div class="model" style="left:600px; top:216px; border-color:#4338ca;">
+        <div class="badge" style="background:#e8e9fb; color:#3730a3;">MODEL</div>
+        <div class="lt" style="color:#312e81;">Gemma</div>
+        <div class="ls" style="text-align:center;">E2B local / 31B remote</div>
+      </div>
+
+      <div class="layer" style="left:1010px; top:216px; border-left-color:#10b981;">
+        <div class="badge" style="background:#e6f7ef; color:#0f7a55;">LAYER 3</div>
+        <div class="lt">Parser firewall</div>
+        <div class="ls">acorn + zod &middot; retry &times;3</div>
+        <div class="lnote" style="color:#0f7a55;">invalid code never ships</div>
+      </div>
+
+      <div class="out" style="left:1374px; top:236px;">
+        <div class="ot">Valid Strudel</div>
+        <div class="os">reaches the UI</div>
+      </div>
+
+      <div class="elabel" style="left:444px; top:150px; color:#3b4fd0;">priors</div>
+      <div class="elabel" style="left:404px; top:352px; color:#6d28d9;">top-3</div>
+      <div class="elabel" style="left:892px; top:262px; color:#4338ca;">generates</div>
+      <div class="elabel" style="left:930px; top:118px; color:#b45309;">invalid &rarr; retry</div>
+
+      <style>
+        @font-face {
+          font-family: 'DM Sans';
+          font-weight: 400 700;
+          font-style: normal;
+          font-display: swap;
+          src: url('fonts/dmsans-latin.woff2') format('woff2');
+        }
+        #three-layer-stack { position: absolute; inset: 0; background: #f5f7fa; overflow: hidden; }
+        #three-layer-stack * { box-sizing: border-box; }
+        .wires { position: absolute; left: 0; top: 0; z-index: 1; }
+        .flow { fill: none; stroke-width: 2.6; stroke-linecap: round; stroke-dasharray: 10 8; stroke-dashoffset: 0; }
+
+        .layer, .model {
+          position: absolute; z-index: 2; background: #ffffff;
+          border: 1.5px solid #cdd5e0; border-radius: 12px;
+          box-shadow: 0 2px 7px rgba(20, 30, 50, 0.07);
+          display: flex; flex-direction: column; gap: 9px;
+        }
+        .layer { width: 320px; height: 140px; border-left: 5px solid #94a3b8; justify-content: center; align-items: flex-start; padding: 0 24px; }
+        .model { width: 264px; height: 130px; border: 2px solid #4338ca; justify-content: center; align-items: center; padding: 0 18px; }
+        .badge { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 12px; letter-spacing: 0.14em; padding: 3px 10px; border-radius: 6px; }
+        .lt { font-family: 'DM Sans', system-ui, sans-serif; font-weight: 600; font-size: 25px; color: #1f2a37; letter-spacing: -0.01em; }
+        .ls { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #5b6470; line-height: 1.45; }
+        .lnote { font-family: 'JetBrains Mono', monospace; font-weight: 500; font-size: 12px; }
+
+        .out {
+          position: absolute; z-index: 2; width: 190px; height: 100px;
+          background: #e9faf2; border: 2px solid #10b981; border-radius: 12px;
+          display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 6px;
+        }
+        .ot { font-family: 'DM Sans', system-ui, sans-serif; font-weight: 600; font-size: 21px; color: #0f7a55; }
+        .os { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #0e7050; }
+
+        .elabel { position: absolute; z-index: 3; font-family: 'JetBrains Mono', monospace; font-weight: 500; font-size: 15px; }
+      </style>
+
+      <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+      <script>
+        window.__timelines = window.__timelines || {};
+        const tl = gsap.timeline({ paused: true });
+        tl.to('.flow', { strokeDashoffset: -18, duration: 1, ease: 'none', repeat: 3 }, 0);
+        window.__timelines['three-layer-stack'] = tl;
+      </script>
+    </div>
+  </body>
+</html>

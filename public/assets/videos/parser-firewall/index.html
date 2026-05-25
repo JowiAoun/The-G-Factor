@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Parser firewall - architecture diagram</title>
+  </head>
+  <body>
+    <div
+      id="parser-firewall"
+      data-composition-id="parser-firewall"
+      data-width="1600"
+      data-height="620"
+      data-start="0"
+      data-duration="4"
+      data-track-index="0"
+    >
+      <svg class="wires" width="1600" height="620" viewBox="0 0 1600 620" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="ah-blue" markerWidth="11" markerHeight="11" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,5 L0,10 Z" fill="#4f6ef7" /></marker>
+          <marker id="ah-green" markerWidth="11" markerHeight="11" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,5 L0,10 Z" fill="#10b981" /></marker>
+          <marker id="ah-red" markerWidth="11" markerHeight="11" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,5 L0,10 Z" fill="#ef4444" /></marker>
+          <marker id="ah-amber" markerWidth="11" markerHeight="11" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,5 L0,10 Z" fill="#e0892b" /></marker>
+        </defs>
+
+        <!-- decision diamond (static) -->
+        <polygon points="1180,166 1240,226 1180,286 1120,226" fill="#ffffff" stroke="#64748b" stroke-width="2" />
+
+        <!-- main left-to-right validation flow -->
+        <path class="flow" d="M240,226 L294,226" stroke="#4f6ef7" marker-end="url(#ah-blue)" />
+        <path class="flow" d="M500,226 L554,226" stroke="#4f6ef7" marker-end="url(#ah-blue)" />
+        <path class="flow" d="M760,226 L814,226" stroke="#4f6ef7" marker-end="url(#ah-blue)" />
+        <path class="flow" d="M1020,226 L1114,226" stroke="#4f6ef7" marker-end="url(#ah-blue)" />
+
+        <!-- valid -> play -->
+        <path class="flow" d="M1240,226 C1320,226 1320,186 1394,186" stroke="#10b981" marker-end="url(#ah-green)" />
+        <!-- invalid -> retry -->
+        <path class="flow" d="M1180,286 L1183,404" stroke="#ef4444" marker-end="url(#ah-red)" />
+        <!-- retry -> error after 3 -->
+        <path class="flow" d="M1290,456 L1374,456" stroke="#ef4444" marker-end="url(#ah-red)" />
+        <!-- retry -> regenerate, back into the flow -->
+        <path class="flow" d="M1080,456 C640,456 400,456 400,278" stroke="#e0892b" marker-end="url(#ah-amber)" />
+      </svg>
+
+      <div class="box" style="left:40px;   top:180px; border-left-color:#94a3b8;"><div class="bt">Raw output</div><div class="bs">model JSON</div></div>
+      <div class="box" style="left:300px;  top:180px; border-left-color:#4f6ef7;"><div class="bt">Parse JSON</div><div class="bs">zod schema</div></div>
+      <div class="box" style="left:560px;  top:180px; border-left-color:#4f6ef7;"><div class="bt">Syntax check</div><div class="bs">acorn.parse</div></div>
+      <div class="box" style="left:820px;  top:180px; border-left-color:#4338ca;"><div class="bt">Security walk</div><div class="bs">deny-list AST</div></div>
+
+      <div class="box" style="left:1400px; top:140px; background:#ecfdf5; border-left-color:#10b981;"><div class="bt" style="color:#0f7a55;">play()</div><div class="bs">Strudel runs</div></div>
+      <div class="box" style="left:1080px; top:410px; background:#fff7ed; border-left-color:#e0892b;"><div class="bt" style="color:#b45309;">Retry + hint</div><div class="bs">up to 3 tries</div></div>
+      <div class="box" style="left:1380px; top:410px; background:#fef2f2; border-left-color:#ef4444;"><div class="bt" style="color:#b91c1c;">Surface error</div><div class="bs">after 3 fails</div></div>
+
+      <div class="dlabel">valid?</div>
+
+      <div class="note">rejects fetch &middot; eval &middot; localStorage &middot; .constructor &middot; import()</div>
+
+      <div class="elabel" style="left:1300px; top:158px; color:#0f7a55;">valid</div>
+      <div class="elabel" style="left:1196px; top:330px; color:#b91c1c;">invalid</div>
+      <div class="elabel" style="left:1296px; top:430px; color:#b91c1c;">after &times;3</div>
+      <div class="elabel" style="left:660px;  top:466px; color:#b45309;">regenerate with hint</div>
+
+      <style>
+        @font-face {
+          font-family: 'DM Sans';
+          font-weight: 400 700;
+          font-style: normal;
+          font-display: swap;
+          src: url('fonts/dmsans-latin.woff2') format('woff2');
+        }
+        #parser-firewall { position: absolute; inset: 0; background: #f5f7fa; overflow: hidden; }
+        #parser-firewall * { box-sizing: border-box; }
+        .wires { position: absolute; left: 0; top: 0; z-index: 1; }
+        .flow { fill: none; stroke-width: 2.6; stroke-linecap: round; stroke-dasharray: 10 8; stroke-dashoffset: 0; }
+
+        .box {
+          position: absolute; z-index: 2; width: 200px; height: 92px;
+          background: #ffffff; border: 1.5px solid #cdd5e0; border-left: 5px solid #94a3b8;
+          border-radius: 11px; box-shadow: 0 2px 7px rgba(20, 30, 50, 0.07);
+          display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 8px; padding: 0 12px;
+        }
+        .bt { font-family: 'DM Sans', system-ui, sans-serif; font-weight: 600; font-size: 22px; color: #1f2a37; letter-spacing: -0.01em; }
+        .bs { font-family: 'JetBrains Mono', monospace; font-weight: 400; font-size: 13px; color: #5b6470; text-align: center; }
+
+        .dlabel { position: absolute; z-index: 3; left: 1140px; top: 210px; width: 80px; text-align: center; font-family: 'DM Sans', system-ui, sans-serif; font-weight: 600; font-size: 19px; color: #334155; }
+        .note { position: absolute; z-index: 3; left: 540px; top: 300px; width: 520px; text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #4b5563; }
+        .elabel { position: absolute; z-index: 3; font-family: 'JetBrains Mono', monospace; font-weight: 500; font-size: 15px; }
+      </style>
+
+      <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+      <script>
+        window.__timelines = window.__timelines || {};
+        const tl = gsap.timeline({ paused: true });
+        tl.to('.flow', { strokeDashoffset: -18, duration: 1, ease: 'none', repeat: 3 }, 0);
+        window.__timelines['parser-firewall'] = tl;
+      </script>
+    </div>
+  </body>
+</html>
