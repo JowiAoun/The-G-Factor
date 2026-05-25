@@ -2,9 +2,11 @@ import { lazy, Suspense, type CSSProperties, type ReactNode } from 'react';
 import { Audience } from './Audience';
 import { useAudioAmplitude } from './useAudioAmplitude';
 
-// Lazy-load so the audiomotion-analyzer payload (~30 kB) is fetched
-// only when a performance actually starts.
+// Lazy-load so the audiomotion-analyzer payload (~30 kB) and
+// tsparticles payload (~50 kB) are fetched only when a performance
+// actually starts.
 const StageVisualizer = lazy(() => import('./StageVisualizer'));
+const StageSparkles = lazy(() => import('./StageSparkles'));
 
 export type StagePhase = 'casting' | 'showing' | 'champion';
 export type CurtainState = 'open' | 'closed';
@@ -84,6 +86,7 @@ export function TalentStage({
       {spotlightActive && (
         <Suspense fallback={null}>
           <StageVisualizer active />
+          <StageSparkles active />
         </Suspense>
       )}
 

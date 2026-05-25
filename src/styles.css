@@ -1377,6 +1377,17 @@ button.liked { background: #6b2a4a; border-color: #80303f; color: #ffd6e3; }
 .talent-stage.curtain-open .stage-curtain.left  { transform: translateX(-100%); }
 .talent-stage.curtain-open .stage-curtain.right { transform: translateX(100%); }
 
+/* Ambient sparkle layer (tsparticles) - drifts up from the audience
+   region while a performance is on. Pointer-events off so it never
+   blocks the Performer buttons underneath. */
+.stage-sparkles {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+.stage-sparkles canvas { width: 100% !important; height: 100% !important; }
+
 /* Frequency-bar visualizer overlay - lives just above the audience
    strip, behind the curtains. mix-blend mode lifts the colour off the
    dark backdrop without losing the rest of the stage chrome. */
