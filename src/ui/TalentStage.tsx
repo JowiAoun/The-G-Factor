@@ -1,5 +1,6 @@
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { Audience } from './Audience';
+import { useAudioAmplitude } from './useAudioAmplitude';
 
 export type StagePhase = 'casting' | 'showing' | 'champion';
 export type CurtainState = 'open' | 'closed';
@@ -32,6 +33,13 @@ export function TalentStage({
   const classes = ['talent-stage', `phase-${phase}`];
   if (curtain === 'open') classes.push('curtain-open');
 
+  // One shared amplitude subscription per stage. Drives the marquee
+  // bulb glow when a performance is on; idle otherwise (no rAF cost).
+  const amp = useAudioAmplitude(!!spotlightActive);
+  const marqueeStyle = spotlightActive
+    ? ({ '--bulb-glow': amp.toFixed(2) } as Record<string, string> as CSSProperties)
+    : undefined;
+
   return (
     <div
       className={classes.join(' ')}
@@ -46,7 +54,10 @@ export function TalentStage({
       <div className="stage-floor" aria-hidden="true" />
 
       <div className="stage-marquee-wrap" aria-hidden="true">
-        <div className="stage-marquee">
+        <div
+          className={`stage-marquee${spotlightActive ? ' is-reactive' : ''}`}
+          style={marqueeStyle}
+        >
           <span className="stage-marquee-bulb" />
           <span>{marquee}</span>
           <span className="stage-marquee-bulb" />
