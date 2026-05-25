@@ -12,16 +12,18 @@ import {
   type BracketState,
   type Contestant,
 } from '../talent/bracket';
-import { ContestantCard } from './Contestant';
 import { MatchView } from './Match';
 import { BracketView } from './BracketView';
 import { Confetti } from './Confetti';
 import { CastingStage } from './CastingStage';
+import { TalentStage, type CurtainState } from './TalentStage';
+import { Performer } from './Performer';
 import { Toast, useToast } from './Toast';
 
-const REVEAL_DURATION_MS = 1500;
-
 type Phase = 'setup' | 'casting' | 'showing' | 'champion';
+
+const CURTAIN_CLOSE_MS = 700;
+const CURTAIN_SETTLE_MS = 50;
 
 type TalentShowProps = {
   modelReady: boolean;
@@ -57,24 +59,79 @@ function TalentShowInner({
   onOpenSettings,
 }: TalentShowProps) {
   const [bracketSize, setBracketSize] = useState<4 | 8>(4);
+  // `phase` = what the user / generator has decided we should head to.
+  // `renderedPhase` = what is currently mounted on screen. They diverge
+  // briefly during curtain transitions: a desired-phase change closes the
+  // curtain, then swaps `renderedPhase`, then opens the curtain.
   const [phase, setPhase] = useState<Phase>('setup');
+  const [renderedPhase, setRenderedPhase] = useState<Phase>('setup');
+  const [curtainState, setCurtainState] = useState<CurtainState>('closed');
   const [contestants, setContestants] = useState<Contestant[]>([]);
   const [bracket, setBracket] = useState<BracketState | null>(null);
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [championSaved, setChampionSaved] = useState(false);
   const [engineError, setEngineError] = useState<string | null>(null);
-  const [revealing, setRevealing] = useState(false);
 
   const { toast, showToast, dismissToast } = useToast();
 
   const playLock = useRef(false);
   const autoSaveTimer = useRef<number | null>(null);
-  const revealTimer = useRef<number | null>(null);
   const castingStartedAt = useRef<number>(0);
+  // Pending curtain-choreography timers. Cleared whenever the desired phase
+  // changes again or the component unmounts, so a half-finished swing can't
+  // fire into a stale `renderedPhase`.
+  const curtainTimers = useRef<number[]>([]);
   // Monotonic id of the current run. Bumped on every Hold-the-show and on
   // every reset so in-flight `remixSeed` callbacks can detect that the run
   // they belong to was abandoned and discard their state updates.
   const runIdRef = useRef(0);
+
+  const clearCurtainTimers = useCallback(() => {
+    curtainTimers.current.forEach((t) => window.clearTimeout(t));
+    curtainTimers.current = [];
+  }, []);
+
+  // Curtain choreography: bridge `phase` (desired) to `renderedPhase`
+  // (actual) via close -> swap -> open chains. Major-phase swings only -
+  // matches advancing within the bracket don't change `phase`, so no
+  // curtain runs between matches.
+  useEffect(() => {
+    clearCurtainTimers();
+    if (phase === renderedPhase) return;
+
+    // Mounting the stage from setup: jump to the new rendered phase with
+    // curtains already closed, then open them after the browser commits.
+    if (renderedPhase === 'setup') {
+      setRenderedPhase(phase);
+      setCurtainState('closed');
+      curtainTimers.current.push(
+        window.setTimeout(() => setCurtainState('open'), CURTAIN_SETTLE_MS),
+      );
+      return clearCurtainTimers;
+    }
+
+    // Returning to setup: close curtains, then unmount the stage.
+    if (phase === 'setup') {
+      setCurtainState('closed');
+      curtainTimers.current.push(
+        window.setTimeout(() => setRenderedPhase('setup'), CURTAIN_CLOSE_MS),
+      );
+      return clearCurtainTimers;
+    }
+
+    // Mid-flight swap: close, wait for the curtain to actually cover the
+    // stage, swap content, settle, open.
+    setCurtainState('closed');
+    curtainTimers.current.push(
+      window.setTimeout(() => {
+        setRenderedPhase(phase);
+        curtainTimers.current.push(
+          window.setTimeout(() => setCurtainState('open'), CURTAIN_SETTLE_MS),
+        );
+      }, CURTAIN_CLOSE_MS),
+    );
+    return clearCurtainTimers;
+  }, [phase, renderedPhase, clearCurtainTimers]);
 
   const handleHoldShow = useCallback(async () => {
     if (phase === 'casting') return;
@@ -100,7 +157,6 @@ function TalentShowInner({
     setBracket(null);
     setChampionSaved(false);
     setPlayingId(null);
-    setRevealing(false);
     castingStartedAt.current = performance.now();
     const runId = ++runIdRef.current;
 
@@ -134,26 +190,13 @@ function TalentShowInner({
       if (runIdRef.current !== runId) return;
       const initial = createBracket(collected);
       setBracket(initial);
-      if (initial.champion) {
-        // One-valid-contestant edge case: jump straight to the
-        // champion scene, skipping the curtain-reveal beat.
-        setPhase('champion');
-      } else {
-        // Theatrical reveal: Buzz delivers a final line, the
-        // curtains slide outward (~800 ms), then the bracket mounts.
-        setRevealing(true);
-        revealTimer.current = window.setTimeout(() => {
-          if (runIdRef.current !== runId) return;
-          setPhase('showing');
-          setRevealing(false);
-          revealTimer.current = null;
-        }, REVEAL_DURATION_MS);
-      }
+      // Curtain choreography drives the dramatic pause - we just announce
+      // the next desired phase and the useEffect closes/swaps/opens.
+      setPhase(initial.champion ? 'champion' : 'showing');
     } catch (err) {
       if (runIdRef.current !== runId) return;
       setEngineError(err instanceof Error ? err.message : String(err));
       setPhase('setup');
-      setRevealing(false);
     }
   }, [modelReady, phase, seedCode, bracketSize, currentMode, showToast, onOpenSettings]);
 
@@ -186,7 +229,7 @@ function TalentShowInner({
       const next = chooseWinner(b, m.id, winnerId);
       if (next.champion) {
         // Tiny delay so winner-jump and loser-fade can finish before the
-        // champion scene crossfades in.
+        // curtain starts closing for the champion swap.
         window.setTimeout(() => setPhase('champion'), 700);
       }
       return next;
@@ -231,8 +274,10 @@ function TalentShowInner({
   }, [bracket, championSaved, seedCode, onChampionSaved]);
 
   // Auto-save champion 3 s after the scene mounts if the user hasn't acted.
+  // Keyed off `renderedPhase` so the timer doesn't start before the curtain
+  // finishes opening over the champion.
   useEffect(() => {
-    if (phase !== 'champion' || !bracket?.champion || championSaved) return;
+    if (renderedPhase !== 'champion' || !bracket?.champion || championSaved) return;
     autoSaveTimer.current = window.setTimeout(() => {
       void persistChampion();
     }, 3000);
@@ -242,28 +287,21 @@ function TalentShowInner({
         autoSaveTimer.current = null;
       }
     };
-  }, [phase, bracket?.champion, championSaved, persistChampion]);
+  }, [renderedPhase, bracket?.champion, championSaved, persistChampion]);
 
-  // Stop audio on unmount (e.g. mode switch back to Remix Studio)
-  // and clear any in-flight reveal timer so it can't fire post-unmount.
+  // Stop audio on unmount (e.g. mode switch back to Remix Studio) and
+  // clear any in-flight curtain timers so they can't fire post-unmount.
   useEffect(
     () => () => {
       stop();
-      if (revealTimer.current) {
-        window.clearTimeout(revealTimer.current);
-        revealTimer.current = null;
-      }
+      clearCurtainTimers();
     },
-    [],
+    [clearCurtainTimers],
   );
 
   const handleReset = useCallback(() => {
     // Invalidate any in-flight remixSeed callbacks for the previous run.
     runIdRef.current++;
-    if (revealTimer.current) {
-      window.clearTimeout(revealTimer.current);
-      revealTimer.current = null;
-    }
     if (autoSaveTimer.current) {
       window.clearTimeout(autoSaveTimer.current);
       autoSaveTimer.current = null;
@@ -275,14 +313,15 @@ function TalentShowInner({
     setPlayingId(null);
     setChampionSaved(false);
     setEngineError(null);
-    setRevealing(false);
     onShowFinished?.();
   }, [onShowFinished]);
+
+  const champion = bracket?.champion ?? null;
 
   return (
     <>
       <Toast state={toast} onDismiss={dismissToast} />
-      {phase === 'setup' && (
+      {renderedPhase === 'setup' && (
         <div className="panel">
           <div className="taste-head">
             <h2 style={{ margin: 0 }}>🎪 Talent Show</h2>
@@ -334,13 +373,13 @@ function TalentShowInner({
         </div>
       )}
 
-      {(phase === 'casting' || phase === 'showing') && (
+      {(renderedPhase === 'casting' || renderedPhase === 'showing') && (
         <div className="talentshow-toolbar">
           <button
             className="muted talentshow-restart-btn"
             onClick={handleReset}
             title={
-              phase === 'casting'
+              renderedPhase === 'casting'
                 ? 'Stop casting and return to setup'
                 : 'Discard this bracket and return to setup'
             }
@@ -350,16 +389,16 @@ function TalentShowInner({
         </div>
       )}
 
-      {phase === 'casting' && (
+      {renderedPhase === 'casting' && (
         <CastingStage
           bracketSize={bracketSize}
           contestantsReady={contestants.length}
           startedAt={castingStartedAt.current}
-          curtain={revealing ? 'closed' : 'open'}
+          curtain={curtainState}
         />
       )}
 
-      {phase === 'showing' && bracket && (
+      {renderedPhase === 'showing' && bracket && (
         <>
           <BracketView state={bracket} />
           {currentMatch(bracket) && (
@@ -369,6 +408,7 @@ function TalentShowInner({
               matchIndex={bracket.cursor}
               rounds={bracket.rounds}
               playingId={playingId}
+              curtain={curtainState}
               onPlay={handlePlay}
               onStop={handleStop}
               onChoose={handleChoose}
@@ -378,16 +418,23 @@ function TalentShowInner({
         </>
       )}
 
-      {phase === 'champion' && bracket?.champion && (
-        <div className="panel champion-scene">
+      {renderedPhase === 'champion' && champion && (
+        <div className="champion-scene-stage">
           <Confetti />
-          <div className="champion-spotlight">
-            <ContestantCard
-              contestant={bracket.champion}
-              state="champion"
-              compact
-            />
-          </div>
+          <TalentStage
+            phase="champion"
+            curtain={curtainState}
+            marquee="👑 Champion 👑"
+            spotlightActive={playingId === champion.id}
+          >
+            <div className="performer-row is-solo">
+              <Performer
+                contestant={champion}
+                state="champion"
+                size={240}
+              />
+            </div>
+          </TalentStage>
           <div className="champion-actions">
             {!championSaved ? (
               <button className="primary" onClick={persistChampion}>
@@ -397,10 +444,8 @@ function TalentShowInner({
               <span className="champion-saved">🏆 saved to taste memory</span>
             )}
             <button
-              onClick={() =>
-                handlePlay(bracket.champion!.id, bracket.champion!.code)
-              }
-              disabled={playingId === bracket.champion.id}
+              onClick={() => handlePlay(champion.id, champion.code)}
+              disabled={playingId === champion.id}
             >
               ▶ Play once more
             </button>
@@ -409,12 +454,7 @@ function TalentShowInner({
             </button>
             {onContinueInStudio && (
               <button
-                onClick={() =>
-                  onContinueInStudio(
-                    bracket.champion!.code,
-                    bracket.champion!.label,
-                  )
-                }
+                onClick={() => onContinueInStudio(champion.code, champion.label)}
                 title="Send the champion to the Studio for chat editing"
               >
                 🎛 Continue in Studio

@@ -1,6 +1,6 @@
 import type { ContestantViewState } from './Contestant';
 import type { Match } from '../talent/bracket';
-import { TalentStage } from './TalentStage';
+import { TalentStage, type CurtainState } from './TalentStage';
 import { Performer } from './Performer';
 
 export function MatchView({
@@ -9,6 +9,7 @@ export function MatchView({
   matchIndex,
   rounds,
   playingId,
+  curtain,
   onPlay,
   onStop,
   onChoose,
@@ -18,6 +19,7 @@ export function MatchView({
   matchIndex: number;
   rounds: number;
   playingId: string | null;
+  curtain: CurtainState;
   onPlay: (contestantId: string, code: string) => void;
   onStop: () => void;
   onChoose: (contestantId: string) => void;
@@ -51,7 +53,7 @@ export function MatchView({
     <>
       <TalentStage
         phase="showing"
-        curtain="open"
+        curtain={curtain}
         marquee={marquee}
         spotlightActive={!!playingId}
       >
