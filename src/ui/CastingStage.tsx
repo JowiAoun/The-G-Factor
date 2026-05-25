@@ -2,6 +2,7 @@ import { useEffect, useMemo } from 'react';
 import { preloadAvatar, renderAvatar, type MouthState } from '../talent/avatar';
 import { useTalkCycle } from './useTalkCycle';
 import { useAnnouncerJoke } from './useAnnouncerJoke';
+import { TalentStage, type CurtainState } from './TalentStage';
 
 const HOST_AVATAR_SEED = 'buzz-the-host';
 const HOST_NAME = 'Buzz';
@@ -10,21 +11,27 @@ type CastingStageProps = {
   bracketSize: 4 | 8;
   contestantsReady: number;
   startedAt: number;
-  revealing: boolean;
+  /**
+   * Curtain position. `'open'` (default) — curtains parted, host visible.
+   * `'closed'` — curtains drawn together, hiding the host. The parent
+   * flips this to `'closed'` once generation completes so the curtain
+   * dramatically falls before the showing-phase swap.
+   */
+  curtain: CurtainState;
 };
 
 /**
- * X-Factor casting screen. While the Gemma loop is generating
- * contestants (~100-200s on mid-range WebGPU), Buzz the host stands on
- * a spotlit stage telling jokes; contestants assemble unseen behind
- * red velvet curtains, signalled only by progress dots. When all are
- * ready, the parent flips `revealing` and the curtains slide outward.
+ * Casting screen — Buzz the host stands on the stage telling jokes while
+ * Gemma generates the contestants in the background. The shared `.talent-stage`
+ * shell renders the proscenium, curtains, spotlight, floor, and footlights;
+ * this component only contributes Buzz, his speech bubble, and the
+ * contestant progress dots.
  */
 export function CastingStage({
   bracketSize,
   contestantsReady,
   startedAt,
-  revealing,
+  curtain,
 }: CastingStageProps) {
   // Warm Buzz's five mouth-state SVGs up-front so the lip-sync never
   // blinks while a cache miss resolves.
@@ -32,6 +39,8 @@ export function CastingStage({
     preloadAvatar(HOST_AVATAR_SEED);
   }, []);
 
+  // When the curtains are closing, Buzz takes a bow and stops talking.
+  const revealing = curtain === 'closed';
   const joke = useAnnouncerJoke({ startedAt, contestantsReady, revealing });
   const talking = !revealing;
   const frame = useTalkCycle(talking, 200);
@@ -43,14 +52,12 @@ export function CastingStage({
   const svg = useMemo(() => renderAvatar(HOST_AVATAR_SEED, mouth), [mouth]);
 
   return (
-    <div
-      className={`casting-stage ${revealing ? 'is-revealing' : ''}`}
-      role="region"
-      aria-label="Casting stage"
+    <TalentStage
+      phase="casting"
+      curtain={curtain}
+      marquee="🎪 Tonight's Talent"
     >
-      <div className="stage-backdrop" aria-hidden="true" />
-      <div className="stage-spotlight" aria-hidden="true" />
-      <div className="casting-host">
+      <div className={`casting-host${revealing ? ' is-bowing' : ''}`}>
         <div
           className="casting-host-avatar"
           aria-hidden="true"
@@ -81,8 +88,6 @@ export function CastingStage({
           />
         ))}
       </div>
-      <div className="stage-curtain left" aria-hidden="true" />
-      <div className="stage-curtain right" aria-hidden="true" />
-    </div>
+    </TalentStage>
   );
 }

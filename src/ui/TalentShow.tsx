@@ -355,7 +355,7 @@ function TalentShowInner({
           bracketSize={bracketSize}
           contestantsReady={contestants.length}
           startedAt={castingStartedAt.current}
-          revealing={revealing}
+          curtain={revealing ? 'closed' : 'open'}
         />
       )}
 
