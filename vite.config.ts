@@ -56,7 +56,15 @@ function buildCsp(mode: 'dev' | 'prod'): string {
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data:",
     "font-src 'self' data:",
-    "connect-src 'self' https://openrouter.ai https://huggingface.co https://*.huggingface.co https://*.hf.co https://raw.githubusercontent.com",
+    // `cdn.jsdelivr.net` hosts onnxruntime-web's WASM artifacts
+    // (`ort-wasm-simd-threaded.*.{mjs,wasm}`). transformers.js fetches the
+    // version-pinned URL `https://cdn.jsdelivr.net/npm/onnxruntime-web@<ver>/dist/...`
+    // at model load to pre-cache the binary and to create a blob factory for
+    // ORT's dynamic import. Without `connect-src` access the fetch fails and
+    // the WebGPU backend never initializes, surfacing as "no available backend
+    // found. ERR: [webgpu] TypeError: Failed to fetch". The `blob:` in
+    // `script-src` (added separately) covers the downstream `import('blob:...')`.
+    "connect-src 'self' https://openrouter.ai https://huggingface.co https://*.huggingface.co https://*.hf.co https://raw.githubusercontent.com https://cdn.jsdelivr.net",
     "worker-src 'self' blob:",
     "child-src 'self' blob:",
     "frame-ancestors 'none'",
