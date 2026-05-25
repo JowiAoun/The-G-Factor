@@ -16,12 +16,12 @@ type Args = {
   /** Number of valid contestants that have streamed in. */
   contestantsReady: number;
   /** True once the bracket is built and we're animating the
-   *  curtain-open reveal; freezes Buzz on his final line. */
+   *  curtain-open reveal; freezes the host on her final line. */
   revealing: boolean;
 };
 
 /**
- * Rotates Buzz's lines on a length-aware timer while the bracket is
+ * Rotates the host's lines on a length-aware timer while the bracket is
  * casting. After `PATIENCE_THRESHOLD_MS` elapsed with fewer than
  * `PATIENCE_MIN_CONTESTANTS` valid contestants ready, swaps the
  * source pool from NORMAL to PATIENCE. When `revealing` flips to

@@ -1,10 +1,10 @@
 /**
- * Joke catalogue for Buzz, the Talent Show's host. Three pools:
+ * Joke catalogue for Gemma, the Talent Show's host. Three pools:
  *
  *   - NORMAL_JOKES rotate while the bracket is generating.
  *   - PATIENCE_JOKES kick in if generation drags past
  *     `PATIENCE_THRESHOLD_MS` with fewer than `PATIENCE_MIN_CONTESTANTS`
- *     valid contestants - Buzz acknowledges the wait without blaming
+ *     valid contestants - the host acknowledges the wait without blaming
  *     the user's hardware.
  *   - REVEAL_JOKES are one-shot lines delivered as the curtains open.
  *

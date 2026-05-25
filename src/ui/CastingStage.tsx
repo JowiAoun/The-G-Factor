@@ -1,11 +1,32 @@
 import { useEffect, useMemo } from 'react';
 import { preloadAvatar, renderAvatar, type MouthState } from '../talent/avatar';
-import { useTalkCycle } from './useTalkCycle';
+import type { ToonHeadOptions } from '../talent/characters';
+import { useChatterMouth } from './useChatterMouth';
 import { useAnnouncerJoke } from './useAnnouncerJoke';
 import { TalentStage, type CurtainState } from './TalentStage';
 
-const HOST_AVATAR_SEED = 'buzz-the-host';
-const HOST_NAME = 'Buzz';
+const HOST_AVATAR_SEED = 'gemma-the-host';
+const HOST_NAME = 'Gemma';
+
+/**
+ * Pinned avatar config for the host. Curated rather than seed-hashed so
+ * Gemma stays visually consistent across casting screens: long wavy
+ * blonde hair (with front coverage so the crown isn't bald), open eyes
+ * and lifted brows for stage-presenter energy, warm-red jacket.
+ */
+const HOST_AVATAR_OPTIONS: ToonHeadOptions = {
+  hairProbability: 100,
+  rearHairProbability: 100,
+  beardProbability: 0,
+  rearHair: ['longWavy'],
+  hair: ['sideComed'],
+  eyes: ['wide'],
+  eyebrows: ['raised'],
+  clothes: ['openJacket'],
+  skinColor: ['f2d3b1'],
+  hairColor: ['c8a165'],
+  clothesColor: ['b85c5c'],
+};
 
 type CastingStageProps = {
   bracketSize: 4 | 8;
@@ -21,11 +42,11 @@ type CastingStageProps = {
 };
 
 /**
- * Casting screen - Buzz the host stands on the stage telling jokes while
- * Gemma generates the contestants in the background. The shared `.talent-stage`
- * shell renders the proscenium, curtains, spotlight, floor, and footlights;
- * this component only contributes Buzz, his speech bubble, and the
- * contestant progress dots.
+ * Casting screen - Gemma the host stands on the stage telling jokes while
+ * the Gemma 4 model generates the contestants in the background. The
+ * shared `.talent-stage` shell renders the proscenium, curtains,
+ * spotlight, floor, and footlights; this component only contributes the
+ * host, her speech bubble, and the contestant progress dots.
  */
 export function CastingStage({
   bracketSize,
@@ -33,23 +54,29 @@ export function CastingStage({
   startedAt,
   curtain,
 }: CastingStageProps) {
-  // Warm Buzz's five mouth-state SVGs up-front so the lip-sync never
+  // Warm Gemma's five mouth-state SVGs up-front so the lip-sync never
   // blinks while a cache miss resolves.
   useEffect(() => {
-    preloadAvatar(HOST_AVATAR_SEED);
+    preloadAvatar(HOST_AVATAR_SEED, HOST_AVATAR_OPTIONS);
   }, []);
 
-  // When the curtains are closing, Buzz takes a bow and stops talking.
+  // When the curtains are closing, the host takes a bow and stops talking.
   const revealing = curtain === 'closed';
   const joke = useAnnouncerJoke({ startedAt, contestantsReady, revealing });
   const talking = !revealing;
-  const frame = useTalkCycle(talking, 200);
+  // Jittered cadence (with occasional micro-pauses) reads as speech
+  // rather than a metronome - contestants get this feel from real
+  // audio amplitude; the host has no audio so we synthesise it.
+  const frame = useChatterMouth(talking);
   const mouth: MouthState = revealing
     ? 'laugh'
     : frame === 0
       ? 'smile'
       : 'agape';
-  const svg = useMemo(() => renderAvatar(HOST_AVATAR_SEED, mouth), [mouth]);
+  const svg = useMemo(
+    () => renderAvatar(HOST_AVATAR_SEED, mouth, HOST_AVATAR_OPTIONS),
+    [mouth],
+  );
 
   return (
     <TalentStage

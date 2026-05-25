@@ -38,7 +38,7 @@ export function renderAvatar(
   mouth: MouthState,
   /** Pinned toon-head feature options (a character preset). Mouth is always
    *  overridden so the lip-sync layer stays free. Omit for the legacy
-   *  seed-only path used by Buzz the host and Bleep the producer. */
+   *  seed-only path used by Bleep the producer (Gemma the host now uses pinned options). */
   options?: Partial<ToonHeadOptions>,
 ): string {
   const key = `${seed}|${mouth}|${optionsKey(options)}`;
