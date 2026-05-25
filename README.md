@@ -121,6 +121,4 @@ A few threads I want to pull: audio-reactive avatars so the toon-heads actually 
 
 I did not teach Gemma to write Strudel. I let the runtime teach it, and I let *you* teach it your taste. If you build something with a small Gemma, drop it in the comments, I would love to see how far you push E2B. 😁
 
-{% embed https://github.com/JowiAoun/Gemma4 %}
-
 <!-- Thanks for participating! -->
