@@ -3,6 +3,7 @@ import { renderAvatar, type MouthState } from '../talent/avatar';
 import { PERSONA } from '../studio/persona';
 import { useTalkCycle } from './useTalkCycle';
 import { useAudioMouth } from './useAudioMouth';
+import { useBlinkCycle } from './useBlinkCycle';
 import type { PersonaMood } from './Persona';
 
 type GemmaHostProps = {
@@ -47,7 +48,7 @@ function mouthFor(
  *     when audio is playing).
  */
 export function GemmaHost({
-  title = 'Welcome to The G Factor',
+  title = 'Welcome to The G Factor!',
   sub = 'your host for tonight',
   line,
   mood,
@@ -56,9 +57,20 @@ export function GemmaHost({
   const thinkFrame = useTalkCycle(mood === 'thinking', 200);
   const audioFrame = useAudioMouth(!!playing && mood !== 'thinking');
   const mouth = mouthFor(mood, playing, thinkFrame, audioFrame);
+  // `bow` is a single-arc path that draws both eyes as closed crescents,
+  // which is the closest toon-head ships to a real blink frame. Swap it
+  // in for ~140ms at irregular 3-7s intervals.
+  const blinking = useBlinkCycle();
+  const avatarOptions = useMemo(
+    () =>
+      blinking
+        ? { ...PERSONA.avatarOptions, eyes: ['bow' as const] }
+        : PERSONA.avatarOptions,
+    [blinking],
+  );
   const svg = useMemo(
-    () => renderAvatar(PERSONA.avatarSeed, mouth, PERSONA.avatarOptions),
-    [mouth],
+    () => renderAvatar(PERSONA.avatarSeed, mouth, avatarOptions),
+    [mouth, avatarOptions],
   );
   return (
     <section className="gemma-host" aria-label="Hosted by Gemma">
