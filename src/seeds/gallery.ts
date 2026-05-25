@@ -152,7 +152,7 @@ export const SEED_GALLERY: GallerySeed[] = [
   {
     id: 'melodic',
     label: 'Melodic loop',
-    code: 'note("c e g c5").s("sawtooth").slow(2)',
+    code: 'note("c e g c5").s("pluck").slow(2)',
     genre: 'lead',
     difficulty: 2,
   },
@@ -173,7 +173,7 @@ export const SEED_GALLERY: GallerySeed[] = [
   {
     id: 'chord-stab',
     label: 'Chord stabs',
-    code: 'note("<[c3,e3,g3] [f3,a3,c4] [g3,b3,d4] [c3,e3,g3]>").s("sawtooth").slow(2)',
+    code: 'note("<[c3,e3,g3] [f3,a3,c4] [g3,b3,d4] [c3,e3,g3]>").s("piano").slow(2)',
     genre: 'chords',
     difficulty: 3,
   },
@@ -187,7 +187,7 @@ export const SEED_GALLERY: GallerySeed[] = [
   {
     id: 'fifths-bass',
     label: 'Power fifths',
-    code: 'note("c2 g2 c2 g2").s("sawtooth").lpf(500)',
+    code: 'note("c2 g2 c2 g2").s("jvbass").lpf(500)',
     genre: 'bass',
     difficulty: 1,
   },
@@ -196,14 +196,14 @@ export const SEED_GALLERY: GallerySeed[] = [
   {
     id: 'ambient',
     label: 'Ambient pad',
-    code: 'note("<c eb g bb>*2").s("sawtooth").slow(4).room(0.5)',
+    code: 's("pad").slow(4).room(0.5)',
     genre: 'ambient',
     difficulty: 2,
   },
   {
     id: 'drone-pad',
     label: 'Drone pad',
-    code: 'note("c3").s("sawtooth").slow(8).room(0.8).lpf(500)',
+    code: 'note("c3").s("triangle").slow(8).room(0.8).lpf(500)',
     genre: 'ambient',
     difficulty: 1,
   },
