@@ -227,7 +227,7 @@ function TalentShowInner({
     setEngineError(null);
     clearLastError();
     try {
-      stop();
+      await stop();
       await play(code);
       if (playTokenRef.current !== token) {
         // A stop intent fired during the await - play() resumed the audio

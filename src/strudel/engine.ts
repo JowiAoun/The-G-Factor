@@ -219,22 +219,29 @@ export async function play(code: string): Promise<void> {
 /**
  * Stop the pattern AND any in-flight sample tails.
  *
- * Important context: the global `hush()` that @strudel/web attaches does
- * NOT stop the scheduler. It just clears the named-pattern dictionary;
- * the most recently `setPattern()`'ed pattern keeps looping on the
- * scheduler forever. Suspending the AudioContext is the only thing that
- * actually silences ongoing output, so we always try it - the
- * `state === 'running'` guard that used to live here let audio sneak past
- * stop in two cases: (1) when the context was momentarily 'suspended'
- * because a prior stop() had just suspended it before a re-init, and
- * (2) when a `play()` was mid-flight and had not yet resumed the
- * context. suspend() is idempotent on an already-suspended context, so
- * dropping the guard is safe.
+ * Two-step kill: `hush()` halts the Strudel scheduler so no new sample
+ * triggers fire, then `suspend()` silences any already-triggered samples
+ * by freezing the AudioContext clock so their decay envelopes can't run.
+ *
+ * Returns a Promise that resolves once `suspend()` has actually
+ * transitioned the context to 'suspended'. This matters for callers that
+ * immediately follow with a `play()` of different code: in Firefox
+ * (observed on macOS) the suspend transition is async enough that a
+ * `play() -> resume() -> evaluate()` sequence kicked off too quickly will
+ * race against the in-flight suspend, ending up with the previous
+ * pattern's tails still audible alongside the new pattern. Awaiting this
+ * promise before resuming pins the order so the new pattern starts on
+ * top of a fully silent context. Floating-promise call sites that just
+ * want "kill audio, don't care when" can ignore the return.
  */
-export function stop(): void {
+export async function stop(): Promise<void> {
   const g = globalThis as Globals;
   if (typeof g.hush === 'function') g.hush();
-  if (audioContext) {
-    audioContext.suspend().catch(() => {});
+  if (!audioContext) return;
+  try {
+    await audioContext.suspend();
+  } catch {
+    // suspend() throws if the context is already closed or in an invalid
+    // state - either way there's nothing left to silence.
   }
 }

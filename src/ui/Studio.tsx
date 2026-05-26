@@ -132,7 +132,7 @@ function StudioInner({
   }, [history, generating]);
 
   // Stop audio when this surface unmounts (user switches tab).
-  useEffect(() => () => stop(), []);
+  useEffect(() => () => { void stop(); }, []);
 
   // Keep the heart-button state in sync with the taste store: refresh on
   // mount AND whenever the parent bumps tasteVersion (sidebar clear, new
@@ -266,7 +266,7 @@ function StudioInner({
     setEngineError(null);
     clearLastError();
     try {
-      stop();
+      await stop();
       await play(mixCode);
       setPlaying(true);
     } catch (err) {
@@ -344,7 +344,7 @@ function StudioInner({
       window.clearTimeout(auditionTimerRef.current);
       auditionTimerRef.current = null;
     }
-    stop();
+    await stop();
     setPlaying(false);
     setEngineError(null);
     clearLastError();
